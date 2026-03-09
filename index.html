@@ -7,21 +7,12 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <!-- SheetJS for Excel Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- 🔥 FIREBASE SDK -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script>
-    // ════════════════════════════════════════════════════════
-    //  🔥 PASTE YOUR FIREBASE CONFIG HERE
-    //  How to get it:
-    //  1. Go to console.firebase.google.com
-    //  2. Create project → Build → Realtime Database → Create (test mode)
-    //  3. Project Settings (⚙️) → Your apps → </> Web → Register
-    //  4. Copy the firebaseConfig values and paste below
-    // ════════════════════════════════════════════════════════
     const FIREBASE_CONFIG = {
       apiKey:            "AIzaSyCCGjVpgKIP5IwRLoFk-lShY1aQjnNIWo8",
       authDomain:        "adcet-eduportal.firebaseapp.com",
@@ -31,18 +22,61 @@
       messagingSenderId: "423812879430",
       appId:             "1:423812879430:web:8e61785216d082989ae647"
     };
-    window.FIREBASE_READY = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
-    if (window.FIREBASE_READY) {
-      firebase.initializeApp(FIREBASE_CONFIG);
-      window.db = firebase.database();
-      console.log("✅ Firebase connected!");
-    } else {
-      console.warn("⚠️ Firebase not configured. App works offline only.");
-    }
+    firebase.initializeApp(FIREBASE_CONFIG);
+    window.db = firebase.database();
+    console.log("Firebase connected!");
   </script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0f172a; color: #f8fafc; font-family: Georgia, serif; }
+    body { background: #0f172a; color: #f8fafc; font-family: 'Exo 2', sans-serif; }
+    @keyframes gearSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes gearSpinRev { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+    @keyframes floatUp { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
+    @keyframes pulse-glow { 0%,100% { box-shadow: 0 0 20px rgba(249,115,22,0.4), 0 0 40px rgba(249,115,22,0.2); } 50% { box-shadow: 0 0 35px rgba(249,115,22,0.7), 0 0 70px rgba(249,115,22,0.35); } }
+    @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+    @keyframes slideIn { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform: translateY(0); } }
+    @keyframes borderFlow { 0%,100% { border-color: rgba(249,115,22,0.6); } 50% { border-color: rgba(234,179,8,0.9); } }
+    .login-animate { animation: slideIn 0.5s ease forwards; }
+    .gear-1 { animation: gearSpin 8s linear infinite; }
+    .gear-2 { animation: gearSpinRev 6s linear infinite; }
+    .gear-3 { animation: gearSpin 10s linear infinite; }
+    .logo-float { animation: floatUp 3s ease-in-out infinite; }
+    .glow-pulse { animation: pulse-glow 2.5s ease-in-out infinite; }
+    .shimmer-text {
+      background: linear-gradient(90deg, #f97316, #facc15, #fb923c, #fde68a, #f97316);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+    .vibrant-card {
+      background: rgba(15,23,42,0.85);
+      backdrop-filter: blur(24px);
+      border-radius: 24px;
+      border: 1px solid rgba(249,115,22,0.3);
+      animation: borderFlow 3s ease-in-out infinite, slideIn 0.4s ease forwards;
+    }
+    .subject-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      font-family: 'Rajdhani', sans-serif; letter-spacing: 0.5px;
+    }
+    .numfont { font-family: 'Orbitron', monospace !important; letter-spacing: 1px; }
+
+    /* ── Universal digit font: ALL numbers use Orbitron automatically ── */
+    @font-face {
+      font-family: 'DigitFont';
+      src: url('https://fonts.gstatic.com/s/orbitron/v31/yMJMMIlzdpvBhQQL_SC3X9yhF25-T1ny.woff2') format('woff2');
+      font-weight: 400 900;
+      unicode-range: U+0030-0039, U+002E, U+0025, U+002F; /* 0-9, dot, %, / */
+    }
+    body, input, select, textarea, button, td, th, span, div, p, h1, h2, h3, h4, h5 {
+      font-family: 'DigitFont', 'Exo 2', sans-serif !important;
+    }
+    /* Keep specific overrides for labels/names */
+    .name-text { font-family: 'Exo 2', sans-serif !important; }
     select option { background: #1e293b; color: #f8fafc; }
     textarea, input, select { outline: none; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -251,28 +285,21 @@ const Icon = ({ d, size = 18, color = "currentColor" }) => (
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 function App() {
-  const [role, setRole] = useState(null);
+  const [role, setRole] = useState(null); // null | 'faculty' | 'student'
   const [loginError, setLoginError] = useState("");
   const [loggedInStudent, setLoggedInStudent] = useState(null);
-  const [dbStatus, setDbStatus] = useState("connecting"); // connecting | online | offline
-  const [appReady, setAppReady] = useState(!window.FIREBASE_READY); // true immediately if offline
 
-  // ── Firebase write helper ──
-  const fbSet = (path, val) => {
-    if (window.FIREBASE_READY && val !== undefined) {
-      window.db.ref(path).set(val).catch(e => console.error("Firebase write error:", e));
-    }
-  };
+  // Firebase helpers
+  const fbSet = (path, val) => { if (window.db) window.db.ref(path).set(val); };
 
-  // Core state — wrapped setters auto-sync to Firebase
-  const [studentsRaw, setStudentsRaw] = useState(INITIAL_STUDENTS);
-  const students = studentsRaw;
-  const setStudents = v => {
-    const val = typeof v === "function" ? v(studentsRaw) : v;
-    setStudentsRaw(val);
-    fbSet("adcet/students", val);
-  };
-  const [attendanceRaw, setAttendanceRaw] = useState({
+  const [dbStatus, setDbStatus] = useState("connecting");
+  const [ise2Active, setIse2ActiveRaw] = useState({ "2MEIE201": false, "2MEIE302": false });
+  const setIse2Active = v => { const val = typeof v === "function" ? v(ise2Active) : v; setIse2ActiveRaw(val); fbSet("adcet/ise2active", val); };
+
+  // Core state
+  const [students, setStudentsRaw] = useState(INITIAL_STUDENTS);
+  const setStudents = v => { const val = typeof v === "function" ? v(students) : v; setStudentsRaw(val); fbSet("adcet/students", val); };
+  const [attendance, setAttendanceRaw] = useState({
   "2MEIE201": {
     "2026-01-12 (Lecture)": { "1": "P", "2": "A", "3": "P", "4": "A", "5": "P", "6": "P", "7": "A", "8": "P", "9": "P", "10": "P", "11": "A", "12": "A", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "A", "28": "P", "29": "P", "30": "P", "31": "P", "32": "A", "33": "P", "34": "A", "35": "A", "36": "P", "37": "P", "38": "A", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "A", "49": "A", "50": "P", "51": "A", "52": "A", "53": "A", "54": "P", "55": "A", "56": "P", "57": "P", "58": "P", "59": "P", "60": "A", "61": "A", "62": "A", "63": "P", "64": "P", "65": "P", "66": "P", "67": "P", "68": "P", "69": "A", "70": "A", "71": "P", "72": "A", "73": "P", "74": "P", "75": "P" },
     "2026-01-13 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "A", "8": "P", "9": "P", "10": "P", "11": "A", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "P", "37": "P", "38": "A", "39": "P", "40": "P", "41": "A", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "A", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "A", "62": "A", "63": "P", "64": "P", "65": "P", "66": "P", "67": "P", "68": "P", "69": "A", "70": "P", "71": "P", "72": "A", "73": "P", "74": "P", "75": "P" },
@@ -309,85 +336,51 @@ function App() {
     "2026-02-26 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "A", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "A", "25": "P", "26": "P", "27": "A", "28": "P", "29": "P", "30": "P", "31": "A", "32": "A", "33": "P", "34": "A", "35": "A", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "A", "54": "A", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "A" },
     "2026-02-27 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "A", "8": "A", "9": "A", "10": "P", "11": "P", "12": "A", "13": "P", "14": "A", "15": "P", "16": "P", "17": "P", "18": "A", "19": "A", "20": "A", "21": "P", "22": "A", "23": "P", "24": "A", "25": "A", "26": "A", "27": "A", "28": "P", "29": "A", "30": "A", "31": "P", "32": "A", "33": "P", "34": "A", "35": "A", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "A", "42": "P", "43": "P", "44": "P", "45": "P", "46": "A", "47": "P", "48": "P", "49": "P", "50": "A", "51": "A", "52": "A", "53": "P", "54": "A", "55": "A", "56": "P", "57": "P", "58": "A", "59": "A", "60": "A", "61": "P", "62": "P", "63": "A" }
   }
-});
-  const attendance = attendanceRaw;
-  const setAttendance = v => {
-    const val = typeof v === "function" ? v(attendanceRaw) : v;
-    setAttendanceRaw(val);
-    fbSet("adcet/attendance", val);
-  };
+}));
+  const setAttendance = v => { const val = typeof v === "function" ? v(attendance) : v; setAttendanceRaw(val); fbSet("adcet/attendance", val); };
 
-  const [marksRaw, setMarksRaw] = useState({ "2MEIE201": {}, "2MEIE302": {} });
-  const marks = marksRaw;
-  const setMarks = v => {
-    const val = typeof v === "function" ? v(marksRaw) : v;
-    setMarksRaw(val);
-    fbSet("adcet/marks", val);
-  };
+  const [marks, setMarksRaw] = useState({ "2MEIE201": {}, "2MEIE302": {} });
+  const setMarks = v => { const val = typeof v === "function" ? v(marks) : v; setMarksRaw(val); fbSet("adcet/marks", val); };
 
-  const [customTabsRaw, setCustomTabsRaw] = useState([]);
-  const customTabs = customTabsRaw;
-  const setCustomTabs = v => {
-    const val = typeof v === "function" ? v(customTabsRaw) : v;
-    setCustomTabsRaw(val);
-    fbSet("adcet/customtabs", val);
-  };
-
-  const [ise2ActiveRaw, setIse2ActiveRaw] = useState({ "2MEIE201": false, "2MEIE302": false });
-  const ise2Active = ise2ActiveRaw;
-  const setIse2Active = v => {
-    const val = typeof v === "function" ? v(ise2ActiveRaw) : v;
-    setIse2ActiveRaw(val);
-    fbSet("adcet/ise2active", val);
-  };
+  const [customTabs, setCustomTabsRaw] = useState([]);
+  const setCustomTabs = v => { const val = typeof v === "function" ? v(customTabs) : v; setCustomTabsRaw(val); fbSet("adcet/customtabs", val); };
 
   const [activeTab, setActiveTab] = useState("dashboard");
   const [activeSubject, setActiveSubject] = useState("2MEIE201");
   const [notification, setNotification] = useState(null);
 
-  // ── Firebase: load all data on mount, then listen for live changes ──
-  useEffect(() => {
-    if (!window.FIREBASE_READY) { setDbStatus("offline"); return; }
-    const ref = window.db.ref("adcet");
-    // Load once on startup
-    ref.once("value", snap => {
-      const d = snap.val();
-      if (!d) {
-        // First ever run: push built-in seed data to Firebase
-        fbSet("adcet/students",   studentsRaw);
-        fbSet("adcet/attendance", attendanceRaw);
-        fbSet("adcet/marks",      marksRaw);
-        fbSet("adcet/customtabs", customTabsRaw);
-        fbSet("adcet/ise2active", ise2ActiveRaw);
-      } else {
-        if (d.students)   setStudentsRaw(d.students);
-        if (d.attendance) setAttendanceRaw(d.attendance);
-        if (d.marks)      setMarksRaw(d.marks);
-        if (d.customtabs) setCustomTabsRaw(d.customtabs);
-        if (d.ise2active) setIse2ActiveRaw(d.ise2active);
-      }
-      setAppReady(true);
-    });
-    // Live listener — students see updates instantly when faculty saves
-    ref.on("value", snap => {
-      const d = snap.val();
-      if (!d) return;
-      if (d.attendance) setAttendanceRaw(d.attendance);
-      if (d.marks)      setMarksRaw(d.marks);
-      if (d.ise2active) setIse2ActiveRaw(d.ise2active);
-      if (d.customtabs) setCustomTabsRaw(d.customtabs);
-    });
-    // Connection state badge
-    window.db.ref(".info/connected").on("value", snap => {
-      setDbStatus(snap.val() ? "online" : "offline");
-    });
-    return () => { ref.off(); window.db.ref(".info/connected").off(); };
-  }, []);
-
   const showNotif = (msg, type = "success") => {
     setNotification({ msg, type });
     setTimeout(() => setNotification(null), 3000);
   };
+
+  // Firebase: load all data once + live sync
+  useEffect(() => {
+    if (!window.db) return;
+    window.db.ref("adcet").once("value", snap => {
+      const d = snap.val() || {};
+      if (d.students)   setStudentsRaw(d.students);
+      if (d.attendance) setAttendanceRaw(d.attendance);
+      if (d.marks)      setMarksRaw(d.marks);
+      if (d.customtabs) setCustomTabsRaw(d.customtabs);
+      if (d.ise2active) setIse2ActiveRaw(d.ise2active);
+      // If first time, push initial data
+      if (!d.students) {
+        window.db.ref("adcet/students").set(INITIAL_STUDENTS);
+      }
+      setDbStatus("online");
+    });
+    window.db.ref("adcet").on("value", snap => {
+      const d = snap.val() || {};
+      if (d.attendance) setAttendanceRaw(d.attendance);
+      if (d.marks)      setMarksRaw(d.marks);
+      if (d.ise2active) setIse2ActiveRaw(d.ise2active);
+      if (d.customtabs) setCustomTabsRaw(d.customtabs);
+      if (d.students)   setStudentsRaw(d.students);
+      setDbStatus("online");
+    });
+    return () => window.db && window.db.ref("adcet").off();
+  }, []);
 
   const handleFacultyLogin = (u, p) => {
     if (u === FACULTY_CREDENTIALS.username && p === FACULTY_CREDENTIALS.password) {
@@ -413,20 +406,7 @@ function App() {
     }
   };
 
-  // Loading screen while Firebase data loads
-  if (!appReady) return (
-    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#0f172a",gap:16}}>
-      <div style={{fontSize:40}}>🔥</div>
-      <div style={{fontSize:18,color:"#f97316",fontWeight:700}}>Connecting to Firebase...</div>
-      <div style={{fontSize:13,color:"#64748b"}}>Loading your data from the cloud</div>
-      <div style={{marginTop:8,width:200,height:4,background:"#1e293b",borderRadius:4,overflow:"hidden"}}>
-        <div style={{height:"100%",background:"linear-gradient(90deg,#f97316,#fbbf24)",borderRadius:4,animation:"loadBar 1.5s ease-in-out infinite"}}/>
-      </div>
-      <style>{`@keyframes loadBar{0%{width:0%}50%{width:80%}100%{width:100%}}`}</style>
-    </div>
-  );
-
-  if (!role) return <LoginScreen onFaculty={handleFacultyLogin} onStudent={handleStudentLogin} students={students} error={loginError} setError={setLoginError} dbStatus={dbStatus} />;
+  if (!role) return <LoginScreen onFaculty={handleFacultyLogin} onStudent={handleStudentLogin} students={students} error={loginError} setError={setLoginError} />;
   if (role === "student") return <StudentView student={loggedInStudent} attendance={attendance} marks={marks} setMarks={setMarks} students={students} ise2Active={ise2Active} onLogout={() => { setRole(null); setLoggedInStudent(null); }} />;
 
   return (
@@ -435,93 +415,257 @@ function App() {
       attendance={attendance} setAttendance={setAttendance}
       marks={marks} setMarks={setMarks}
       customTabs={customTabs} setCustomTabs={setCustomTabs}
-      ise2Active={ise2Active} setIse2Active={setIse2Active}
       activeTab={activeTab} setActiveTab={setActiveTab}
       activeSubject={activeSubject} setActiveSubject={setActiveSubject}
+      ise2Active={ise2Active} setIse2Active={setIse2Active}
       showNotif={showNotif}
       onLogout={() => setRole(null)}
       notification={notification}
-      dbStatus={dbStatus}
     />
   );
 }
 
 // ─── LOGIN SCREEN ─────────────────────────────────────────────────────────────
-function LoginScreen({ onFaculty, onStudent, students, error, setError, dbStatus }) {
-  const [mode, setMode] = useState("select"); // select | faculty | student
+function LoginScreen({ onFaculty, onStudent, students, error, setError }) {
+  const [mode, setMode] = useState("select");
   const [fu, setFu] = useState(""); const [fp, setFp] = useState("");
   const [sRoll, setSRoll] = useState(""); const [sUrn, setSUrn] = useState(""); const [sSub, setSSub] = useState("2MEIE201");
+  const [showPass, setShowPass] = useState(false);
+
+  // Gear SVG component
+  const Gear = ({ size=60, cls="gear-1", opacity=0.15 }) => (
+    <svg width={size} height={size} viewBox="0 0 100 100" className={cls} style={{ opacity, position:"absolute", pointerEvents:"none" }}>
+      <path fill="#f97316" d="M43.3 5.8l-2.5 9.4a35 35 0 0 0-8.5 3.5l-8.9-4.2-9.2 9.2 4.2 8.9a35 35 0 0 0-3.5 8.5l-9.4 2.5v13l9.4 2.5a35 35 0 0 0 3.5 8.5l-4.2 8.9 9.2 9.2 8.9-4.2a35 35 0 0 0 8.5 3.5l2.5 9.4h13l2.5-9.4a35 35 0 0 0 8.5-3.5l8.9 4.2 9.2-9.2-4.2-8.9a35 35 0 0 0 3.5-8.5l9.4-2.5v-13l-9.4-2.5a35 35 0 0 0-3.5-8.5l4.2-8.9-9.2-9.2-8.9 4.2a35 35 0 0 0-8.5-3.5l-2.5-9.4zm6.5 25.2a19 19 0 1 1 0 38 19 19 0 0 1 0-38z"/>
+    </svg>
+  );
+
+  const liveInputStyle = {
+    width: "100%",
+    background: "rgba(255,255,255,0.05)",
+    border: "1.5px solid rgba(249,115,22,0.25)",
+    borderRadius: 12,
+    padding: "13px 16px",
+    color: "#f8fafc",
+    fontSize: 15,
+    fontFamily: "'Exo 2', sans-serif",
+    boxSizing: "border-box",
+    transition: "border-color 0.2s",
+  };
+
+  const liveSelectStyle = {
+    ...liveInputStyle,
+    cursor: "pointer",
+    appearance: "none",
+    WebkitAppearance: "none",
+  };
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Georgia', serif", padding: "20px" }}>
-      <div style={{ width: "100%", maxWidth: 460 }}>
-        {/* Firebase status banner */}
-        {dbStatus === "offline" && (
-          <div style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:12, padding:"12px 16px", marginBottom:20, display:"flex", gap:10, alignItems:"flex-start" }}>
-            <span style={{fontSize:18}}>⚠️</span>
-            <div>
-              <div style={{fontSize:13,fontWeight:700,color:"#f87171",marginBottom:3}}>Firebase Not Configured</div>
-              <div style={{fontSize:11,color:"#94a3b8",lineHeight:1.5}}>Running offline — data saves only on this device. Add your Firebase config in the HTML to enable cloud sync across all devices.</div>
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #020617 0%, #0c1a35 35%, #1a0a00 70%, #0f0f0f 100%)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "'Exo 2', sans-serif", padding: "20px", position: "relative", overflow: "hidden"
+    }}>
+      {/* Animated background gears */}
+      <div style={{ position:"absolute", top:"-40px", left:"-40px" }}><Gear size={180} cls="gear-1" opacity={0.07} /></div>
+      <div style={{ position:"absolute", bottom:"-30px", right:"-30px" }}><Gear size={160} cls="gear-2" opacity={0.06} /></div>
+      <div style={{ position:"absolute", top:"40%", right:"8%" }}><Gear size={90} cls="gear-3" opacity={0.05} /></div>
+      <div style={{ position:"absolute", bottom:"25%", left:"5%" }}><Gear size={70} cls="gear-1" opacity={0.05} /></div>
+
+      {/* Grid lines background */}
+      <div style={{
+        position:"absolute", inset:0, opacity:0.04,
+        backgroundImage: "linear-gradient(rgba(249,115,22,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.6) 1px, transparent 1px)",
+        backgroundSize: "50px 50px"
+      }} />
+
+      {/* Glowing orbs */}
+      <div style={{ position:"absolute", top:"15%", left:"20%", width:300, height:300, borderRadius:"50%", background:"radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%)", pointerEvents:"none" }} />
+      <div style={{ position:"absolute", bottom:"20%", right:"15%", width:250, height:250, borderRadius:"50%", background:"radial-gradient(circle, rgba(234,179,8,0.1) 0%, transparent 70%)", pointerEvents:"none" }} />
+
+      <div style={{ width:"100%", maxWidth: 480, position:"relative", zIndex:1 }}>
+
+        {/* ── HEADER ── */}
+        <div style={{ textAlign:"center", marginBottom: 32 }} className="login-animate">
+
+          {/* Logo + Glow */}
+          <div style={{ position:"relative", display:"inline-block", marginBottom: 20 }}>
+            <div style={{
+              width: 100, height: 100, borderRadius:"50%", background:"#fff",
+              padding: 6, margin:"0 auto",
+              boxShadow:"0 0 0 3px rgba(249,115,22,0.5), 0 0 0 8px rgba(249,115,22,0.15), 0 0 40px rgba(249,115,22,0.4)"
+            }} className="glow-pulse logo-float">
+              <img src="https://www.adcet.ac.in/uploads/adcet_logo.png" alt="ADCET"
+                style={{ width:"100%", height:"100%", objectFit:"contain", borderRadius:"50%" }} />
             </div>
+            {/* Orbiting dot */}
+            <div style={{ position:"absolute", top:0, left:0, width:100, height:100, borderRadius:"50%", border:"2px dashed rgba(249,115,22,0.3)", animation:"gearSpin 6s linear infinite" }} />
           </div>
-        )}
-        {dbStatus === "online" && (
-          <div style={{ background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.25)", borderRadius:12, padding:"10px 16px", marginBottom:16, display:"flex", gap:8, alignItems:"center" }}>
-            <span style={{fontSize:16}}>🔥</span>
-            <span style={{fontSize:12,color:"#86efac",fontWeight:600}}>Firebase connected — data syncs across all devices</span>
+
+          {/* College name */}
+          <div style={{ fontSize:11, letterSpacing:3, color:"#f97316", fontFamily:"'Rajdhani',sans-serif", fontWeight:700, marginBottom:6, textTransform:"uppercase" }}>
+            Annasaheb Dange College of Engineering & Technology
           </div>
-        )}
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 40 }}>
-          <div style={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg, #f59e0b, #ef4444)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 36 }}>🎓</div>
-          <h1 style={{ color: "#f8fafc", fontSize: 28, fontWeight: 700, margin: "0 0 6px", letterSpacing: "0.5px" }}>ADCET EduPortal</h1>
-          <p style={{ color: "#94a3b8", fontSize: 14, margin: 0 }}>Mr. Santosh T Ghutukade · IE & SCM</p>
-          <div style={{ height: 2, background: "linear-gradient(90deg, transparent, #f59e0b, transparent)", marginTop: 16 }} />
+
+          <h1 className="shimmer-text" style={{ fontSize: 32, fontWeight: 800, margin:"0 0 4px", fontFamily:"'Exo 2',sans-serif", letterSpacing:1 }}>
+            ADCET EduPortal
+          </h1>
+
+          {/* Dept badge */}
+          <div style={{ display:"flex", justifyContent:"center", gap:8, margin:"10px 0 6px", flexWrap:"wrap" }}>
+            <span className="subject-chip" style={{ background:"rgba(249,115,22,0.15)", border:"1px solid rgba(249,115,22,0.4)", color:"#fb923c" }}>
+              ⚙️ Mechanical Minor
+            </span>
+          </div>
+          <div style={{ display:"flex", justifyContent:"center", gap:8, flexWrap:"wrap" }}>
+            <span className="subject-chip" style={{ background:"rgba(234,179,8,0.12)", border:"1px solid rgba(234,179,8,0.35)", color:"#fbbf24" }}>
+              IE · 2MEIE201
+            </span>
+            <span className="subject-chip" style={{ background:"rgba(16,185,129,0.12)", border:"1px solid rgba(16,185,129,0.35)", color:"#34d399" }}>
+              SCM · 2MEIE302
+            </span>
+          </div>
+
+          <div style={{ fontSize:16, color:"#f97316", marginTop:10, fontWeight:800, fontFamily:"'Rajdhani',sans-serif", letterSpacing:1.5, textTransform:"uppercase" }}>Mr. Santosh T Ghutukade</div>
+
+          {/* Divider */}
+          <div style={{ height:1, background:"linear-gradient(90deg, transparent, rgba(249,115,22,0.6), rgba(234,179,8,0.6), transparent)", marginTop:18 }} />
         </div>
 
+        {/* ── SELECT MODE ── */}
         {mode === "select" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <button onClick={() => { setMode("faculty"); setError(""); }} style={btnStyle("#f59e0b", "#b45309")}>
-              🧑‍🏫 Faculty Login
+          <div style={{ display:"flex", flexDirection:"column", gap:14 }} className="login-animate">
+            <button onClick={() => { setMode("faculty"); setError(""); }} style={{
+              background:"linear-gradient(135deg, #ea580c, #b45309)",
+              color:"#fff", border:"none", borderRadius:16, padding:"18px 24px",
+              fontSize:17, fontWeight:700, cursor:"pointer", fontFamily:"'Exo 2',sans-serif",
+              letterSpacing:0.5, display:"flex", alignItems:"center", justifyContent:"center", gap:12,
+              boxShadow:"0 4px 24px rgba(234,88,12,0.4)", transition:"transform 0.15s",
+            }}
+              onMouseEnter={e => e.currentTarget.style.transform="scale(1.02)"}
+              onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
+            >
+              <span style={{ fontSize:22 }}>🧑‍🏫</span>
+              <div style={{ textAlign:"left" }}>
+                <div>Faculty Login</div>
+                <div style={{ fontSize:11, opacity:0.75, fontWeight:400 }}>Mr. Santosh T Ghutukade</div>
+              </div>
             </button>
-            <button onClick={() => { setMode("student"); setError(""); }} style={btnStyle("#3b82f6", "#1d4ed8")}>
-              👨‍🎓 Student Login
+
+            <button onClick={() => { setMode("student"); setError(""); }} style={{
+              background:"linear-gradient(135deg, #0369a1, #0c4a6e)",
+              color:"#fff", border:"none", borderRadius:16, padding:"18px 24px",
+              fontSize:17, fontWeight:700, cursor:"pointer", fontFamily:"'Exo 2',sans-serif",
+              letterSpacing:0.5, display:"flex", alignItems:"center", justifyContent:"center", gap:12,
+              boxShadow:"0 4px 24px rgba(3,105,161,0.4)", transition:"transform 0.15s",
+            }}
+              onMouseEnter={e => e.currentTarget.style.transform="scale(1.02)"}
+              onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
+            >
+              <span style={{ fontSize:22 }}>👨‍🎓</span>
+              <div style={{ textAlign:"left" }}>
+                <div>Student Login</div>
+                <div style={{ fontSize:11, opacity:0.75, fontWeight:400 }}>View attendance & appear for tests</div>
+              </div>
             </button>
+
+            {/* Subject info cards */}
+            <div style={{ display:"flex", gap:10, marginTop:4 }}>
+              {[["⚙️ IE", "Industrial Engineering", "2MEIE201", "#f97316"],["📦 SCM","Supply Chain Management","2MEIE302","#34d399"]].map(([ic,nm,cd,c])=>(
+                <div key={cd} style={{ flex:1, background:"rgba(255,255,255,0.04)", border:`1px solid ${c}30`, borderRadius:12, padding:"12px 14px" }}>
+                  <div style={{ fontSize:18, marginBottom:4 }}>{ic}</div>
+                  <div style={{ fontSize:12, fontWeight:700, color:c }}>{cd}</div>
+                  <div style={{ fontSize:11, color:"#64748b", marginTop:2 }}>{nm}</div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
+        {/* ── FACULTY LOGIN ── */}
         {mode === "faculty" && (
-          <div style={cardStyle}>
-            <h2 style={{ color: "#f8fafc", fontSize: 20, marginBottom: 20, textAlign: "center" }}>Faculty Login</h2>
-            <input placeholder="Username" value={fu} onChange={e => setFu(e.target.value)} style={inputStyle} />
-            <input placeholder="Password" type="password" value={fp} onChange={e => setFp(e.target.value)} style={{ ...inputStyle, marginTop: 12 }} onKeyDown={e => e.key === "Enter" && onFaculty(fu, fp)} />
-            {error && <p style={{ color: "#f87171", fontSize: 13, marginTop: 8 }}>{error}</p>}
-            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-              <button onClick={() => { setMode("select"); setError(""); }} style={{ ...btnStyle("#475569", "#334155"), flex: 1 }}>← Back</button>
-              <button onClick={() => onFaculty(fu, fp)} style={{ ...btnStyle("#f59e0b", "#b45309"), flex: 2 }}>Login</button>
+          <div className="vibrant-card" style={{ padding:32 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:24 }}>
+              <div>
+                <div style={{ fontSize:18,fontWeight:800,color:"#f8fafc" }}>Faculty Login</div>
+                <div style={{ fontSize:12,color:"#64748b" }}>ADCET · Mechanical Minor</div>
+              </div>
             </div>
-            <p style={{ color: "#64748b", fontSize: 12, marginTop: 12, textAlign: "center" }}>Hint: santosh.ghutukade / adcet@2024</p>
+
+            <div style={{ marginBottom:14 }}>
+              <label style={{ fontSize:11,color:"#94a3b8",display:"block",marginBottom:6,fontWeight:600,letterSpacing:0.5,textTransform:"uppercase" }}>Username</label>
+              <input placeholder="santosh.ghutukade" value={fu} onChange={e=>setFu(e.target.value)} style={liveInputStyle} />
+            </div>
+            <div style={{ marginBottom:6 }}>
+              <label style={{ fontSize:11,color:"#94a3b8",display:"block",marginBottom:6,fontWeight:600,letterSpacing:0.5,textTransform:"uppercase" }}>Password</label>
+              <div style={{ position:"relative" }}>
+                <input placeholder="••••••••" type={showPass?"text":"password"} value={fp}
+                  onChange={e=>setFp(e.target.value)} style={{ ...liveInputStyle, paddingRight:44 }}
+                  onKeyDown={e=>e.key==="Enter"&&onFaculty(fu,fp)} />
+                <span onClick={()=>setShowPass(!showPass)} style={{ position:"absolute",right:14,top:"50%",transform:"translateY(-50%)",cursor:"pointer",fontSize:16,opacity:0.5 }}>{showPass?"🙈":"👁️"}</span>
+              </div>
+            </div>
+
+            {error && <div style={{ background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.3)",borderRadius:10,padding:"10px 14px",color:"#f87171",fontSize:13,marginTop:10 }}>⚠️ {error}</div>}
+
+            <div style={{ display:"flex",gap:10,marginTop:22 }}>
+              <button onClick={()=>{setMode("select");setError("");}} style={{ flex:1,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:12,padding:"12px",color:"#94a3b8",cursor:"pointer",fontFamily:"'Exo 2',sans-serif",fontSize:14,fontWeight:600 }}>← Back</button>
+              <button onClick={()=>onFaculty(fu,fp)} style={{ flex:2,background:"linear-gradient(135deg,#ea580c,#b45309)",border:"none",borderRadius:12,padding:"12px",color:"#fff",cursor:"pointer",fontFamily:"'Exo 2',sans-serif",fontSize:15,fontWeight:700,boxShadow:"0 4px 18px rgba(234,88,12,0.4)" }}>Login →</button>
+            </div>
+            <p style={{ color:"#334155",fontSize:11,marginTop:14,textAlign:"center" }}>santosh.ghutukade / adcet@2024</p>
           </div>
         )}
 
+        {/* ── STUDENT LOGIN ── */}
         {mode === "student" && (
-          <div style={cardStyle}>
-            <h2 style={{ color: "#f8fafc", fontSize: 20, marginBottom: 20, textAlign: "center" }}>Student Login</h2>
-            <div style={{ marginBottom: 6, fontSize: 12, color: "#94a3b8" }}>Subject</div>
-            <select value={sSub} onChange={e => setSSub(e.target.value)} style={{ ...inputStyle }}>
-              {SUBJECTS.map(s => <option key={s.code} value={s.code}>{s.name} – {s.fullName}</option>)}
-            </select>
-            <div style={{ marginTop: 12, marginBottom: 6, fontSize: 12, color: "#94a3b8" }}>Roll Number</div>
-            <input placeholder="e.g. 5" value={sRoll} onChange={e => setSRoll(e.target.value)} style={{ ...inputStyle }} />
-            <div style={{ marginTop: 12, marginBottom: 6, fontSize: 12, color: "#94a3b8" }}>URN (University Roll Number)</div>
-            <input placeholder="e.g. 2021ME005" value={sUrn} onChange={e => setSUrn(e.target.value)} style={{ ...inputStyle }} onKeyDown={e => e.key === "Enter" && onStudent(sRoll, sUrn, sSub)} />
-            {error && <div style={{ marginTop: 10, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: "10px 14px", color: "#f87171", fontSize: 13 }}>⚠️ {error}</div>}
-            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-              <button onClick={() => { setMode("select"); setError(""); }} style={{ ...btnStyle("#475569", "#334155"), flex: 1 }}>← Back</button>
-              <button onClick={() => onStudent(sRoll, sUrn, sSub)} style={{ ...btnStyle("#3b82f6", "#1d4ed8"), flex: 2 }}>Login</button>
+          <div className="vibrant-card" style={{ padding:32 }}>
+            <div style={{ display:"flex",alignItems:"center",gap:12,marginBottom:24 }}>
+              <div style={{ width:44,height:44,borderRadius:12,background:"linear-gradient(135deg,#0369a1,#0c4a6e)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20 }}>👨‍🎓</div>
+              <div>
+                <div style={{ fontSize:18,fontWeight:800,color:"#f8fafc" }}>Student Login</div>
+                <div style={{ fontSize:12,color:"#64748b" }}>Mechanical Minor · ADCET</div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom:14 }}>
+              <label style={{ fontSize:11,color:"#94a3b8",display:"block",marginBottom:6,fontWeight:600,letterSpacing:0.5,textTransform:"uppercase" }}>Select Subject</label>
+              <div style={{ position:"relative" }}>
+                <select value={sSub} onChange={e=>setSSub(e.target.value)} style={liveSelectStyle}>
+                  <option value="2MEIE201">⚙️ IE – Industrial Engineering (2MEIE201)</option>
+                  <option value="2MEIE302">📦 SCM – Supply Chain Management (2MEIE302)</option>
+                </select>
+                <span style={{ position:"absolute",right:14,top:"50%",transform:"translateY(-50%)",pointerEvents:"none",opacity:0.5 }}>▾</span>
+              </div>
+            </div>
+
+            <div style={{ display:"flex",gap:10,marginBottom:14 }}>
+              <div style={{ flex:1 }}>
+                <label style={{ fontSize:11,color:"#94a3b8",display:"block",marginBottom:6,fontWeight:600,letterSpacing:0.5,textTransform:"uppercase" }}>Roll No.</label>
+                <input placeholder="e.g. 5" value={sRoll} onChange={e=>setSRoll(e.target.value)} style={liveInputStyle} />
+              </div>
+              <div style={{ flex:2 }}>
+                <label style={{ fontSize:11,color:"#94a3b8",display:"block",marginBottom:6,fontWeight:600,letterSpacing:0.5,textTransform:"uppercase" }}>URN</label>
+                <input placeholder="e.g. 1024031025" value={sUrn} onChange={e=>setSUrn(e.target.value)} style={liveInputStyle} onKeyDown={e=>e.key==="Enter"&&onStudent(sRoll,sUrn,sSub)} />
+              </div>
+            </div>
+
+            {error && <div style={{ background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.3)",borderRadius:10,padding:"10px 14px",color:"#f87171",fontSize:13,marginBottom:10 }}>⚠️ {error}</div>}
+
+            <div style={{ display:"flex",gap:10,marginTop:8 }}>
+              <button onClick={()=>{setMode("select");setError("");}} style={{ flex:1,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:12,padding:"12px",color:"#94a3b8",cursor:"pointer",fontFamily:"'Exo 2',sans-serif",fontSize:14,fontWeight:600 }}>← Back</button>
+              <button onClick={()=>onStudent(sRoll,sUrn,sSub)} style={{ flex:2,background:"linear-gradient(135deg,#0369a1,#0c4a6e)",border:"none",borderRadius:12,padding:"12px",color:"#fff",cursor:"pointer",fontFamily:"'Exo 2',sans-serif",fontSize:15,fontWeight:700,boxShadow:"0 4px 18px rgba(3,105,161,0.4)" }}>Login →</button>
             </div>
           </div>
         )}
+
+        {/* Footer */}
+        <div style={{ textAlign:"center", marginTop:24 }}>
+          <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(249,115,22,0.08)", border:"1px solid rgba(249,115,22,0.2)", borderRadius:30, padding:"8px 20px" }}>
+            <span style={{ fontSize:13, color:"#64748b", fontFamily:"'Rajdhani',sans-serif", letterSpacing:0.5 }}>ADCET · Ashta · Shivaji University</span>
+            <span style={{ width:1, height:14, background:"rgba(249,115,22,0.3)", display:"inline-block" }}/>
+            <span style={{ fontSize:16, fontWeight:900, color:"#f97316", fontFamily:"'Rajdhani',sans-serif", letterSpacing:2 }}>NAAC A++</span>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -559,224 +703,6 @@ const inputStyle = {
 };
 
 // ─── STUDENT VIEW ─────────────────────────────────────────────────────────────
-
-const QUESTION_BANK = {
-  "2MEIE201": [
-    // ── Unit 1: Industrial Engineering & Productivity (15 Qs) ──
-    { id:101, unit:1, q:"Which of the following BEST defines Industrial Engineering?", opts:["Study of manufacturing machines only","Application of scientific principles to optimise systems of people, machines and materials","Design of industrial buildings","Quality inspection in factories"], ans:1 },
-    { id:102, unit:1, q:"Productivity is defined as the ratio of:", opts:["Input to Output","Output to Input","Cost to Profit","Labour to Capital"], ans:1 },
-    { id:103, unit:1, q:"Value Analysis primarily focuses on:", opts:["Increasing product weight","Reducing cost while maintaining or improving function","Increasing production speed only","Reducing workforce blindly"], ans:1 },
-    { id:104, unit:1, q:"Which of these is NOT a primary tool of Industrial Engineering?", opts:["Method Study","Work Measurement","Lean Manufacturing","Architectural Interior Design"], ans:3 },
-    { id:105, unit:1, q:"An increase in output with the same input indicates:", opts:["Decreased productivity","Constant productivity","Increased productivity","Production loss"], ans:2 },
-    { id:106, unit:1, q:"Value Engineering is typically performed:", opts:["After product failure in market","During the design and development stage","Only after product launch","During the recycling phase"], ans:1 },
-    { id:107, unit:1, q:"Which factor does NOT directly affect productivity?", opts:["Technology upgradation","Worker motivation","Company logo redesign","Management practices"], ans:2 },
-    { id:108, unit:1, q:"The role of an Industrial Engineer primarily includes:", opts:["Only supervising workers","Optimising processes, reducing waste and improving efficiency","Designing products only","Auditing financial accounts"], ans:1 },
-    { id:109, unit:1, q:"Which of the following is a technique to improve productivity?", opts:["Increasing raw material cost","Value Analysis and Value Engineering","Reducing quality standards","Increasing idle time"], ans:1 },
-    { id:110, unit:1, q:"Partial productivity measure considers:", opts:["All inputs together","Only one input factor such as labour or material","Only output quantity","Revenue per employee"], ans:1 },
-    { id:111, unit:1, q:"Total productivity is measured as:", opts:["Output / Labour input only","Total output / Total input","Profit / Revenue","Sales / Inventory"], ans:1 },
-    { id:112, unit:1, q:"Value Analysis was developed by:", opts:["F.W. Taylor","Lawrence D. Miles","Henry Gantt","Frank Gilbreth"], ans:1 },
-    { id:113, unit:1, q:"Which of these best describes 'scope of Industrial Engineering'?", opts:["Only factory floor supervision","Improving productivity, quality, and efficiency across all types of systems","Designing mechanical components","Financial forecasting"], ans:1 },
-    { id:114, unit:1, q:"Multi-factor productivity considers:", opts:["Only labour input","Two or more input factors simultaneously","Only machine utilization","Revenue and profit only"], ans:1 },
-    { id:115, unit:1, q:"The primary objective of Value Engineering is to:", opts:["Increase product weight","Achieve required function at lowest cost","Improve aesthetic appearance","Add more features to product"], ans:1 },
-
-    // ── Unit 2: Lean Manufacturing (15 Qs) ──
-    { id:201, unit:2, q:"JIT stands for:", opts:["Just In Time","Job Integration Technique","Joint Industrial Testing","Job Inventory Tracking"], ans:0 },
-    { id:202, unit:2, q:"The 5S methodology includes Sort, Set in Order, Shine, Standardize, and:", opts:["Supply","Sustain","Schedule","Simplify"], ans:1 },
-    { id:203, unit:2, q:"SMED stands for:", opts:["Standard Material Evaluation Design","Single Minute Exchange of Die","Supply Management and Equipment Design","Statistical Method for Equipment Downtime"], ans:1 },
-    { id:204, unit:2, q:"Poka-Yoke is a technique used to:", opts:["Increase machine speed","Mistake-proof a process","Calculate cycle time","Schedule production batches"], ans:1 },
-    { id:205, unit:2, q:"Kanban is a visual signal system used in:", opts:["Financial auditing","Pull-based production control","Product design review","Marketing campaigns"], ans:1 },
-    { id:206, unit:2, q:"Kaizen means:", opts:["Rapid large-scale redesign","Continuous incremental improvement","Full automation of processes","Radical breakthrough innovation"], ans:1 },
-    { id:207, unit:2, q:"Six Sigma aims to reduce defects to approximately:", opts:["3.4 per million opportunities","34 per thousand","3.4 per thousand","340 per million"], ans:0 },
-    { id:208, unit:2, q:"Total Productive Maintenance (TPM) primarily aims to:", opts:["Replace all old machines","Maximise equipment effectiveness with zero breakdowns","Reduce workforce size","Increase product variety"], ans:1 },
-    { id:209, unit:2, q:"In JIT manufacturing, inventory is:", opts:["Kept very high as buffer","Produced and delivered exactly when needed","Maintained in large warehouses","Ordered monthly in bulk"], ans:1 },
-    { id:210, unit:2, q:"Which lean tool helps in identifying and eliminating waste in a process?", opts:["5S","Kanban","Value Stream Mapping","Poka-Yoke"], ans:2 },
-    { id:211, unit:2, q:"The eight wastes in lean manufacturing include all EXCEPT:", opts:["Overproduction","Waiting","Transportation","Value addition"], ans:3 },
-    { id:212, unit:2, q:"MIS in lean manufacturing stands for:", opts:["Machine Inspection System","Management Information System","Material Inventory Schedule","Manufacturing Integration Software"], ans:1 },
-    { id:213, unit:2, q:"SMED technique is primarily used to:", opts:["Increase batch sizes","Reduce setup and changeover time","Improve product design","Calculate OEE"], ans:1 },
-    { id:214, unit:2, q:"Poka-Yoke was developed as part of which system?", opts:["Six Sigma","Toyota Production System","ISO 9001","Theory of Constraints"], ans:1 },
-    { id:215, unit:2, q:"Which of the following is NOT one of the 5S pillars?", opts:["Sort","Shine","Standardize","Strategize"], ans:3 },
-
-    // ── Unit 3: Method Study (15 Qs) ──
-    { id:301, unit:3, q:"Therblings were developed by:", opts:["F.W. Taylor","Frank and Lillian Gilbreth","Henry Gantt","Elton Mayo"], ans:1 },
-    { id:302, unit:3, q:"The primary objective of Method Study is to:", opts:["Measure time taken for a task","Find the best way of doing a job","Calculate standard time only","Record machine utilisation"], ans:1 },
-    { id:303, unit:3, q:"Which chart shows the sequence and relationship of activities in a process?", opts:["Gantt Chart","Flow Process Chart","Pie Chart","Scatter Diagram"], ans:1 },
-    { id:304, unit:3, q:"Micro-motion study involves:", opts:["Measuring hourly output","Analysing basic motion elements using film or video","Counting workers per shift","Scheduling preventive maintenance"], ans:1 },
-    { id:305, unit:3, q:"The principles of motion economy aim to:", opts:["Increase the number of motions performed","Reduce fatigue and improve efficiency by minimising unnecessary motions","Record all body movements of workers","Automate all manual tasks"], ans:1 },
-    { id:306, unit:3, q:"MEMO Motion Study is used for:", opts:["Financial auditing of processes","Long-cycle operations studied using slow-speed filming","Short-cycle precision operations","Statistical quality control"], ans:1 },
-    { id:307, unit:3, q:"Which recording technique uses standard ASME symbols to represent activities?", opts:["Bar Chart","Flow Process Chart with ASME symbols","Histogram","Control Chart"], ans:1 },
-    { id:308, unit:3, q:"Method Study follows which correct sequence of steps?", opts:["Record → Select → Define → Install","Select → Record → Examine → Develop → Install → Maintain","Examine → Record → Select → Install","Define → Measure → Analyse → Improve"], ans:1 },
-    { id:309, unit:3, q:"A String Diagram is used to:", opts:["Show time on a task","Trace the movement path of workers or materials in a workplace","Record machine idle time","Plan production schedules"], ans:1 },
-    { id:310, unit:3, q:"An Outline Process Chart records:", opts:["Only transport and delay activities","Only the main operations and inspections in a process","All five types of activities in detail","Worker fatigue levels"], ans:1 },
-    { id:311, unit:3, q:"How many basic therbligs did Gilbreth identify?", opts:["10","15","17","20"], ans:2 },
-    { id:312, unit:3, q:"A Two-Handed Process Chart is used to:", opts:["Record activities of two different workers","Record simultaneous activities of both hands of a worker","Plan a two-shift operation","Compare two methods of production"], ans:1 },
-    { id:313, unit:3, q:"Which of the following is a principle of motion economy related to the workplace?", opts:["Use of momentum to assist worker","Materials should be located far from the point of use","Avoid definite and fixed locations for tools","Increase the number of hand motions"], ans:0 },
-    { id:314, unit:3, q:"The critical examination technique in Method Study uses:", opts:["What, Why, Where, When, Who, How questions","Only time measurements","Statistical sampling","Computer simulation only"], ans:0 },
-    { id:315, unit:3, q:"Cyclegraph and Chronocyclegraph techniques are used for:", opts:["Inventory control","Studying path and speed of motion of body parts","Scheduling machines","Financial analysis"], ans:1 },
-  ],
-
-  "2MEIE302": [
-    // ── Unit 1: Introduction to SCM (15 Qs) ──
-    { id:101, unit:1, q:"A Supply Chain encompasses activities associated with:", opts:["Only manufacturing operations","Flow and transformation of goods from raw materials to the end user","Marketing and advertising only","Retail sales alone"], ans:1 },
-    { id:102, unit:1, q:"The 'Make or Buy' decision in SCM refers to:", opts:["Deciding production shift timings","Choosing between in-house production versus outsourcing","Buying raw materials in bulk always","Manufacturing and selling simultaneously"], ans:1 },
-    { id:103, unit:1, q:"Strategic Fit in SCM means:", opts:["Having the best suppliers in the world","Alignment between the competitive strategy and the supply chain strategy","Physically fitting products in containers","Matching supply with demand perfectly at all times"], ans:1 },
-    { id:104, unit:1, q:"The Cycle View of a supply chain identifies:", opts:["Financial payment cycles","Customer Order, Replenishment, Manufacturing, and Procurement cycles","Product life cycles only","Employee work shift cycles"], ans:1 },
-    { id:105, unit:1, q:"Logistics in SCM refers to:", opts:["Only warehousing activities","Planning and execution of the movement and storage of goods","Only transportation of goods","Financial and budget planning"], ans:1 },
-    { id:106, unit:1, q:"Which is a key driver of Supply Chain performance?", opts:["Company logo and branding","Facilities, Inventory, Transportation, Information, Sourcing, and Pricing","Number of employees in HR","Office location and design"], ans:1 },
-    { id:107, unit:1, q:"Obstacles of a streamlined SCM include:", opts:["Too many customers","Information distortion, incentive conflicts, and large lot sizes","Excess product quality","Too much automation"], ans:1 },
-    { id:108, unit:1, q:"The Value Chain Process in SCM represents:", opts:["Financial value of inventory","Series of activities that add value from supplier to customer","Value of company shares","Market pricing strategy"], ans:1 },
-    { id:109, unit:1, q:"Best practices in SCM include:", opts:["Ignoring supplier relationships","Collaborative planning, demand forecasting, and lean operations","Maximum inventory holding at all times","Eliminating all information technology"], ans:1 },
-    { id:110, unit:1, q:"Supply Chain strategy should align with:", opts:["Only cost reduction goals","The overall competitive strategy of the business","Only customer delivery speed","Inventory minimisation alone"], ans:1 },
-    { id:111, unit:1, q:"The 'Push' strategy in supply chain means:", opts:["Products are pulled by customer demand","Products are pushed based on forecasted demand","Suppliers push materials without orders","Customers push for discounts"], ans:1 },
-    { id:112, unit:1, q:"Which of the following is NOT a stage of a supply chain?", opts:["Supplier","Manufacturer","Distributor","Advertiser"], ans:3 },
-    { id:113, unit:1, q:"The Bullwhip Effect in SCM refers to:", opts:["Effect of wind on logistics","Amplification of demand fluctuations as you move up the supply chain","Reduction in inventory levels","Effect of automation on supply chain"], ans:1 },
-    { id:114, unit:1, q:"A responsive supply chain strategy is best suited for:", opts:["Low demand uncertainty, commodity products","High demand uncertainty, innovative products","Stable, predictable demand","Very low margin products"], ans:1 },
-    { id:115, unit:1, q:"Key issues in SCM include:", opts:["Product colour selection","Demand forecasting, inventory management, and supplier relationship management","Employee leave management","Office facility management"], ans:1 },
-
-    // ── Unit 2: Supply Chain Performance (15 Qs) ──
-    { id:201, unit:2, q:"SCOR stands for:", opts:["Supply Chain Operations Reference model","Standard Cost Operations Report","Supply Cost Output Ratio","Strategic Chain Operational Review"], ans:0 },
-    { id:202, unit:2, q:"Supply Chain Risk Management deals with:", opts:["Only financial market risks","Identifying and mitigating risks like supplier failure, demand uncertainty, and cyber threats","Natural disaster insurance only","Stock market investment risks"], ans:1 },
-    { id:203, unit:2, q:"Demand Chain Management focuses on:", opts:["Managing the supply side only","Creating and managing customer demand proactively","Reducing production costs alone","Inventory management only"], ans:1 },
-    { id:204, unit:2, q:"Global Supply Chain challenges include:", opts:["Only language barriers","Currency fluctuations, political instability, lead time variability, and compliance issues","Only weather and climate conditions","Domestic regulations only"], ans:1 },
-    { id:205, unit:2, q:"Performance measurement dimensions in SCM include:", opts:["Only cost metrics","Cost, Quality, Time, Flexibility, and Innovation","Only delivery speed metrics","Customer satisfaction surveys only"], ans:1 },
-    { id:206, unit:2, q:"Cyber Security risk in supply chain refers to:", opts:["Physical security of warehouses and factories","Protecting digital supply chain systems from cyber attacks and data breaches","Encrypting product barcodes only","Securing individual employee records"], ans:1 },
-    { id:207, unit:2, q:"Compliance Risk in supply chain arises from:", opts:["Risk of product defects only","Failure to follow regulations, standards, or contractual obligations","Risk of employee strikes","Financial credit risk alone"], ans:1 },
-    { id:208, unit:2, q:"The SCOR model covers which processes?", opts:["Only Plan and Source","Plan, Source, Make, Deliver, Return, and Enable","Only Make and Deliver","Finance and HR processes"], ans:1 },
-    { id:209, unit:2, q:"Factors that influence designing a Global Supply Chain Network include:", opts:["Office interior design","Infrastructure quality, labour costs, tax incentives, and political stability","Number of domestic suppliers","Product colour preferences"], ans:1 },
-    { id:210, unit:2, q:"Supplier Financial Risk in SCM refers to:", opts:["Risk that the supplier overcharges","Risk that a key supplier becomes financially unstable or bankrupt","Risk of product price increase","Risk of delayed payments by customers"], ans:1 },
-    { id:211, unit:2, q:"Which tool is used to measure supply chain performance against best-in-class benchmarks?", opts:["Kanban","SCOR Model","ABC Analysis","EOQ Model"], ans:1 },
-    { id:212, unit:2, q:"Country-specific risk in global supply chain includes:", opts:["Supplier delivery delays only","Political instability, trade restrictions, and regulatory changes in a country","Customer payment defaults","Currency exchange gains"], ans:1 },
-    { id:213, unit:2, q:"Performance Risk in supply chain refers to:", opts:["Risk of product underperformance in market","Risk that a supplier fails to meet performance standards or SLAs","Risk of machine breakdown","Financial audit failure"], ans:1 },
-    { id:214, unit:2, q:"Global Supply Chain refers to:", opts:["A supply chain operating in a single country","A supply chain that spans multiple countries and regions","Supply chain within a single factory","Local distribution network only"], ans:1 },
-    { id:215, unit:2, q:"Which of the following is a dimension of supply chain performance measurement?", opts:["Employee satisfaction only","Reliability, Responsiveness, Agility, Cost, and Asset Management","Brand awareness","Profit margin alone"], ans:1 },
-
-    // ── Unit 3: Inventory Management (15 Qs) ──
-    { id:301, unit:3, q:"EOQ stands for:", opts:["Estimated Order Quantity","Economic Order Quantity","Expected Output Quality","Effective Order Quota"], ans:1 },
-    { id:302, unit:3, q:"Buffer Stock is maintained to:", opts:["Reduce production speed intentionally","Protect against demand or supply uncertainties","Increase warehouse rental size","Meet seasonal bulk discounts"], ans:1 },
-    { id:303, unit:3, q:"ABC Analysis classifies inventory based on:", opts:["Alphabetical order of product names","Annual consumption value — A items highest, C items lowest","Supplier names alphabetically","Product colour and size"], ans:1 },
-    { id:304, unit:3, q:"In the Q-system of inventory control, orders are placed:", opts:["At fixed regular time intervals","When inventory falls to a predetermined reorder level","Every Monday morning","Randomly based on supplier availability"], ans:1 },
-    { id:305, unit:3, q:"ROL stands for:", opts:["Rate of Loss","Reorder Level","Record of Logistics","Rate of Labour cost"], ans:1 },
-    { id:306, unit:3, q:"In the EOQ model, as order quantity increases, holding cost:", opts:["Decreases proportionally","Increases proportionally","Remains constant","Becomes zero"], ans:1 },
-    { id:307, unit:3, q:"The P-system of inventory replenishment involves:", opts:["Variable order quantity at fixed time intervals","Fixed order quantity at variable time intervals","Random ordering without any system","EOQ-based ordering only"], ans:0 },
-    { id:308, unit:3, q:"The basic EOQ model assumes:", opts:["Variable demand and lead time","Constant demand rate and instantaneous replenishment","Backorders are always allowed","Quantity discounts are always available"], ans:1 },
-    { id:309, unit:3, q:"'A' category items in ABC analysis should be:", opts:["Controlled loosely with minimal review","Controlled tightly with frequent review and close monitoring","Ordered in very large quantities","Stored in the most remote warehouse location"], ans:1 },
-    { id:310, unit:3, q:"When demand and production rate are different in EOQ, which model is used?", opts:["Simple EOQ model","Production Order Quantity (POQ) model","ABC Analysis model","Reorder Point model"], ans:1 },
-    { id:311, unit:3, q:"In EOQ model, total inventory cost is minimised when:", opts:["Ordering cost is zero","Holding cost equals ordering cost","Holding cost is zero","Order quantity is maximum"], ans:1 },
-    { id:312, unit:3, q:"When backorders are allowed in inventory, the EOQ model:", opts:["Remains unchanged","Results in a higher optimal order quantity compared to basic EOQ","Results in a lower order quantity","Is not applicable"], ans:1 },
-    { id:313, unit:3, q:"Instantaneous replenishment in EOQ assumes:", opts:["Long lead time for delivery","The entire order quantity arrives at once","Orders arrive in small batches","Demand is seasonal"], ans:1 },
-    { id:314, unit:3, q:"'C' category items in ABC analysis typically represent:", opts:["High value, low volume items","Low value, high volume items requiring tight control","Medium value and medium volume","Items with no demand"], ans:1 },
-    { id:315, unit:3, q:"Inventory Control through ABC analysis helps management to:", opts:["Focus equal attention on all items","Focus maximum attention on A items which contribute most to value","Reduce all inventory to zero","Order all items in equal quantities"], ans:1 },
-  ],
-};
-
-
-const QUESTION_BANK2 = {
-  "2MEIE201": [
-    // ── Unit 4: Work Measurement (15 Qs) ──
-    { id:401, unit:4, q:"The primary objective of Work Measurement is to:", opts:["Design better products","Establish the time a qualified worker takes to carry out a task at a defined rate","Record worker attendance","Calculate machine efficiency only"], ans:1 },
-    { id:402, unit:4, q:"Standard time is defined as:", opts:["The actual time taken by the fastest worker","The normal time plus allowances for rest and other delays","The minimum time required for a task","The average time of all workers"], ans:1 },
-    { id:403, unit:4, q:"Performance Rating in work measurement is used to:", opts:["Rate the quality of products","Convert observed time to normal time by comparing worker pace to standard pace","Measure machine output","Evaluate supervisor performance"], ans:1 },
-    { id:404, unit:4, q:"Which of the following is a method of Work Measurement?", opts:["String diagram","Time Study","Flow Process Chart","MEMO motion study"], ans:1 },
-    { id:405, unit:4, q:"Work Sampling is a technique that:", opts:["Measures exact time for each element","Observes worker or machine activity at random intervals to estimate time proportions","Records every motion of a worker","Calculates standard time using predetermined data"], ans:1 },
-    { id:406, unit:4, q:"PMTS stands for:", opts:["Process Measurement and Time Study","Predetermined Motion Time System","Production Management Timing Standard","Process and Motion Time Sequence"], ans:1 },
-    { id:407, unit:4, q:"Workplace Ergonomics in Work Measurement focuses on:", opts:["Maximising worker speed at any cost","Designing the work environment to fit the worker to reduce fatigue and improve efficiency","Measuring only machine performance","Recording daily output only"], ans:1 },
-    { id:408, unit:4, q:"Normal time is calculated as:", opts:["Observed time × Performance rating","Standard time − Allowances","Observed time + Allowances","Standard time × Performance rating"], ans:0 },
-    { id:409, unit:4, q:"Allowances in Work Measurement account for:", opts:["Machine breakdown only","Personal needs, fatigue, and unavoidable delays","Overtime pay","Product defects"], ans:1 },
-    { id:410, unit:4, q:"Which rating method compares worker pace to a 'standard' pace of 100?", opts:["Westinghouse System","British Standard Rating","Synthetic Rating","Objective Rating"], ans:1 },
-    { id:411, unit:4, q:"MTM stands for:", opts:["Motion-Time Measurement","Methods-Time Measurement","Machine-Tool Monitoring","Manual-Task Mapping"], ans:1 },
-    { id:412, unit:4, q:"The Westinghouse System of Performance Rating considers:", opts:["Only speed of worker","Skill, Effort, Conditions, and Consistency","Only output quantity","Wage rate and experience"], ans:1 },
-    { id:413, unit:4, q:"Standard time = Normal time +:", opts:["Idle time","Allowances","Waiting time","Setup time only"], ans:1 },
-    { id:414, unit:4, q:"Work Sampling is most useful when:", opts:["Tasks are short and repetitive","Activities are irregular or non-repetitive and continuous time study is impractical","Only one worker is being observed","Exact elemental times are needed"], ans:1 },
-    { id:415, unit:4, q:"Ergonomics is defined as the study of:", opts:["Work measurement techniques","The relationship between workers and their work environment to optimise well-being and performance","Production scheduling methods","Quality control standards"], ans:1 },
-
-    // ── Unit 5: Capacity, Aggregate Planning & Scheduling (15 Qs) ──
-    { id:501, unit:5, q:"Capacity of a system is defined as:", opts:["The number of workers available","The maximum rate of output or the ability to produce within normal operating conditions","The total floor area of a factory","The number of machines installed"], ans:1 },
-    { id:502, unit:5, q:"Aggregate Planning is concerned with:", opts:["Planning individual machine schedules","Matching production capacity to demand over a medium-term horizon (3–18 months)","Long-term facility location decisions","Day-to-day worker assignments"], ans:1 },
-    { id:503, unit:5, q:"Which aggregate planning strategy uses workforce adjustments like hiring and layoffs?", opts:["Chase strategy","Level strategy","Mixed strategy","Capacity cushion strategy"], ans:0 },
-    { id:504, unit:5, q:"In the Level strategy of aggregate planning:", opts:["Production rate changes with demand every month","A constant production rate is maintained regardless of demand fluctuations","Only demand is leveled, not production","Inventory is never used as a buffer"], ans:1 },
-    { id:505, unit:5, q:"Johnson's algorithm is used to solve:", opts:["Inventory control problems","Sequencing of n jobs on 2 machines to minimise total elapsed time","Capacity planning problems","Transportation problems"], ans:1 },
-    { id:506, unit:5, q:"For sequencing n jobs on 3 machines, the problem is reduced to:", opts:["A 2-machine problem using dominance condition","An inventory model","A transportation model","A network diagram"], ans:0 },
-    { id:507, unit:5, q:"Overcapacity means:", opts:["Demand exceeds available capacity","Available capacity exceeds demand, leading to idle resources","Capacity exactly matches demand","Machine utilisation is 100%"], ans:1 },
-    { id:508, unit:5, q:"Under capacity in production means:", opts:["Too many machines are idle","Available capacity is less than the required demand","Workers are underutilised","Production exceeds demand"], ans:1 },
-    { id:509, unit:5, q:"Aggregate planning strategies include all EXCEPT:", opts:["Varying workforce size","Using overtime or undertime","Changing price or promotions to influence demand","Redesigning the product"], ans:3 },
-    { id:510, unit:5, q:"In sequencing, the objective of minimising 'makespan' means:", opts:["Minimising the number of jobs","Minimising the total time to complete all jobs","Minimising idle time of workers only","Minimising material cost"], ans:1 },
-    { id:511, unit:5, q:"SPT rule in scheduling stands for:", opts:["Standard Processing Time","Shortest Processing Time — schedule shortest jobs first","Sequential Priority Technique","Standard Priority Test"], ans:1 },
-    { id:512, unit:5, q:"Capacity Cushion refers to:", opts:["Extra inventory kept as safety stock","A planned amount of capacity kept in reserve above expected demand","The difference between rated and effective capacity","Machine maintenance downtime"], ans:1 },
-    { id:513, unit:5, q:"Which measure of capacity represents the maximum theoretical output?", opts:["Effective capacity","Design capacity","Actual output","System capacity"], ans:1 },
-    { id:514, unit:5, q:"In sequencing n jobs on 1 machine, to minimise average flow time, the best rule is:", opts:["FCFS (First Come First Served)","SPT (Shortest Processing Time)","LPT (Longest Processing Time)","Random sequencing"], ans:1 },
-    { id:515, unit:5, q:"Aggregate planning is typically done for a time horizon of:", opts:["1–7 days","3–18 months","5–10 years","10–15 years"], ans:1 },
-
-    // ── Unit 6: Inventory Control & Network Techniques (15 Qs) ──
-    { id:601, unit:6, q:"LIFO stands for:", opts:["Last In First Out","Least Inventory First Out","Latest Investment For Operations","Last Input First Output"], ans:0 },
-    { id:602, unit:6, q:"FIFO inventory valuation method assumes:", opts:["Last items purchased are sold first","First items purchased are sold first","Items are sold in random order","Items are valued at average cost"], ans:1 },
-    { id:603, unit:6, q:"ABC analysis in inventory control classifies items based on:", opts:["Alphabetical order","Annual consumption value","Physical size of items","Storage location"], ans:1 },
-    { id:604, unit:6, q:"CPM stands for:", opts:["Critical Path Method","Cost Performance Measure","Continuous Production Management","Capacity Planning Model"], ans:0 },
-    { id:605, unit:6, q:"In a network diagram, the Critical Path is the path that:", opts:["Has the most activities","Has the maximum duration and determines the minimum project completion time","Has the minimum cost","Has the most resources"], ans:1 },
-    { id:606, unit:6, q:"Float (or Slack) in network techniques refers to:", opts:["Extra materials in inventory","The amount of time an activity can be delayed without delaying the project completion","The cost overrun in a project","The number of extra workers available"], ans:1 },
-    { id:607, unit:6, q:"Forward scheduling in production means:", opts:["Scheduling from due date backward","Scheduling from the start date forward to find the earliest completion date","Scheduling based on machine availability only","Using past data for future scheduling"], ans:1 },
-    { id:608, unit:6, q:"Backward scheduling means:", opts:["Scheduling from the start date forward","Scheduling from the due date backward to determine the latest start date","Scheduling the lowest priority jobs first","Using historical average times"], ans:1 },
-    { id:609, unit:6, q:"PERT stands for:", opts:["Project Evaluation and Review Technique","Production Efficiency and Resource Tracking","Process Evaluation and Risk Technique","Project Estimation and Reporting Tool"], ans:0 },
-    { id:610, unit:6, q:"The main difference between CPM and PERT is:", opts:["CPM uses probabilistic time estimates; PERT uses deterministic","PERT uses probabilistic time estimates (optimistic, most likely, pessimistic); CPM uses deterministic","Both are identical techniques","CPM is used only for inventory; PERT for projects"], ans:1 },
-    { id:611, unit:6, q:"In PERT, the expected time (te) for an activity is calculated as:", opts:["(a + m + b) / 3","(a + 4m + b) / 6","(a + b) / 2","(optimistic + pessimistic) / 2"], ans:1 },
-    { id:612, unit:6, q:"Under LIFO during inflation, the cost of goods sold will be:", opts:["Lower than FIFO","Higher than FIFO because newer higher-cost items are sold first","Same as FIFO","Cannot be determined"], ans:1 },
-    { id:613, unit:6, q:"'A' class items in ABC analysis typically represent:", opts:["About 70–80% of total inventory value but only 10–20% of items","All items equally","Low-value high-volume items","Items with highest physical count"], ans:0 },
-    { id:614, unit:6, q:"Total float of a critical activity is:", opts:["Greater than zero","Equal to zero","Less than zero","Equal to project duration"], ans:1 },
-    { id:615, unit:6, q:"A dummy activity in a network diagram:", opts:["Consumes resources and time","Has zero duration and zero resource, used only to show logical dependency","Represents a milestone only","Replaces real activities in CPM"], ans:1 },
-  ],
-
-  "2MEIE302": [
-    // ── Unit 4: Logistics Management & Outsourcing (15 Qs) ──
-    { id:401, unit:4, q:"The primary objective of Logistics Management is:", opts:["Only warehousing goods","Planning and implementing the efficient flow and storage of goods and services from origin to consumption","Managing only transportation","Financial cost reduction only"], ans:1 },
-    { id:402, unit:4, q:"Cross-docking in logistics means:", opts:["Storing goods for long periods","Transferring goods directly from inbound to outbound transport with minimal storage","Loading goods onto ships","Handling goods at border customs"], ans:1 },
-    { id:403, unit:4, q:"Third Party Logistics (3PL) refers to:", opts:["A company owning its own logistics fleet","Outsourcing logistics functions to a specialised external provider","Using three transport modes simultaneously","A government logistics agency"], ans:1 },
-    { id:404, unit:4, q:"Fourth Party Logistics (4PL) is:", opts:["A logistics provider managing multiple 3PLs and entire supply chain","A company with four warehouses","Using four transport modes","Government-regulated logistics"], ans:0 },
-    { id:405, unit:4, q:"Reverse Logistics refers to:", opts:["Moving goods backward in the production process","Managing the return, recycling, or disposal of products from customer back to the manufacturer","Shipping goods internationally","Last-mile delivery only"], ans:1 },
-    { id:406, unit:4, q:"Containerization in logistics refers to:", opts:["Storing goods in glass containers","Packing goods in standardised intermodal containers for efficient transport","Using containers only for sea freight","Refrigerating perishable goods"], ans:1 },
-    { id:407, unit:4, q:"Transportation mode selection in logistics depends on:", opts:["Only cost","Cost, speed, reliability, cargo type, and distance","Only delivery speed","Only government regulations"], ans:1 },
-    { id:408, unit:4, q:"Gaining competitive advantage through logistics means:", opts:["Reducing product quality to cut costs","Providing better service, faster delivery, and lower logistics costs than competitors","Outsourcing all operations","Increasing product prices"], ans:1 },
-    { id:409, unit:4, q:"Outsourcing in SCM refers to:", opts:["Hiring more permanent employees","Contracting external organisations to perform functions previously done in-house","Buying more machines","Expanding the factory"], ans:1 },
-    { id:410, unit:4, q:"Warehousing in logistics serves the purpose of:", opts:["Only storing goods permanently","Providing storage, sorting, consolidation, and value-added services in the supply chain","Only packaging goods","Managing customer returns only"], ans:1 },
-    { id:411, unit:4, q:"Which of the following is NOT a function of logistics management?", opts:["Transportation management","Inventory management","Product design and development","Warehousing and distribution"], ans:2 },
-    { id:412, unit:4, q:"The strategic decision to outsource is driven by:", opts:["Only cost reduction","Cost savings, focus on core competencies, access to expertise, and flexibility","Reducing product quality","Increasing workforce permanently"], ans:1 },
-    { id:413, unit:4, q:"Distribution challenges in logistics include:", opts:["Only road congestion","Last-mile delivery complexity, cost management, and service level requirements","Only weather conditions","Only customs regulations"], ans:1 },
-    { id:414, unit:4, q:"Multimodal transportation refers to:", opts:["Using only road transport","Using more than one mode of transport for a single shipment under one contract","Air freight only","Sea and river transport only"], ans:1 },
-    { id:415, unit:4, q:"A key benefit of effective Logistics Management is:", opts:["Increased product defects","Reduced lead times, lower costs, and improved customer satisfaction","Higher inventory levels","More warehouse space needed"], ans:1 },
-
-    // ── Unit 5: Digitization in SCM & Sustainability (15 Qs) ──
-    { id:501, unit:5, q:"The role of IT in Supply Chain is to:", opts:["Replace all human workers","Enable information sharing, improve visibility, and support decision-making across the supply chain","Only generate financial reports","Manage HR functions only"], ans:1 },
-    { id:502, unit:5, q:"TMS stands for:", opts:["Total Management System","Transport Management System","Technology Management Software","Trade and Marketing System"], ans:1 },
-    { id:503, unit:5, q:"WMS stands for:", opts:["Workforce Management System","Warehouse Management System","Work Measurement Software","Wholesale Market System"], ans:1 },
-    { id:504, unit:5, q:"RFID in supply chain is used for:", opts:["Radio frequency broadcasting","Automatic identification and tracking of goods using radio frequency tags","Financial data transfer","Customer relationship management"], ans:1 },
-    { id:505, unit:5, q:"Green Supply Chain Management focuses on:", opts:["Only reducing transportation costs","Integrating environmental considerations into supply chain decisions to reduce ecological impact","Using only green-coloured packaging","Planting trees near factories"], ans:1 },
-    { id:506, unit:5, q:"Bar coding in supply chain is used for:", opts:["Decorating products","Unique product identification and tracking throughout the supply chain","Financial billing only","Quality testing"], ans:1 },
-    { id:507, unit:5, q:"SAP in supply chain refers to:", opts:["Standard Accounting Procedure","Systems, Applications, and Products — an ERP software used for integrated supply chain management","Supply and Procurement","Statistical Analysis Programme"], ans:1 },
-    { id:508, unit:5, q:"CSR in supply chain stands for:", opts:["Customer Service Report","Corporate Social Responsibility — integrating social and ethical concerns into business operations","Cost and Supply Ratio","Consumer Sales Report"], ans:1 },
-    { id:509, unit:5, q:"E-commerce methods in supply chain include:", opts:["Only physical retail stores","Online ordering, digital marketplaces, and electronic data interchange (EDI)","Only telephone ordering","Only B2B transactions"], ans:1 },
-    { id:510, unit:5, q:"The Supply Chain IT framework helps in:", opts:["Designing physical products","Integrating information flow across suppliers, manufacturers, distributors, and customers","Financial auditing only","Only transportation route planning"], ans:1 },
-    { id:511, unit:5, q:"Sustainability in SCM refers to:", opts:["Producing as much as possible","Meeting present needs without compromising the ability of future generations, balancing economic, social, and environmental goals","Only recycling packaging","Reducing workforce permanently"], ans:1 },
-    { id:512, unit:5, q:"What is the significance of RFID over Bar codes?", opts:["RFID is cheaper","RFID can store more data, be read without line-of-sight, and track items in real time","Bar codes are less accurate","They are identical in function"], ans:1 },
-    { id:513, unit:5, q:"Sales Force automation tools in supply chain help with:", opts:["Machine maintenance","Managing sales processes, customer interactions, and demand data automatically","Warehouse packing only","Financial reporting only"], ans:1 },
-    { id:514, unit:5, q:"Environmental aspects of supply chain management include:", opts:["Only employee welfare","Carbon footprint reduction, waste management, resource efficiency, and pollution control","Only financial sustainability","Only customer satisfaction"], ans:1 },
-    { id:515, unit:5, q:"Resource utilization in sustainable SCM means:", opts:["Using maximum resources regardless of waste","Using resources efficiently to minimise waste and environmental impact","Only recycling metals","Reducing production output"], ans:1 },
-
-    // ── Unit 6: Supply Chain Network Design (15 Qs) ──
-    { id:601, unit:6, q:"Value Stream Mapping (VSM) is a tool used to:", opts:["Map financial cash flows","Visualise the flow of materials and information in a supply chain to identify waste and improvement opportunities","Map employee career paths","Design product aesthetics"], ans:1 },
-    { id:602, unit:6, q:"Lead Time in supply chain refers to:", opts:["The time to recruit a new employee","The total time from placing an order to receiving the goods","Time taken for production only","Machine setup time"], ans:1 },
-    { id:603, unit:6, q:"Takt Time is defined as:", opts:["The time a worker takes to complete a task","The available production time divided by customer demand rate — sets the required production pace","Machine cycle time","Standard time for one unit"], ans:1 },
-    { id:604, unit:6, q:"MOQ stands for:", opts:["Maximum Order Quantity","Minimum Order Quantity — the smallest quantity a supplier will accept in an order","Most Optimal Quantity","Minimum Output Quality"], ans:1 },
-    { id:605, unit:6, q:"Supply Chain Resilience refers to:", opts:["The ability to produce at maximum speed","The ability of a supply chain to anticipate, adapt to, and recover from disruptions","The strength of the supply chain contract","The number of suppliers in the chain"], ans:1 },
-    { id:606, unit:6, q:"Distribution network design decisions include:", opts:["Only product colour selection","Number and location of facilities, transportation modes, and inventory allocation","Only packaging decisions","Only pricing decisions"], ans:1 },
-    { id:607, unit:6, q:"The Transportation Problem in SCM is a type of:", opts:["Quality control problem","Linear programming problem used to minimise transportation cost from multiple sources to destinations","Inventory model","Network scheduling problem"], ans:1 },
-    { id:608, unit:6, q:"Order Fulfillment Process Flow includes:", opts:["Only placing the order","Order receipt, processing, picking, packing, shipping, and delivery confirmation","Only shipping the product","Only billing the customer"], ans:1 },
-    { id:609, unit:6, q:"Mathematical modelling in SCM is used for:", opts:["Designing product graphics","Optimising decisions such as facility location, inventory levels, and transportation routes","Employee training plans","Marketing campaigns"], ans:1 },
-    { id:610, unit:6, q:"Factors influencing distribution network design include:", opts:["Only product weight","Customer service requirements, costs, infrastructure, and demand patterns","Only warehouse size","Only number of employees"], ans:1 },
-    { id:611, unit:6, q:"A Direct Shipment distribution network means:", opts:["Products pass through multiple warehouses","Products are shipped directly from manufacturer to customer without intermediate storage","Products are always shipped by air","Only large orders are shipped directly"], ans:1 },
-    { id:612, unit:6, q:"Supply Chain Network Design considers all EXCEPT:", opts:["Number of warehouses and their locations","Transportation costs and modes","Employee personal preferences for work location","Customer demand patterns and locations"], ans:2 },
-    { id:613, unit:6, q:"VSM helps identify which type of waste?", opts:["Only financial waste","All forms of waste including overproduction, waiting, transportation, inventory, motion, over-processing, and defects","Only material waste","Only time waste"], ans:1 },
-    { id:614, unit:6, q:"Considerations in modelling SCM systems include:", opts:["Only cost minimisation","Demand uncertainty, lead times, capacity constraints, service levels, and cost trade-offs","Only speed maximisation","Only supplier count"], ans:1 },
-    { id:615, unit:6, q:"Reducing Lead Time in supply chain results in:", opts:["Higher inventory costs only","Lower inventory requirements, faster response to customers, and improved competitiveness","Increased transportation costs only","Reduced product quality"], ans:1 },
-  ],
-};
-
 function StudentView({ student, attendance, marks, setMarks, students, ise2Active, onLogout }) {
   const [activeISE, setActiveISE] = useState("attendance");
   const [testMode, setTestMode] = useState("home"); // home | test | done
@@ -1356,16 +1282,17 @@ function FacultyDashboard({ students, setStudents, attendance, setAttendance, ma
 
   const resetAllData = () => {
     if (!window.confirm("⚠️ This will clear ALL saved data (attendance, marks, students, test results) and reload. Are you sure?")) return;
-
-// ─── FACULTY DASHBOARD ────────────────────────────────────────────────────────
-function FacultyDashboard({ students, setStudents, attendance, setAttendance, marks, setMarks, customTabs, setCustomTabs, ise2Active, setIse2Active, activeTab, setActiveTab, activeSubject, setActiveSubject, showNotif, onLogout, notification, dbStatus }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+    if (window.db) window.db.ref("adcet").remove();
+    window.location.reload();
+  };
 
   const baseTabs = [
     { id: "dashboard", label: "Dashboard", icon: "📊" },
     { id: "students", label: "Students", icon: "👥" },
     { id: "attendance", label: "Attendance", icon: "✅" },
     { id: "marks", label: "ISE Marks", icon: "📝" },
+    { id: "syllabus", label: "Syllabus", icon: "📚" },
+    { id: "ise-test", label: "ISE I MCQ Test", icon: "🎯" },
     { id: "att-report", label: "Attendance Report", icon: "📋" },
     { id: "marks-report", label: "Marks Report", icon: "🏆" },
     { id: "atr", label: "Action Taken Report", icon: "📄" },
@@ -1380,11 +1307,11 @@ function FacultyDashboard({ students, setStudents, attendance, setAttendance, ma
         <div style={{ padding: sidebarOpen ? "24px 20px 20px" : "24px 10px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           {sidebarOpen ? (
             <>
-              <div style={{ fontSize: 22, fontWeight: 700, color: "#f59e0b", lineHeight: 1.2 }}>ADCET</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}><img src="https://www.adcet.ac.in/uploads/adcet_logo.png" alt="ADCET" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: "50%", background: "#fff", padding: 2, flexShrink: 0 }} /><div style={{ fontSize: 22, fontWeight: 700, color: "#f59e0b", lineHeight: 1.2 }}>ADCET</div></div>
               <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>EduPortal</div>
               <div style={{ fontSize: 12, color: "#64748b", marginTop: 8 }}>Mr. Santosh T Ghutukade</div>
             </>
-          ) : <div style={{ fontSize: 20, textAlign: "center" }}>🎓</div>}
+          ) : <div style={{ textAlign: "center", padding: "4px" }}><img src="https://www.adcet.ac.in/uploads/adcet_logo.png" alt="ADCET" style={{ width: 36, height: 36, objectFit: "contain", borderRadius: "50%", background: "#fff" }} /></div>}
         </div>
         <nav style={{ flex: 1, padding: "12px 8px", overflowY: "auto" }}>
           {allTabs.map(t => (
@@ -1399,6 +1326,12 @@ function FacultyDashboard({ students, setStudents, attendance, setAttendance, ma
           <div onClick={onLogout} style={{ padding: "10px 12px", borderRadius: 10, cursor: "pointer", textAlign: "center", color: "#ef4444", fontSize: sidebarOpen ? 14 : 18, display: "flex", alignItems: "center", gap: 8, justifyContent: "center" }}>
             <span>🚪</span>{sidebarOpen && <span>Logout</span>}
           </div>
+          {sidebarOpen && (
+            <div style={{ padding: "10px 12px", borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 4 }}>
+              <div style={{ fontSize: 11, color: "#22c55e", textAlign: "center", marginBottom: 8 }}>💾 Auto-saved to browser</div>
+              <div onClick={resetAllData} style={{ padding: "6px 10px", borderRadius: 8, cursor: "pointer", textAlign: "center", color: "#ef4444", fontSize: 11, border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.05)" }}>🗑 Reset All Data</div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1409,19 +1342,13 @@ function FacultyDashboard({ students, setStudents, attendance, setAttendance, ma
           <div>
             <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{allTabs.find(t => t.id === activeTab)?.icon} {allTabs.find(t => t.id === activeTab)?.label}</h1>
           </div>
-          {/* Subject Selector + Firebase Badge */}
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {/* Subject Selector */}
+          <div style={{ display: "flex", gap: 8 }}>
             {SUBJECTS.map(s => (
               <button key={s.code} onClick={() => setActiveSubject(s.code)} style={{ padding: "8px 16px", borderRadius: 20, border: "none", cursor: "pointer", background: activeSubject === s.code ? "linear-gradient(135deg, #f59e0b, #b45309)" : "rgba(255,255,255,0.08)", color: activeSubject === s.code ? "#fff" : "#94a3b8", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>
                 {s.name}
               </button>
             ))}
-            <div style={{ display:"flex", alignItems:"center", gap:5, background: dbStatus==="online" ? "rgba(34,197,94,0.12)" : dbStatus==="offline" ? "rgba(239,68,68,0.12)" : "rgba(251,191,36,0.12)", border:`1px solid ${dbStatus==="online"?"#22c55e":dbStatus==="offline"?"#ef4444":"#fbbf24"}`, borderRadius:20, padding:"5px 12px" }}>
-              <div style={{ width:7, height:7, borderRadius:"50%", background: dbStatus==="online"?"#22c55e":dbStatus==="offline"?"#ef4444":"#fbbf24", boxShadow: dbStatus==="online"?"0 0 6px #22c55e":"none" }}/>
-              <span style={{ fontSize:11, fontWeight:700, color: dbStatus==="online"?"#22c55e":dbStatus==="offline"?"#ef4444":"#fbbf24" }}>
-                {dbStatus==="online"?"🔥 Live":dbStatus==="offline"?"⚠️ Offline":"⟳ ..."}
-              </span>
-            </div>
           </div>
         </div>
 
@@ -1438,6 +1365,8 @@ function FacultyDashboard({ students, setStudents, attendance, setAttendance, ma
           {activeTab === "students" && <StudentsView students={students} setStudents={setStudents} activeSubject={activeSubject} showNotif={showNotif} />}
           {activeTab === "attendance" && <AttendanceView students={students} attendance={attendance} setAttendance={setAttendance} activeSubject={activeSubject} showNotif={showNotif} />}
           {activeTab === "marks" && <MarksView students={students} marks={marks} setMarks={setMarks} activeSubject={activeSubject} showNotif={showNotif} />}
+          {activeTab === "syllabus" && <SyllabusView activeSubject={activeSubject} />}
+          {activeTab === "ise-test" && <ISETestView students={students} marks={marks} setMarks={setMarks} activeSubject={activeSubject} ise2Active={ise2Active} setIse2Active={setIse2Active} showNotif={showNotif} />}
           {activeTab === "att-report" && <AttendanceReport students={students} attendance={attendance} activeSubject={activeSubject} />}
           {activeTab === "marks-report" && <MarksReport students={students} marks={marks} activeSubject={activeSubject} />}
           {activeTab === "atr" && <ATRView students={students} attendance={attendance} activeSubject={activeSubject} />}
@@ -1823,7 +1752,7 @@ function AttendanceView({ students, attendance, setAttendance, activeSubject, sh
           <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", marginBottom: 16 }}>
             <div style={{ padding: "12px 16px", background: "rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", fontSize: 13, color: "#94a3b8" }}>
               <span>{dateKey}</span>
-              <span style={{ color: "#22c55e" }}>{presentCount}/{studs.length} Present</span>
+              <span style={{ color: "#22c55e", fontFamily: "'Orbitron', monospace", fontSize: 13 }}>{presentCount}/{studs.length} Present</span>
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -1971,7 +1900,7 @@ function AttendanceReport({ students, attendance, activeSubject }) {
       <p><strong>Total Classes:</strong> ${allDates.length}</p>
       <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
       <table><thead><tr><th>#</th><th>Roll No</th><th>Name</th><th>Present</th><th>Absent</th><th>Total</th><th>%</th><th>Status</th></tr></thead>
-      <tbody>${rows.map((r, i) => `<tr><td>${i + 1}</td><td>${r.rollNo}</td><td>${r.name}</td><td>${r.present}</td><td>${r.absent}</td><td>${r.total}</td><td class="${r.pct < 75 ? "low" : "ok"}">${r.pct}%</td><td class="${r.pct < 75 ? "low" : "ok"}">${r.pct < 75 ? "⚠ Shortage" : "✓ OK"}</td></tr>`).join("")}</tbody></table>
+      <tbody>${rows.map((r, i) => "<tr><td>" + (i+1) + "</td><td>" + r.rollNo + "</td><td>" + r.name + "</td><td>" + r.present + "</td><td>" + r.absent + "</td><td>" + r.total + "</td><td>" + r.pct + "%</td><td>" + (r.pct < 75 ? "Low" : "OK") + "</td></tr>").join("")}</tbody></table>
       </body></html>`);
     win.document.close();
     win.print();
@@ -2003,7 +1932,7 @@ function AttendanceReport({ students, attendance, activeSubject }) {
                 <td style={{ padding: "12px 14px", color: "#ef4444", fontWeight: 600 }}>{r.absent}</td>
                 <td style={{ padding: "12px 14px", color: "#94a3b8" }}>{r.total}</td>
                 <td style={{ padding: "12px 14px" }}>
-                  <div style={{ background: r.pct >= 75 ? "#14532d" : "#7f1d1d", borderRadius: 20, padding: "3px 12px", display: "inline-block", fontSize: 13, fontWeight: 700, color: r.pct >= 75 ? "#86efac" : "#fca5a5" }}>{r.pct}%</div>
+                  <div style={{ background: r.pct >= 75 ? "#14532d" : "#7f1d1d", borderRadius: 20, padding: "3px 12px", display: "inline-block", fontSize: 12, fontWeight: 700, color: r.pct >= 75 ? "#86efac" : "#fca5a5", fontFamily: "'Orbitron', monospace" }}>{r.pct}%</div>
                 </td>
                 <td style={{ padding: "12px 14px", fontSize: 13, color: r.pct >= 75 ? "#22c55e" : "#ef4444" }}>
                   {r.pct >= 75 ? "✓ OK" : "⚠ Shortage"}
@@ -2086,25 +2015,10 @@ function MarksReport({ students, marks, activeSubject }) {
       <p><strong>Faculty:</strong> Mr. Santosh T Ghutukade</p>
       <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
       <table><thead><tr><th>#</th><th>Roll No</th><th>Name</th><th>ISE 1 (/20)</th><th>ISE 2 (/20)</th><th>Total (/40)</th><th>Grade</th></tr></thead>
-      <tbody>${rows.map((r, i) => `<tr><td>${i + 1}</td><td>${r.rollNo}</td><td>${r.name}</td><td>${r.ise1 ?? "–"}</td><td>${r.ise2 ?? "–"}</td><td>${r.ise1 !== null || r.ise2 !== null ? r.total : "–"}</td><td>${getGrade(r.ise1 !== null || r.ise2 !== null ? r.total : null)}</td></tr>`).join("")}</tbody></table>
+      <tbody>${rows.map((r, i) => "<tr><td>" + (i+1) + "</td><td>" + r.rollNo + "</td><td>" + r.name + "</td><td>" + (r.ise1 !== undefined && r.ise1 !== null ? r.ise1 : "-") + "</td><td>" + (r.ise2 !== undefined && r.ise2 !== null ? r.ise2 : "-") + "</td><td>" + (r.ise1 !== null || r.ise2 !== null ? r.total : "-") + "</td><td>" + getGrade(r.ise1 !== null || r.ise2 !== null ? r.total : null) + "</td></tr>").join("")}</tbody></table>
       </body></html>`);
     win.document.close();
     win.print();
-  };
-
-  const exportExcel = () => {
-    const excelRows = rows.map((r, i) => ({
-      "Sr No": i + 1, "Roll No": r.rollNo, "URN": r.urn || "",
-      "Student Name": r.name, "Department": r.department || "",
-      "ISE 1 (/20)": r.ise1 ?? "", "ISE 2 (/20)": r.ise2 ?? "",
-      "Total (/40)": r.ise1 !== null || r.ise2 !== null ? r.total : "",
-      "Grade": getGrade(r.ise1 !== null || r.ise2 !== null ? r.total : null),
-    }));
-    const ws = window.XLSX.utils.json_to_sheet(excelRows);
-    ws["!cols"] = [{wch:6},{wch:8},{wch:13},{wch:28},{wch:12},{wch:12},{wch:12},{wch:12},{wch:8}];
-    const wb = window.XLSX.utils.book_new();
-    window.XLSX.utils.book_append_sheet(wb, ws, "ISE Marks");
-    window.XLSX.writeFile(wb, "ADCET_ISE_Marks_" + subj?.name + "_" + new Date().toLocaleDateString("en-GB").replace(/\//g,"-") + ".xlsx");
   };
 
   // Stats
@@ -2120,10 +2034,7 @@ function MarksReport({ students, marks, activeSubject }) {
           <h2 style={{ margin: 0, color: "#a78bfa" }}>Marks Report – {subj?.name}</h2>
           <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>ISE 1 + ISE 2 = Total out of 40</p>
         </div>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <button onClick={exportExcel} style={{ ...btnStyle("#16a34a", "#15803d"), padding: "10px 20px", fontSize: 14 }}>📥 Download Excel</button>
-          <button onClick={printReport} style={{ ...btnStyle("#3b82f6", "#1d4ed8"), padding: "10px 20px", fontSize: 14 }}>🖨️ Print / PDF</button>
-        </div>
+        <button onClick={printReport} style={{ ...btnStyle("#3b82f6", "#1d4ed8"), padding: "10px 20px", fontSize: 14 }}>🖨️ Print / PDF</button>
       </div>
 
       {/* Stats */}
@@ -2441,7 +2352,7 @@ function ATRView({ students, attendance, activeSubject }) {
           ["Defaulters (<75%)", defaulters.length, "#ef4444"],
         ].map(([l, v, c]) => (
           <div key={l} style={{ flex: 1, minWidth: 140, background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 20px", border: `1px solid ${c}40`, textAlign: "center" }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: c }}>{v}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: c, fontFamily: "'Orbitron', monospace", letterSpacing: 1 }}>{v}</div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{l}</div>
           </div>
         ))}
@@ -2521,6 +2432,865 @@ function ATRView({ students, attendance, activeSubject }) {
   );
 }
 
+
+// ─── SYLLABUS DATA ────────────────────────────────────────────────────────────
+const SYLLABUS = {
+  "2MEIE201": {
+    course: "Industrial Engineering",
+    code: "2MEIE201",
+    class: "S.Y. B.Tech – Semester IV",
+    credits: "02",
+    evaluation: "ISE: 40 | MSE: 30 | ESE: 30",
+    teaching: "Lecture: 02 / Tutorial: 00",
+    category: "Employability",
+    outcomes: [
+      { co: "2MEIE201_1", desc: "Apply the fundamentals of industrial engineering for a given industrial production scenario to calculate and improve productivity using appropriate tools and techniques." },
+      { co: "2MEIE201_2", desc: "Prepare the records of various industrial tasks and operations using appropriate charts and diagrams." },
+      { co: "2MEIE201_3", desc: "Estimate the normal time and standard time for industrial work and activities using appropriate work measurement techniques." },
+      { co: "2MEIE201_4", desc: "Identify optimum sequence and schedule of number of jobs on number machines using appropriate sequencing and scheduling technique." },
+      { co: "2MEIE201_5", desc: "Estimate the project duration and inventory level for timely completion of project and uninterrupted production using appropriate project management and inventory control techniques." },
+    ],
+    units: [
+      { no: 1, title: "Industrial Engineering and Productivity", hrs: 5, topics: "Scope, Role of industrial engineer, tools and techniques of industrial engineering. Productivity – concept, objective, factors affecting productivity, tools & techniques to improve productivity, value analysis & value engineering. (Numerical treatment on productivity measures)." },
+      { no: 2, title: "Lean Manufacturing", hrs: 4, topics: "JIT, SMED, 5S, Kaizen, Six Sigma, Kanban, Management Information System, Total Productive Maintenance, Poka-Yoke." },
+      { no: 3, title: "Method Study", hrs: 4, topics: "Objectives of method study, various recording techniques, therblings, micro-motion study, MEMO motion study, principles of motion economy. (Exercises on recording techniques)." },
+      { no: 4, title: "Work Measurement", hrs: 5, topics: "Definitions, objectives, activity and elements, performance rating, rating methods, allowances, work sampling, predetermined motion time system, workplace ergonomics. (Numerical treatment on performance rating, normal and standard time calculations)." },
+      { no: 5, title: "Capacity and Aggregate Planning and Scheduling of Operations", hrs: 4, topics: "Introduction, measures of capacity, capacity strategies, overcapacity & under capacity factors. Aggregate planning, aggregate planning strategies. Sequencing problems: n jobs 1 machine, n jobs 2 machines, n jobs 3 machines. (Numerical treatment)." },
+      { no: 6, title: "Inventory Control and Network Techniques", hrs: 4, topics: "Inventory valuation by LIFO and FIFO, ABC analysis, network techniques, critical path method, forward & backward scheduling. (Numerical treatment on critical path method)." },
+    ],
+    textbooks: [
+      { no: "T1", text: "Gavrial Salvendy – Hand Book of Industrial Engineering, John Wiley and Sons, New York, 2007" },
+      { no: "T2", text: "M. I. Khan – Industrial Engineering, New Age International(P) Ltd., New Delhi, Reprint 2004" },
+      { no: "T3", text: "International Labour Office – Introduction To Work Study, Digitalized 2008" },
+      { no: "T4", text: "D.S. Hira and Gupta – Operations Research, Chand & Co. New Delhi, 7th Ed., 1976" },
+    ],
+    refbooks: [
+      { no: "R1", text: "Khanna O.P. – Industrial Engineering and Management, Dhanpat Rai Publications(P) Ltd., Revised 2003" },
+      { no: "R2", text: "Martand Telsang – Industrial Engineering and Production Management, S. Chand & Company Ltd., Revised 2006" },
+      { no: "R3", text: "Dinesh Seth, Subhash Rastogi – Global Management Solutions Demystified, Cengage Learning, 2nd Ed., 2009" },
+      { no: "R4", text: "H.B. Maynard and Others – Industrial Engineering Handbook, Tata McGraw Hill Publication, 4th Ed., 2009" },
+    ],
+  },
+  "2MEIE302": {
+    course: "Supply Chain Management",
+    code: "2MEIE302",
+    class: "T.Y. B.Tech – Semester VI",
+    credits: "03",
+    evaluation: "ISE: 40 | MSE: 30 | ESE: 30",
+    teaching: "Lecture: 03 / Tutorial: 00",
+    category: "Employability",
+    outcomes: [
+      { co: "2MEIE302_1", desc: "Explain the basics of Logistics and Supply Chain and their role in today's business environment by using Logistics and Supply Chain Management concepts." },
+      { co: "2MEIE302_2", desc: "Identify the various drivers of supply chain performance and risks in supply chain management with performance measurement methods." },
+      { co: "2MEIE302_3", desc: "Apply various techniques to rank the items of inventory management using inventory management technique." },
+      { co: "2MEIE302_4", desc: "Apply various strategies and techniques to minimize overall logistics cost using logistics cost reduction techniques." },
+      { co: "2MEIE302_5", desc: "Design the supply chain network for various distribution networks using mathematical models and tools." },
+    ],
+    units: [
+      { no: 1, title: "Introduction to Supply Chain Management", hrs: 6, topics: "Objectives of a Supply Chain Management, Stages of Supply chain, Value Chain Process, Cycle view of Supply Chain Process, Key issues in SCM, logistics & SCM, Supply Chain Drivers/decisions and obstacles, Supply chain strategies, strategic fit, Best practices in SCM, Obstacles of streamlined SCM, Make & Buy Decision." },
+      { no: 2, title: "Supply Chain Performance", hrs: 7, topics: "Performance measurement: Dimension, Tools of performance measurement, SCOR Model. Demand chain management, Global Supply Chain – Challenges in establishing Global Supply Chain, Factors influencing designing Global Supply Chain Network. Supply Chain Risk Management: Risks involved in supply chain – Supplier Financial Risk, Performance Risk, Compliance Risk, Country specific Risk, Cyber Security." },
+      { no: 3, title: "Inventory Management", hrs: 7, topics: "Definition of Inventory, Inventory types & functions; EOQ Model and Buffer Stock, Assumptions, Instantaneous Replenishment case, Demand and production rate are different, when backorders are allowed, Buffer Stock and ROL. Replenishment systems (Q and P system). Inventory Control – ABC Analysis." },
+      { no: 4, title: "Logistics Management and Outsourcing", hrs: 7, topics: "Objectives, Components and Functions of Logistics Management, Distribution related Issues and Challenges; Gaining competitive advantage through Logistics Management, Transportation – Functions, Costs, and Mode; Network and Decision, Containerization, Cross docking. Warehousing: Concept and types, Reverse logistics. Outsourcing – Nature and concept, Strategic decision to Outsourcing, Third party logistics (3PL), Fourth party logistics (4PL)." },
+      { no: 5, title: "Digitization in Supply Chain Management and Sustainability", hrs: 6, topics: "IT in supply chain – Role of IT, Supply chain IT framework, Application of Bar coding, Significance of SAP/RFID, Future of IT in the supply chain. TMS (Transport Management System), WMS (Warehouse Management System), Green supply chain management, Social aspects (CSR), Environment aspects of supply chain, resource utilization, recycling. Introduction to simulation tools like sales force and AI, ecommerce methods." },
+      { no: 6, title: "Supply Chain Network Design", hrs: 6, topics: "Factors influencing distribution network design, Supply chain resilience, Design options for distribution network, Introduction to mathematical modelling, considerations in modelling SCM systems, Transportation problem. Value Stream Mapping (VSM), Order Fulfillment Process Flow, understanding the terms related to supply chain – Lead Time, Takt Time, Minimum Order Quantity (MOQ)." },
+    ],
+    textbooks: [
+      { no: "T1", text: "P.N. Rao – Manufacturing Technology: Foundry, Forming and Welding, Tata McGraw Hill, 2nd Ed., 2009" },
+      { no: "T2", text: "O.P. Khanna – Foundry Technology, Dhanpat Rai Publication, 15th Ed., 2011" },
+      { no: "T3", text: "P.C. Sharma – Production Technology Vol.1: Manufacturing Processes, S. Chand, 1st Ed., 2006" },
+      { no: "T4", text: "P.C. Sharma – Production Technology Vol. 2: Machine Tools, S. Chand, 2nd Ed., 2006" },
+      { no: "T5", text: "S.K. Hajra Choudhary, S.K. Bose – Workshop Technology Vol.1, Media Promoters and Publishers, 12th Ed., 2012" },
+    ],
+    refbooks: [
+      { no: "R1", text: "E. Paul DeGarmo, J.T. Black – Materials and Processes in Manufacturing, PHI Publication, 8th Ed., 1997" },
+      { no: "R2", text: "George E. Dieter – Mechanical Metallurgy, Tata McGraw Hill, 3rd Ed., 2013" },
+      { no: "R3", text: "Steve F. Krar, Mario Rapisarda – Machine Tools and Manufacturing Technology, Delmar, 2nd Ed., 2010" },
+      { no: "R4", text: "W.A.J. Chapman – Workshop Technology Vol.I, II & III, CBS Publishing and Distributors, 5th Ed., 2001" },
+    ],
+  },
+};
+
+// ─── SYLLABUS VIEW ────────────────────────────────────────────────────────────
+function SyllabusView({ activeSubject }) {
+  const syl = SYLLABUS[activeSubject];
+  if (!syl) return <div style={{ color: "#94a3b8", padding: 20 }}>No syllabus data available for this subject.</div>;
+
+  const totalHrs = syl.units.reduce((a, u) => a + u.hrs, 0);
+
+  const sectionTitle = (icon, text) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "32px 0 14px" }}>
+      <span style={{ fontSize: 20 }}>{icon}</span>
+      <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#f8fafc" }}>{text}</h3>
+      <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.1)", marginLeft: 8 }} />
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 900 }}>
+
+      {/* ── Header ── */}
+      <div style={{ background: "linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04))", borderRadius: 16, padding: "24px 28px", border: "1px solid rgba(245,158,11,0.25)", marginBottom: 28 }}>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: "#f59e0b", textTransform: "uppercase", marginBottom: 6 }}>Annasaheb Dange College of Engineering & Technology, Ashta</div>
+        <h2 style={{ margin: "0 0 4px", fontSize: 24, fontWeight: 700, color: "#f8fafc" }}>{syl.course}</h2>
+        <div style={{ fontSize: 14, color: "#94a3b8" }}>Course Code: <strong style={{ color: "#f59e0b" }}>{syl.code}</strong> &nbsp;·&nbsp; {syl.class}</div>
+      </div>
+
+      {/* ── Course Details Grid ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12, marginBottom: 8 }}>
+        {[
+          ["🎓 Class", syl.class],
+          ["💳 Credits", syl.credits],
+          ["📊 Evaluation", syl.evaluation],
+          ["⏰ Teaching Scheme", syl.teaching],
+          ["🏷️ Category", syl.category],
+          ["⏱️ Total Hours", `${totalHrs} Hours`],
+        ].map(([label, value]) => (
+          <div key={label} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: "14px 16px", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ fontSize: 11, color: "#64748b", marginBottom: 5 }}>{label}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0" }}>{value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Course Outcomes ── */}
+      {sectionTitle("🎯", "Course Outcomes (COs)")}
+      <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.07)", overflow: "hidden" }}>
+        {syl.outcomes.map((o, i) => (
+          <div key={o.co} style={{ display: "flex", gap: 0, borderBottom: i < syl.outcomes.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+            <div style={{ background: "rgba(245,158,11,0.1)", padding: "14px 16px", minWidth: 110, display: "flex", alignItems: "flex-start", justifyContent: "center", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#f59e0b", whiteSpace: "nowrap" }}>{o.co}</span>
+            </div>
+            <div style={{ padding: "14px 18px", fontSize: 13.5, color: "#cbd5e1", lineHeight: 1.7 }}>{o.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Course Contents ── */}
+      {sectionTitle("📖", `Course Contents — ${totalHrs} Total Hours`)}
+      <div style={{ border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, overflow: "hidden" }}>
+        {/* Table header */}
+        <div style={{ display: "grid", gridTemplateColumns: "80px 1fr 70px", background: "rgba(255,255,255,0.07)", padding: "11px 18px", gap: 16 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>Unit</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>Topics</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", textAlign: "right" }}>Hours</span>
+        </div>
+        {syl.units.map((u, i) => (
+          <div key={u.no} style={{ display: "grid", gridTemplateColumns: "80px 1fr 70px", gap: 16, padding: "18px 18px", borderTop: "1px solid rgba(255,255,255,0.06)", background: i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent", alignItems: "start" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ background: "rgba(245,158,11,0.18)", color: "#f59e0b", borderRadius: 6, padding: "4px 10px", fontSize: 12, fontWeight: 700, textAlign: "center" }}>Unit {u.no}</span>
+            </div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc", marginBottom: 6 }}>{u.title}</div>
+              <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.75 }}>{u.topics}</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <span style={{ background: "rgba(34,197,94,0.12)", color: "#22c55e", borderRadius: 6, padding: "4px 10px", fontSize: 12, fontWeight: 700 }}>{u.hrs} Hrs</span>
+            </div>
+          </div>
+        ))}
+        {/* Total row */}
+        <div style={{ display: "grid", gridTemplateColumns: "80px 1fr 70px", gap: 16, padding: "12px 18px", borderTop: "2px solid rgba(255,255,255,0.12)", background: "rgba(245,158,11,0.05)" }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#f59e0b" }}>Total</span>
+          <span />
+          <span style={{ textAlign: "right", fontSize: 14, fontWeight: 700, color: "#f59e0b" }}>{totalHrs} Hrs</span>
+        </div>
+      </div>
+
+      {/* ── Text Books ── */}
+      {sectionTitle("📗", "Text Books")}
+      <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.07)", overflow: "hidden" }}>
+        {syl.textbooks.map((b, i) => (
+          <div key={b.no} style={{ display: "flex", gap: 0, borderBottom: i < syl.textbooks.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+            <div style={{ background: "rgba(34,197,94,0.08)", padding: "13px 16px", minWidth: 52, display: "flex", alignItems: "flex-start", justifyContent: "center", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#22c55e" }}>{b.no}</span>
+            </div>
+            <div style={{ padding: "13px 18px", fontSize: 13.5, color: "#cbd5e1", lineHeight: 1.6 }}>{b.text}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Reference Books ── */}
+      {sectionTitle("📘", "Reference Books")}
+      <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.07)", overflow: "hidden", marginBottom: 32 }}>
+        {syl.refbooks.map((b, i) => (
+          <div key={b.no} style={{ display: "flex", gap: 0, borderBottom: i < syl.refbooks.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+            <div style={{ background: "rgba(167,139,250,0.08)", padding: "13px 16px", minWidth: 52, display: "flex", alignItems: "flex-start", justifyContent: "center", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#a78bfa" }}>{b.no}</span>
+            </div>
+            <div style={{ padding: "13px 18px", fontSize: 13.5, color: "#cbd5e1", lineHeight: 1.6 }}>{b.text}</div>
+          </div>
+        ))}
+      </div>
+
+    </div>
+  );
+}
+
+
+// ─── QUESTION BANK (45 per subject: 15 per unit × 3 units) ───────────────────
+const QUESTION_BANK = {
+  "2MEIE201": [
+    // ── Unit 1: Industrial Engineering & Productivity (15 Qs) ──
+    { id:101, unit:1, q:"Which of the following BEST defines Industrial Engineering?", opts:["Study of manufacturing machines only","Application of scientific principles to optimise systems of people, machines and materials","Design of industrial buildings","Quality inspection in factories"], ans:1 },
+    { id:102, unit:1, q:"Productivity is defined as the ratio of:", opts:["Input to Output","Output to Input","Cost to Profit","Labour to Capital"], ans:1 },
+    { id:103, unit:1, q:"Value Analysis primarily focuses on:", opts:["Increasing product weight","Reducing cost while maintaining or improving function","Increasing production speed only","Reducing workforce blindly"], ans:1 },
+    { id:104, unit:1, q:"Which of these is NOT a primary tool of Industrial Engineering?", opts:["Method Study","Work Measurement","Lean Manufacturing","Architectural Interior Design"], ans:3 },
+    { id:105, unit:1, q:"An increase in output with the same input indicates:", opts:["Decreased productivity","Constant productivity","Increased productivity","Production loss"], ans:2 },
+    { id:106, unit:1, q:"Value Engineering is typically performed:", opts:["After product failure in market","During the design and development stage","Only after product launch","During the recycling phase"], ans:1 },
+    { id:107, unit:1, q:"Which factor does NOT directly affect productivity?", opts:["Technology upgradation","Worker motivation","Company logo redesign","Management practices"], ans:2 },
+    { id:108, unit:1, q:"The role of an Industrial Engineer primarily includes:", opts:["Only supervising workers","Optimising processes, reducing waste and improving efficiency","Designing products only","Auditing financial accounts"], ans:1 },
+    { id:109, unit:1, q:"Which of the following is a technique to improve productivity?", opts:["Increasing raw material cost","Value Analysis and Value Engineering","Reducing quality standards","Increasing idle time"], ans:1 },
+    { id:110, unit:1, q:"Partial productivity measure considers:", opts:["All inputs together","Only one input factor such as labour or material","Only output quantity","Revenue per employee"], ans:1 },
+    { id:111, unit:1, q:"Total productivity is measured as:", opts:["Output / Labour input only","Total output / Total input","Profit / Revenue","Sales / Inventory"], ans:1 },
+    { id:112, unit:1, q:"Value Analysis was developed by:", opts:["F.W. Taylor","Lawrence D. Miles","Henry Gantt","Frank Gilbreth"], ans:1 },
+    { id:113, unit:1, q:"Which of these best describes 'scope of Industrial Engineering'?", opts:["Only factory floor supervision","Improving productivity, quality, and efficiency across all types of systems","Designing mechanical components","Financial forecasting"], ans:1 },
+    { id:114, unit:1, q:"Multi-factor productivity considers:", opts:["Only labour input","Two or more input factors simultaneously","Only machine utilization","Revenue and profit only"], ans:1 },
+    { id:115, unit:1, q:"The primary objective of Value Engineering is to:", opts:["Increase product weight","Achieve required function at lowest cost","Improve aesthetic appearance","Add more features to product"], ans:1 },
+
+    // ── Unit 2: Lean Manufacturing (15 Qs) ──
+    { id:201, unit:2, q:"JIT stands for:", opts:["Just In Time","Job Integration Technique","Joint Industrial Testing","Job Inventory Tracking"], ans:0 },
+    { id:202, unit:2, q:"The 5S methodology includes Sort, Set in Order, Shine, Standardize, and:", opts:["Supply","Sustain","Schedule","Simplify"], ans:1 },
+    { id:203, unit:2, q:"SMED stands for:", opts:["Standard Material Evaluation Design","Single Minute Exchange of Die","Supply Management and Equipment Design","Statistical Method for Equipment Downtime"], ans:1 },
+    { id:204, unit:2, q:"Poka-Yoke is a technique used to:", opts:["Increase machine speed","Mistake-proof a process","Calculate cycle time","Schedule production batches"], ans:1 },
+    { id:205, unit:2, q:"Kanban is a visual signal system used in:", opts:["Financial auditing","Pull-based production control","Product design review","Marketing campaigns"], ans:1 },
+    { id:206, unit:2, q:"Kaizen means:", opts:["Rapid large-scale redesign","Continuous incremental improvement","Full automation of processes","Radical breakthrough innovation"], ans:1 },
+    { id:207, unit:2, q:"Six Sigma aims to reduce defects to approximately:", opts:["3.4 per million opportunities","34 per thousand","3.4 per thousand","340 per million"], ans:0 },
+    { id:208, unit:2, q:"Total Productive Maintenance (TPM) primarily aims to:", opts:["Replace all old machines","Maximise equipment effectiveness with zero breakdowns","Reduce workforce size","Increase product variety"], ans:1 },
+    { id:209, unit:2, q:"In JIT manufacturing, inventory is:", opts:["Kept very high as buffer","Produced and delivered exactly when needed","Maintained in large warehouses","Ordered monthly in bulk"], ans:1 },
+    { id:210, unit:2, q:"Which lean tool helps in identifying and eliminating waste in a process?", opts:["5S","Kanban","Value Stream Mapping","Poka-Yoke"], ans:2 },
+    { id:211, unit:2, q:"The eight wastes in lean manufacturing include all EXCEPT:", opts:["Overproduction","Waiting","Transportation","Value addition"], ans:3 },
+    { id:212, unit:2, q:"MIS in lean manufacturing stands for:", opts:["Machine Inspection System","Management Information System","Material Inventory Schedule","Manufacturing Integration Software"], ans:1 },
+    { id:213, unit:2, q:"SMED technique is primarily used to:", opts:["Increase batch sizes","Reduce setup and changeover time","Improve product design","Calculate OEE"], ans:1 },
+    { id:214, unit:2, q:"Poka-Yoke was developed as part of which system?", opts:["Six Sigma","Toyota Production System","ISO 9001","Theory of Constraints"], ans:1 },
+    { id:215, unit:2, q:"Which of the following is NOT one of the 5S pillars?", opts:["Sort","Shine","Standardize","Strategize"], ans:3 },
+
+    // ── Unit 3: Method Study (15 Qs) ──
+    { id:301, unit:3, q:"Therblings were developed by:", opts:["F.W. Taylor","Frank and Lillian Gilbreth","Henry Gantt","Elton Mayo"], ans:1 },
+    { id:302, unit:3, q:"The primary objective of Method Study is to:", opts:["Measure time taken for a task","Find the best way of doing a job","Calculate standard time only","Record machine utilisation"], ans:1 },
+    { id:303, unit:3, q:"Which chart shows the sequence and relationship of activities in a process?", opts:["Gantt Chart","Flow Process Chart","Pie Chart","Scatter Diagram"], ans:1 },
+    { id:304, unit:3, q:"Micro-motion study involves:", opts:["Measuring hourly output","Analysing basic motion elements using film or video","Counting workers per shift","Scheduling preventive maintenance"], ans:1 },
+    { id:305, unit:3, q:"The principles of motion economy aim to:", opts:["Increase the number of motions performed","Reduce fatigue and improve efficiency by minimising unnecessary motions","Record all body movements of workers","Automate all manual tasks"], ans:1 },
+    { id:306, unit:3, q:"MEMO Motion Study is used for:", opts:["Financial auditing of processes","Long-cycle operations studied using slow-speed filming","Short-cycle precision operations","Statistical quality control"], ans:1 },
+    { id:307, unit:3, q:"Which recording technique uses standard ASME symbols to represent activities?", opts:["Bar Chart","Flow Process Chart with ASME symbols","Histogram","Control Chart"], ans:1 },
+    { id:308, unit:3, q:"Method Study follows which correct sequence of steps?", opts:["Record → Select → Define → Install","Select → Record → Examine → Develop → Install → Maintain","Examine → Record → Select → Install","Define → Measure → Analyse → Improve"], ans:1 },
+    { id:309, unit:3, q:"A String Diagram is used to:", opts:["Show time on a task","Trace the movement path of workers or materials in a workplace","Record machine idle time","Plan production schedules"], ans:1 },
+    { id:310, unit:3, q:"An Outline Process Chart records:", opts:["Only transport and delay activities","Only the main operations and inspections in a process","All five types of activities in detail","Worker fatigue levels"], ans:1 },
+    { id:311, unit:3, q:"How many basic therbligs did Gilbreth identify?", opts:["10","15","17","20"], ans:2 },
+    { id:312, unit:3, q:"A Two-Handed Process Chart is used to:", opts:["Record activities of two different workers","Record simultaneous activities of both hands of a worker","Plan a two-shift operation","Compare two methods of production"], ans:1 },
+    { id:313, unit:3, q:"Which of the following is a principle of motion economy related to the workplace?", opts:["Use of momentum to assist worker","Materials should be located far from the point of use","Avoid definite and fixed locations for tools","Increase the number of hand motions"], ans:0 },
+    { id:314, unit:3, q:"The critical examination technique in Method Study uses:", opts:["What, Why, Where, When, Who, How questions","Only time measurements","Statistical sampling","Computer simulation only"], ans:0 },
+    { id:315, unit:3, q:"Cyclegraph and Chronocyclegraph techniques are used for:", opts:["Inventory control","Studying path and speed of motion of body parts","Scheduling machines","Financial analysis"], ans:1 },
+  ],
+
+  "2MEIE302": [
+    // ── Unit 1: Introduction to SCM (15 Qs) ──
+    { id:101, unit:1, q:"A Supply Chain encompasses activities associated with:", opts:["Only manufacturing operations","Flow and transformation of goods from raw materials to the end user","Marketing and advertising only","Retail sales alone"], ans:1 },
+    { id:102, unit:1, q:"The 'Make or Buy' decision in SCM refers to:", opts:["Deciding production shift timings","Choosing between in-house production versus outsourcing","Buying raw materials in bulk always","Manufacturing and selling simultaneously"], ans:1 },
+    { id:103, unit:1, q:"Strategic Fit in SCM means:", opts:["Having the best suppliers in the world","Alignment between the competitive strategy and the supply chain strategy","Physically fitting products in containers","Matching supply with demand perfectly at all times"], ans:1 },
+    { id:104, unit:1, q:"The Cycle View of a supply chain identifies:", opts:["Financial payment cycles","Customer Order, Replenishment, Manufacturing, and Procurement cycles","Product life cycles only","Employee work shift cycles"], ans:1 },
+    { id:105, unit:1, q:"Logistics in SCM refers to:", opts:["Only warehousing activities","Planning and execution of the movement and storage of goods","Only transportation of goods","Financial and budget planning"], ans:1 },
+    { id:106, unit:1, q:"Which is a key driver of Supply Chain performance?", opts:["Company logo and branding","Facilities, Inventory, Transportation, Information, Sourcing, and Pricing","Number of employees in HR","Office location and design"], ans:1 },
+    { id:107, unit:1, q:"Obstacles of a streamlined SCM include:", opts:["Too many customers","Information distortion, incentive conflicts, and large lot sizes","Excess product quality","Too much automation"], ans:1 },
+    { id:108, unit:1, q:"The Value Chain Process in SCM represents:", opts:["Financial value of inventory","Series of activities that add value from supplier to customer","Value of company shares","Market pricing strategy"], ans:1 },
+    { id:109, unit:1, q:"Best practices in SCM include:", opts:["Ignoring supplier relationships","Collaborative planning, demand forecasting, and lean operations","Maximum inventory holding at all times","Eliminating all information technology"], ans:1 },
+    { id:110, unit:1, q:"Supply Chain strategy should align with:", opts:["Only cost reduction goals","The overall competitive strategy of the business","Only customer delivery speed","Inventory minimisation alone"], ans:1 },
+    { id:111, unit:1, q:"The 'Push' strategy in supply chain means:", opts:["Products are pulled by customer demand","Products are pushed based on forecasted demand","Suppliers push materials without orders","Customers push for discounts"], ans:1 },
+    { id:112, unit:1, q:"Which of the following is NOT a stage of a supply chain?", opts:["Supplier","Manufacturer","Distributor","Advertiser"], ans:3 },
+    { id:113, unit:1, q:"The Bullwhip Effect in SCM refers to:", opts:["Effect of wind on logistics","Amplification of demand fluctuations as you move up the supply chain","Reduction in inventory levels","Effect of automation on supply chain"], ans:1 },
+    { id:114, unit:1, q:"A responsive supply chain strategy is best suited for:", opts:["Low demand uncertainty, commodity products","High demand uncertainty, innovative products","Stable, predictable demand","Very low margin products"], ans:1 },
+    { id:115, unit:1, q:"Key issues in SCM include:", opts:["Product colour selection","Demand forecasting, inventory management, and supplier relationship management","Employee leave management","Office facility management"], ans:1 },
+
+    // ── Unit 2: Supply Chain Performance (15 Qs) ──
+    { id:201, unit:2, q:"SCOR stands for:", opts:["Supply Chain Operations Reference model","Standard Cost Operations Report","Supply Cost Output Ratio","Strategic Chain Operational Review"], ans:0 },
+    { id:202, unit:2, q:"Supply Chain Risk Management deals with:", opts:["Only financial market risks","Identifying and mitigating risks like supplier failure, demand uncertainty, and cyber threats","Natural disaster insurance only","Stock market investment risks"], ans:1 },
+    { id:203, unit:2, q:"Demand Chain Management focuses on:", opts:["Managing the supply side only","Creating and managing customer demand proactively","Reducing production costs alone","Inventory management only"], ans:1 },
+    { id:204, unit:2, q:"Global Supply Chain challenges include:", opts:["Only language barriers","Currency fluctuations, political instability, lead time variability, and compliance issues","Only weather and climate conditions","Domestic regulations only"], ans:1 },
+    { id:205, unit:2, q:"Performance measurement dimensions in SCM include:", opts:["Only cost metrics","Cost, Quality, Time, Flexibility, and Innovation","Only delivery speed metrics","Customer satisfaction surveys only"], ans:1 },
+    { id:206, unit:2, q:"Cyber Security risk in supply chain refers to:", opts:["Physical security of warehouses and factories","Protecting digital supply chain systems from cyber attacks and data breaches","Encrypting product barcodes only","Securing individual employee records"], ans:1 },
+    { id:207, unit:2, q:"Compliance Risk in supply chain arises from:", opts:["Risk of product defects only","Failure to follow regulations, standards, or contractual obligations","Risk of employee strikes","Financial credit risk alone"], ans:1 },
+    { id:208, unit:2, q:"The SCOR model covers which processes?", opts:["Only Plan and Source","Plan, Source, Make, Deliver, Return, and Enable","Only Make and Deliver","Finance and HR processes"], ans:1 },
+    { id:209, unit:2, q:"Factors that influence designing a Global Supply Chain Network include:", opts:["Office interior design","Infrastructure quality, labour costs, tax incentives, and political stability","Number of domestic suppliers","Product colour preferences"], ans:1 },
+    { id:210, unit:2, q:"Supplier Financial Risk in SCM refers to:", opts:["Risk that the supplier overcharges","Risk that a key supplier becomes financially unstable or bankrupt","Risk of product price increase","Risk of delayed payments by customers"], ans:1 },
+    { id:211, unit:2, q:"Which tool is used to measure supply chain performance against best-in-class benchmarks?", opts:["Kanban","SCOR Model","ABC Analysis","EOQ Model"], ans:1 },
+    { id:212, unit:2, q:"Country-specific risk in global supply chain includes:", opts:["Supplier delivery delays only","Political instability, trade restrictions, and regulatory changes in a country","Customer payment defaults","Currency exchange gains"], ans:1 },
+    { id:213, unit:2, q:"Performance Risk in supply chain refers to:", opts:["Risk of product underperformance in market","Risk that a supplier fails to meet performance standards or SLAs","Risk of machine breakdown","Financial audit failure"], ans:1 },
+    { id:214, unit:2, q:"Global Supply Chain refers to:", opts:["A supply chain operating in a single country","A supply chain that spans multiple countries and regions","Supply chain within a single factory","Local distribution network only"], ans:1 },
+    { id:215, unit:2, q:"Which of the following is a dimension of supply chain performance measurement?", opts:["Employee satisfaction only","Reliability, Responsiveness, Agility, Cost, and Asset Management","Brand awareness","Profit margin alone"], ans:1 },
+
+    // ── Unit 3: Inventory Management (15 Qs) ──
+    { id:301, unit:3, q:"EOQ stands for:", opts:["Estimated Order Quantity","Economic Order Quantity","Expected Output Quality","Effective Order Quota"], ans:1 },
+    { id:302, unit:3, q:"Buffer Stock is maintained to:", opts:["Reduce production speed intentionally","Protect against demand or supply uncertainties","Increase warehouse rental size","Meet seasonal bulk discounts"], ans:1 },
+    { id:303, unit:3, q:"ABC Analysis classifies inventory based on:", opts:["Alphabetical order of product names","Annual consumption value — A items highest, C items lowest","Supplier names alphabetically","Product colour and size"], ans:1 },
+    { id:304, unit:3, q:"In the Q-system of inventory control, orders are placed:", opts:["At fixed regular time intervals","When inventory falls to a predetermined reorder level","Every Monday morning","Randomly based on supplier availability"], ans:1 },
+    { id:305, unit:3, q:"ROL stands for:", opts:["Rate of Loss","Reorder Level","Record of Logistics","Rate of Labour cost"], ans:1 },
+    { id:306, unit:3, q:"In the EOQ model, as order quantity increases, holding cost:", opts:["Decreases proportionally","Increases proportionally","Remains constant","Becomes zero"], ans:1 },
+    { id:307, unit:3, q:"The P-system of inventory replenishment involves:", opts:["Variable order quantity at fixed time intervals","Fixed order quantity at variable time intervals","Random ordering without any system","EOQ-based ordering only"], ans:0 },
+    { id:308, unit:3, q:"The basic EOQ model assumes:", opts:["Variable demand and lead time","Constant demand rate and instantaneous replenishment","Backorders are always allowed","Quantity discounts are always available"], ans:1 },
+    { id:309, unit:3, q:"'A' category items in ABC analysis should be:", opts:["Controlled loosely with minimal review","Controlled tightly with frequent review and close monitoring","Ordered in very large quantities","Stored in the most remote warehouse location"], ans:1 },
+    { id:310, unit:3, q:"When demand and production rate are different in EOQ, which model is used?", opts:["Simple EOQ model","Production Order Quantity (POQ) model","ABC Analysis model","Reorder Point model"], ans:1 },
+    { id:311, unit:3, q:"In EOQ model, total inventory cost is minimised when:", opts:["Ordering cost is zero","Holding cost equals ordering cost","Holding cost is zero","Order quantity is maximum"], ans:1 },
+    { id:312, unit:3, q:"When backorders are allowed in inventory, the EOQ model:", opts:["Remains unchanged","Results in a higher optimal order quantity compared to basic EOQ","Results in a lower order quantity","Is not applicable"], ans:1 },
+    { id:313, unit:3, q:"Instantaneous replenishment in EOQ assumes:", opts:["Long lead time for delivery","The entire order quantity arrives at once","Orders arrive in small batches","Demand is seasonal"], ans:1 },
+    { id:314, unit:3, q:"'C' category items in ABC analysis typically represent:", opts:["High value, low volume items","Low value, high volume items requiring tight control","Medium value and medium volume","Items with no demand"], ans:1 },
+    { id:315, unit:3, q:"Inventory Control through ABC analysis helps management to:", opts:["Focus equal attention on all items","Focus maximum attention on A items which contribute most to value","Reduce all inventory to zero","Order all items in equal quantities"], ans:1 },
+  ],
+};
+
+// ─── ISE TEST VIEW ────────────────────────────────────────────────────────────
+function ISETestView({ students, marks, setMarks, activeSubject, ise2Active, setIse2Active, showNotif }) {
+  const [mode, setMode] = useState("home"); // home | login | test | result | results-table
+  const [studentUrn, setStudentUrn] = useState("");
+  const [studentRoll, setStudentRoll] = useState("");
+  const [currentStudent, setCurrentStudent] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState({});
+  const [currentQ, setCurrentQ] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [tabViolations, setTabViolations] = useState(0);
+  const [warningMsg, setWarningMsg] = useState("");
+  const [score, setScore] = useState(0);
+  const [testResults, setTestResults] = useState({}); // rollNo -> { mcq20, mcq5, presentation15, total20 }
+  const timerRef = useRef(null);
+  const subj = SUBJECTS.find(s => s.code === activeSubject);
+  const allStudents = students[activeSubject] || [];
+
+  // Sync presentation marks from main marks state into testResults
+  useEffect(() => {
+    const subjMarks = marks[activeSubject] || {};
+    setTestResults(prev => {
+      const updated = { ...prev };
+      allStudents.forEach(s => {
+        const pres = subjMarks[s.rollNo]?.Presentation ?? prev[s.rollNo]?.presentation15 ?? "";
+        if (pres !== "" && pres !== undefined) {
+          updated[s.rollNo] = { ...(updated[s.rollNo] || {}), presentation15: pres };
+        }
+      });
+      return updated;
+    });
+  }, [marks, activeSubject]);
+
+  // Tab switch detection
+  useEffect(() => {
+    if (mode !== "test") return;
+    const onVis = () => {
+      if (!document.hidden) return;
+      setTabViolations(v => {
+        const nv = v + 1;
+        if (nv >= 3) {
+          setWarningMsg("❌ 3 violations — auto-submitting!");
+          setTimeout(() => doSubmit(), 800);
+        } else {
+          setWarningMsg(`⚠️ Tab switch detected! Violation ${nv}/3`);
+          setTimeout(() => setWarningMsg(""), 3500);
+        }
+        return nv;
+      });
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [mode]);
+
+  // Timer
+  useEffect(() => {
+    if (mode !== "test") return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) { clearInterval(timerRef.current); doSubmit(); return 0; }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [mode]);
+
+  const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+
+  const startTest = () => {
+    const found = allStudents.find(s => s.urn === studentUrn.trim() || s.rollNo === studentRoll.trim());
+    if (!found) return showNotif("Student not found. Check URN or Roll No.", "error");
+    const bank = QUESTION_BANK[activeSubject] || [];
+    // 7 from unit1, 7 from unit2, 6 from unit3
+    const u1 = shuffle(bank.filter(q => q.unit === 1)).slice(0, 7);
+    const u2 = shuffle(bank.filter(q => q.unit === 2)).slice(0, 7);
+    const u3 = shuffle(bank.filter(q => q.unit === 3)).slice(0, 6);
+    const final = shuffle([...u1, ...u2, ...u3]).map(q => ({
+      ...q,
+      shuffledOpts: shuffle(q.opts.map((o, i) => ({ text: o, origIdx: i }))),
+    }));
+    setCurrentStudent(found);
+    setQuestions(final);
+    setAnswers({});
+    setCurrentQ(0);
+    setTimeLeft(20 * 60); // 20 minutes fixed
+    setTabViolations(0);
+    setWarningMsg("");
+    setMode("test");
+  };
+
+  const doSubmit = () => {
+    clearInterval(timerRef.current);
+    setAnswers(latestAns => {
+      setQuestions(latestQs => {
+        let correct = 0;
+        latestQs.forEach((q, i) => {
+          const chosen = latestAns[i];
+          if (chosen !== undefined && q.shuffledOpts[chosen].origIdx === q.ans) correct++;
+        });
+        const mcq5 = parseFloat((correct * 5 / 20).toFixed(2));
+        setScore(correct);
+        setCurrentStudent(cs => {
+          if (cs) {
+            // Save MCQ marks
+            setMarks(prev => ({
+              ...prev,
+              [activeSubject]: {
+                ...(prev[activeSubject] || {}),
+                [cs.rollNo]: {
+                  ...(prev[activeSubject]?.[cs.rollNo] || {}),
+                  ISE1_MCQ20: correct,
+                  ISE1_MCQ5: mcq5,
+                }
+              }
+            }));
+            // Save to testResults
+            setTestResults(prev => {
+              const existing = prev[cs.rollNo] || {};
+              const pres = existing.presentation15 ?? marks[activeSubject]?.[cs.rollNo]?.Presentation ?? "";
+              const total = pres !== "" ? parseFloat((mcq5 + parseFloat(pres)).toFixed(2)) : "";
+              return { ...prev, [cs.rollNo]: { ...existing, mcq20: correct, mcq5, presentation15: pres, total20: total } };
+            });
+          }
+          return cs;
+        });
+        setMode("result");
+        return latestQs;
+      });
+      return latestAns;
+    });
+  };
+
+  // Update presentation mark and recompute total
+  const updatePresentation = (rollNo, val) => {
+    const pres = parseFloat(val);
+    if (isNaN(pres) || pres < 0 || pres > 15) return;
+    setTestResults(prev => {
+      const existing = prev[rollNo] || {};
+      const mcq5 = existing.mcq5 ?? 0;
+      const total = parseFloat((mcq5 + pres).toFixed(2));
+      return { ...prev, [rollNo]: { ...existing, presentation15: pres, total20: total } };
+    });
+    setMarks(prev => ({
+      ...prev,
+      [activeSubject]: {
+        ...(prev[activeSubject] || {}),
+        [rollNo]: { ...(prev[activeSubject]?.[rollNo] || {}), Presentation: pres }
+      }
+    }));
+  };
+
+  const fmtTime = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const timePct = (timeLeft / (20 * 60)) * 100;
+
+  // CSV download
+  const downloadCSV = () => {
+    const rows = [["Sr.No","Roll No","URN","Name","Department","MCQ /20","MCQ /5","Presentation /15","Total ISE I /20"]];
+    allStudents.forEach((s, i) => {
+      const r = testResults[s.rollNo] || {};
+      const m = marks[activeSubject]?.[s.rollNo] || {};
+      const mcq20 = r.mcq20 ?? m.ISE1_MCQ20 ?? "";
+      const mcq5  = r.mcq5  ?? m.ISE1_MCQ5  ?? "";
+      const pres  = r.presentation15 ?? m.Presentation ?? "";
+      const total = (mcq5 !== "" && pres !== "") ? parseFloat((parseFloat(mcq5) + parseFloat(pres)).toFixed(2)) : "";
+      rows.push([i+1, s.rollNo, s.urn||"", s.name, s.department||"", mcq20, mcq5, pres, total]);
+    });
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type:"text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url;
+    a.download = `ISE1_Results_${activeSubject}_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  };
+
+  // Print result analysis
+  const printResults = () => {
+    const rows = allStudents.map((s, i) => {
+      const r = testResults[s.rollNo] || {};
+      const m = marks[activeSubject]?.[s.rollNo] || {};
+      const mcq20 = r.mcq20 ?? m.ISE1_MCQ20 ?? "–";
+      const mcq5  = r.mcq5  ?? m.ISE1_MCQ5  ?? "–";
+      const pres  = r.presentation15 ?? m.Presentation ?? "–";
+      const total = (mcq5 !== "–" && pres !== "–") ? parseFloat((parseFloat(mcq5) + parseFloat(pres)).toFixed(2)) : "–";
+      return `<tr><td>${i+1}</td><td>${s.rollNo}</td><td>${s.urn||""}</td><td>${s.name}</td><td>${s.department||""}</td><td>${mcq20}</td><td>${mcq5}</td><td>${pres}</td><td style="font-weight:700">${total}</td></tr>`;
+    }).join("");
+    const w = window.open("","_blank");
+    w.document.write(`<!DOCTYPE html><html><head><title>ISE I Result – ${subj?.fullName}</title>
+    <style>body{font-family:Arial,sans-serif;padding:20px;font-size:12px}h2{color:#1e3a5f}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1e3a5f;color:#fff;padding:8px 10px;text-align:left}td{padding:7px 10px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#f5f5f5}.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}.sub{color:#555;font-size:11px}</style>
+    </head><body>
+    <div class="header"><div><h2>ISE I Result Analysis</h2><div class="sub">Subject: ${subj?.fullName} (${activeSubject}) &nbsp;|&nbsp; Date: ${new Date().toLocaleDateString("en-IN")}</div><div class="sub">Faculty: Mr. Santosh T. Ghutukade &nbsp;|&nbsp; ADCET, Ashta</div></div></div>
+    <table><thead><tr><th>#</th><th>Roll</th><th>URN</th><th>Name</th><th>Dept</th><th>MCQ /20</th><th>MCQ /5</th><th>Pres. /15</th><th>Total /20</th></tr></thead><tbody>${rows}</tbody></table>
+    <p style="margin-top:20px;font-size:11px;color:#888">Generated on ${new Date().toLocaleString("en-IN")} &nbsp;·&nbsp; ADCET EduPortal</p>
+    </body></html>`);
+    w.document.close(); w.print();
+  };
+
+  // ── HOME ──
+  if (mode === "home") {
+    const ise2On = ise2Active?.[activeSubject] === true;
+    const toggleIse2 = () => {
+      setIse2Active(prev => ({ ...prev, [activeSubject]: !prev[activeSubject] }));
+      showNotif(`ISE II Test ${ise2On ? "deactivated" : "activated"} for ${subj?.name}`, "success");
+    };
+    return (
+    <div>
+      <h2 style={{ margin:"0 0 6px", color:"#f59e0b" }}>🎯 ISE I – MCQ Test Activity</h2>
+      <p style={{ margin:"0 0 24px", color:"#94a3b8", fontSize:13 }}>{subj?.fullName} ({activeSubject}) &nbsp;·&nbsp; 20 Questions &nbsp;·&nbsp; 20 min &nbsp;·&nbsp; Units 1, 2 & 3</p>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:14, marginBottom:28 }}>
+        {[["📋","Questions","20 MCQs (7+7+6) randomly picked from 45-question bank"],["⏱️","Duration","20 minutes fixed timer"],["🔒","Proctored","Tab-switch detection – 3 violations = auto-submit"],["📊","Marks","MCQ /20 → converted to /5 &nbsp;+&nbsp; Presentation /15 = Total /20"],["📥","Download","CSV + Print PDF result analysis"],].map(([ic,ti,de]) => (
+          <div key={ti} style={{ background:"rgba(255,255,255,0.04)", borderRadius:14, padding:"18px 16px", border:"1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ fontSize:22, marginBottom:8 }}>{ic}</div>
+            <div style={{ fontSize:13, fontWeight:700, color:"#f8fafc", marginBottom:4 }}>{ti}</div>
+            <div style={{ fontSize:12.5, color:"#94a3b8", lineHeight:1.6 }} dangerouslySetInnerHTML={{__html:de}} />
+          </div>
+        ))}
+      </div>
+
+      {/* ISE II Activation Control */}
+      <div style={{ background: ise2On ? "rgba(167,139,250,0.08)" : "rgba(255,255,255,0.04)", borderRadius: 16, padding: "20px 24px", border: `1px solid ${ise2On ? "rgba(167,139,250,0.3)" : "rgba(255,255,255,0.1)"}`, marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#f8fafc", marginBottom: 4 }}>📝 ISE II MCQ Test — Units 4, 5 & 6</div>
+          <div style={{ fontSize: 13, color: "#94a3b8" }}>
+            {ise2On
+              ? <span style={{ color: "#a78bfa" }}>✅ Active — Students can now take the ISE II test for <strong>{subj?.name}</strong></span>
+              : <span>🔒 Not Active — Students see a locked screen. Activate when ready.</span>
+            }
+          </div>
+        </div>
+        <button onClick={toggleIse2} style={{ ...btnStyle(ise2On ? "#ef4444" : "#a78bfa", ise2On ? "#b91c1c" : "#7c3aed"), padding: "11px 24px", fontSize: 14, flexShrink: 0 }}>
+          {ise2On ? "🔒 Deactivate ISE II" : "🔓 Activate ISE II"}
+        </button>
+      </div>
+
+      <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+        <button onClick={() => setMode("login")} style={{ ...btnStyle("#f59e0b","#b45309"), padding:"12px 28px", fontSize:15 }}>▶ Start ISE I Test (as Student)</button>
+        <button onClick={() => setMode("results-table")} style={{ ...btnStyle("#3b82f6","#1d4ed8"), padding:"12px 28px", fontSize:15 }}>📊 Results & Marks Entry</button>
+      </div>
+    </div>
+  );};
+
+  // ── LOGIN ──
+  if (mode === "login") return (
+    <div style={{ maxWidth:440 }}>
+      <h2 style={{ margin:"0 0 20px", color:"#f59e0b" }}>Student Login</h2>
+      <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16, padding:28, border:"1px solid rgba(255,255,255,0.1)" }}>
+        <div style={{ marginBottom:14 }}>
+          <label style={{ fontSize:12, color:"#94a3b8", display:"block", marginBottom:6 }}>URN</label>
+          <input value={studentUrn} onChange={e => setStudentUrn(e.target.value)} placeholder="e.g. 1024031004" style={{ ...inputStyle }} />
+        </div>
+        <div style={{ textAlign:"center", color:"#475569", fontSize:13, marginBottom:14 }}>— OR —</div>
+        <div style={{ marginBottom:20 }}>
+          <label style={{ fontSize:12, color:"#94a3b8", display:"block", marginBottom:6 }}>Roll Number</label>
+          <input value={studentRoll} onChange={e => setStudentRoll(e.target.value)} placeholder="e.g. 36" style={{ ...inputStyle }} onKeyDown={e => e.key==="Enter" && startTest()} />
+        </div>
+        <div style={{ background:"rgba(245,158,11,0.08)", border:"1px solid rgba(245,158,11,0.2)", borderRadius:10, padding:"12px 16px", marginBottom:20, fontSize:12.5, color:"#fcd34d", lineHeight:1.75 }}>
+          ⚠️ <strong>Instructions:</strong><br/>
+          • 20 MCQ questions from Units 1, 2 & 3 (7+7+6)<br/>
+          • Time limit: <strong>20 minutes</strong> — cannot be paused<br/>
+          • Do NOT switch tabs or minimize the window<br/>
+          • 3 tab violations = auto-submit<br/>
+          • Score is saved automatically on submission
+        </div>
+        <div style={{ display:"flex", gap:12 }}>
+          <button onClick={startTest} style={{ ...btnStyle("#f59e0b","#b45309"), padding:"12px 28px", fontSize:14 }}>🚀 Begin Test</button>
+          <button onClick={() => { setMode("home"); setStudentUrn(""); setStudentRoll(""); }} style={{ ...btnStyle("#475569","#334155"), padding:"12px 20px", fontSize:14 }}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ── TEST ──
+  if (mode === "test") {
+    const q = questions[currentQ];
+    const answered = Object.keys(answers).length;
+    return (
+      <div style={{ maxWidth:780, margin:"0 auto" }}>
+        {warningMsg && (
+          <div style={{ position:"fixed", top:76, left:"50%", transform:"translateX(-50%)", background:"#7f1d1d", color:"#fca5a5", padding:"11px 26px", borderRadius:12, zIndex:9999, fontSize:14, fontWeight:700, boxShadow:"0 4px 24px rgba(0,0,0,0.6)", whiteSpace:"nowrap" }}>{warningMsg}</div>
+        )}
+        {/* Status bar */}
+        <div style={{ background:"rgba(15,23,42,0.95)", borderRadius:14, padding:"13px 20px", marginBottom:14, display:"flex", justifyContent:"space-between", alignItems:"center", border:"1px solid rgba(255,255,255,0.1)" }}>
+          <div>
+            <div style={{ fontSize:13, fontWeight:600, color:"#f8fafc" }}>👤 {currentStudent?.name}</div>
+            <div style={{ fontSize:12, color:"#64748b", marginTop:2 }}>Roll: {currentStudent?.rollNo} &nbsp;·&nbsp; {answered}/20 answered &nbsp;·&nbsp; Violations: {tabViolations}/3</div>
+          </div>
+          <div style={{ textAlign:"right" }}>
+            <div style={{ fontSize:26, fontWeight:700, fontVariantNumeric:"tabular-nums", color: timeLeft<120?"#ef4444":timeLeft<300?"#f59e0b":"#22c55e" }}>{fmtTime(timeLeft)}</div>
+            <div style={{ fontSize:11, color:"#64748b" }}>remaining</div>
+          </div>
+        </div>
+        {/* Timer bar */}
+        <div style={{ height:5, background:"rgba(255,255,255,0.08)", borderRadius:4, marginBottom:16, overflow:"hidden" }}>
+          <div style={{ height:"100%", width:`${timePct}%`, background:timePct>50?"#22c55e":timePct>20?"#f59e0b":"#ef4444", transition:"width 1s linear" }} />
+        </div>
+        {/* Question */}
+        <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16, padding:"22px 24px", marginBottom:16, border:"1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:10 }}>
+            <span style={{ background:"rgba(245,158,11,0.18)", color:"#f59e0b", borderRadius:6, padding:"3px 12px", fontSize:12, fontWeight:700 }}>Unit {q.unit}</span>
+            <span style={{ fontSize:12, color:"#64748b" }}>Q {currentQ+1} / {questions.length}</span>
+          </div>
+          <div style={{ fontSize:15.5, fontWeight:600, lineHeight:1.65, marginBottom:20, color:"#f8fafc" }}>{q.q}</div>
+          <div style={{ display:"flex", flexDirection:"column", gap:9 }}>
+            {q.shuffledOpts.map((opt,i) => {
+              const sel = answers[currentQ]===i;
+              return (
+                <div key={i} onClick={() => setAnswers(a => ({...a,[currentQ]:i}))}
+                  style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 16px", borderRadius:10, cursor:"pointer", border:`2px solid ${sel?"#f59e0b":"rgba(255,255,255,0.09)"}`, background:sel?"rgba(245,158,11,0.1)":"rgba(255,255,255,0.03)", color:sel?"#fcd34d":"#cbd5e1", fontSize:14, transition:"all 0.15s" }}>
+                  <span style={{ width:26,height:26,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:12,fontWeight:700,background:sel?"#f59e0b":"rgba(255,255,255,0.1)",color:sel?"#000":"#94a3b8" }}>{String.fromCharCode(65+i)}</span>
+                  {opt.text}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        {/* Navigation */}
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+          <button onClick={() => setCurrentQ(q => Math.max(0,q-1))} disabled={currentQ===0} style={{ ...btnStyle("#475569","#334155"), padding:"9px 20px", opacity:currentQ===0?0.4:1 }}>◀ Prev</button>
+          <div style={{ display:"flex", gap:5, flexWrap:"wrap", justifyContent:"center", maxWidth:360 }}>
+            {questions.map((_,i) => (
+              <div key={i} onClick={() => setCurrentQ(i)} style={{ width:28,height:28,borderRadius:6,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,background:i===currentQ?"#f59e0b":answers[i]!==undefined?"#22c55e":"rgba(255,255,255,0.1)",color:(i===currentQ||answers[i]!==undefined)?"#000":"#64748b" }}>{i+1}</div>
+            ))}
+          </div>
+          {currentQ<questions.length-1
+            ? <button onClick={() => setCurrentQ(q => q+1)} style={{ ...btnStyle("#3b82f6","#1d4ed8"), padding:"9px 20px" }}>Next ▶</button>
+            : <button onClick={doSubmit} style={{ ...btnStyle("#22c55e","#15803d"), padding:"9px 20px" }}>✅ Submit</button>
+          }
+        </div>
+        <div style={{ textAlign:"center" }}>
+          <button onClick={doSubmit} style={{ ...btnStyle("#ef4444","#b91c1c"), padding:"8px 20px", fontSize:13 }}>🚩 Submit Early</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── RESULT (student view — thank you only) ──
+  if (mode === "result") {
+    return (
+      <div style={{ maxWidth:480, margin:"0 auto", textAlign:"center" }}>
+        <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:18, padding:"48px 32px", border:"1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ fontSize:64 }}>🎓</div>
+          <h2 style={{ margin:"18px 0 10px", color:"#f8fafc", fontSize:22 }}>Test Submitted Successfully!</h2>
+          <p style={{ color:"#94a3b8", margin:"0 0 8px", fontSize:14 }}>Thank you, <strong style={{ color:"#f59e0b" }}>{currentStudent?.name}</strong>!</p>
+          <p style={{ color:"#64748b", margin:"0 0 28px", fontSize:13 }}>Roll No: {currentStudent?.rollNo} &nbsp;·&nbsp; {subj?.name}</p>
+          <div style={{ background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.2)", borderRadius:12, padding:"14px 20px", fontSize:13.5, color:"#86efac", marginBottom:28, lineHeight:1.7 }}>
+            ✅ Your responses have been recorded.<br/>
+            Results will be announced by the faculty.
+          </div>
+          {tabViolations>0 && (
+            <div style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:10, padding:"10px 16px", marginBottom:20, fontSize:12, color:"#fca5a5" }}>
+              ⚠️ {tabViolations} tab violation(s) were recorded during your test.
+            </div>
+          )}
+          <button onClick={() => { setMode("home"); setCurrentStudent(null); setStudentUrn(""); setStudentRoll(""); }} style={{ ...btnStyle("#f59e0b","#b45309"), padding:"12px 32px", fontSize:15 }}>🏠 Done</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── RESULTS TABLE ──
+  if (mode === "results-table") {
+    return (
+      <div>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6, flexWrap:"wrap", gap:10 }}>
+          <div>
+            <h2 style={{ margin:"0 0 4px", color:"#f59e0b" }}>📊 ISE I Result Analysis – {subj?.name}</h2>
+            <p style={{ margin:0, color:"#94a3b8", fontSize:12 }}>Enter Presentation marks manually. Total = MCQ /5 + Presentation /15</p>
+          </div>
+          <div style={{ display:"flex", gap:10 }}>
+            <button onClick={downloadCSV} style={{ ...btnStyle("#22c55e","#15803d"), padding:"9px 18px", fontSize:13 }}>⬇ Download CSV</button>
+            <button onClick={printResults} style={{ ...btnStyle("#a78bfa","#7c3aed"), padding:"9px 18px", fontSize:13 }}>🖨 Print / PDF</button>
+            <button onClick={() => setMode("home")} style={{ ...btnStyle("#475569","#334155"), padding:"9px 16px", fontSize:13 }}>← Back</button>
+          </div>
+        </div>
+
+        {/* Summary cards */}
+        <div style={{ display:"flex", gap:12, marginBottom:18, flexWrap:"wrap" }}>
+          {(() => {
+            const appeared = allStudents.filter(s => testResults[s.rollNo]?.mcq20 !== undefined || marks[activeSubject]?.[s.rollNo]?.ISE1_MCQ20 !== undefined).length;
+            const completed = allStudents.filter(s => {
+              const r = testResults[s.rollNo] || {};
+              const m = marks[activeSubject]?.[s.rollNo] || {};
+              return (r.mcq5 ?? m.ISE1_MCQ5) !== undefined && (r.presentation15 ?? m.Presentation) !== undefined;
+            }).length;
+            return [
+              ["Total Students", allStudents.length, "#3b82f6"],
+              ["MCQ Taken", appeared, "#f59e0b"],
+              ["Fully Complete", completed, "#22c55e"],
+              ["Pending Marks", allStudents.length - completed, "#ef4444"],
+            ].map(([l,v,c]) => (
+              <div key={l} style={{ flex:"1 1 130px", background:"rgba(255,255,255,0.04)", borderRadius:12, padding:"14px 16px", border:`1px solid ${c}30`, textAlign:"center" }}>
+                <div style={{ fontSize:26, fontWeight:700, color:c }}>{v}</div>
+                <div style={{ fontSize:11, color:"#64748b", marginTop:3 }}>{l}</div>
+              </div>
+            ));
+          })()}
+        </div>
+
+        <div style={{ background:"rgba(255,255,255,0.04)", borderRadius:14, overflow:"auto", border:"1px solid rgba(255,255,255,0.08)" }}>
+          <table style={{ width:"100%", borderCollapse:"collapse", minWidth:780 }}>
+            <thead>
+              <tr style={{ background:"rgba(255,255,255,0.07)" }}>
+                {["#","Roll","URN","Name","Dept","MCQ /20","MCQ /5","Presentation /15","Total ISE I /20"].map(h => (
+                  <th key={h} style={{ padding:"11px 12px", textAlign:"left", fontSize:12, color:"#94a3b8", whiteSpace:"nowrap" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {allStudents.map((s, i) => {
+                const r = testResults[s.rollNo] || {};
+                const m = marks[activeSubject]?.[s.rollNo] || {};
+                const mcq20 = r.mcq20 ?? m.ISE1_MCQ20 ?? "–";
+                const mcq5  = r.mcq5  ?? m.ISE1_MCQ5  ?? "–";
+                const pres  = r.presentation15 ?? m.Presentation ?? "";
+                const total = (mcq5 !== "–" && pres !== "") ? parseFloat((parseFloat(mcq5) + parseFloat(pres)).toFixed(2)) : "–";
+                return (
+                  <tr key={s.rollNo} style={{ borderTop:"1px solid rgba(255,255,255,0.05)" }}>
+                    <td style={{ padding:"9px 12px", color:"#64748b", fontSize:12 }}>{i+1}</td>
+                    <td style={{ padding:"9px 12px", color:"#f59e0b", fontWeight:700, fontSize:13 }}>{s.rollNo}</td>
+                    <td style={{ padding:"9px 12px", color:"#22d3ee", fontSize:12 }}>{s.urn||"–"}</td>
+                    <td style={{ padding:"9px 12px", fontSize:13 }}>{s.name}</td>
+                    <td style={{ padding:"9px 12px", fontSize:12, color:"#94a3b8" }}>{s.department||"–"}</td>
+                    <td style={{ padding:"9px 12px", fontSize:14, fontWeight:600, color: mcq20!=="–"?"#f59e0b":"#475569" }}>{mcq20}</td>
+                    <td style={{ padding:"9px 12px", fontSize:14, fontWeight:600, color: mcq5!=="–"?"#22d3ee":"#475569" }}>{mcq5}</td>
+                    <td style={{ padding:"9px 12px" }}>
+                      <input
+                        type="number" min="0" max="15" step="0.5"
+                        value={pres}
+                        onChange={e => updatePresentation(s.rollNo, e.target.value)}
+                        placeholder="0–15"
+                        style={{ ...inputStyle, width:80, padding:"6px 10px", fontSize:13, textAlign:"center" }}
+                      />
+                    </td>
+                    <td style={{ padding:"9px 12px", fontSize:15, fontWeight:700, color: total!=="–"?(total>=10?"#22c55e":"#ef4444"):"#475569" }}>{total}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p style={{ fontSize:12, color:"#475569", marginTop:10 }}>💡 Tip: Enter Presentation marks (out of 15) directly in the table. Total ISE I = MCQ /5 + Presentation /15 (max 20).</p>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+// ─── ISE II QUESTION BANK (45 per subject: 15 per unit × Units 4,5,6) ─────────
+const QUESTION_BANK2 = {
+  "2MEIE201": [
+    // ── Unit 4: Work Measurement (15 Qs) ──
+    { id:401, unit:4, q:"The primary objective of Work Measurement is to:", opts:["Design better products","Establish the time a qualified worker takes to carry out a task at a defined rate","Record worker attendance","Calculate machine efficiency only"], ans:1 },
+    { id:402, unit:4, q:"Standard time is defined as:", opts:["The actual time taken by the fastest worker","The normal time plus allowances for rest and other delays","The minimum time required for a task","The average time of all workers"], ans:1 },
+    { id:403, unit:4, q:"Performance Rating in work measurement is used to:", opts:["Rate the quality of products","Convert observed time to normal time by comparing worker pace to standard pace","Measure machine output","Evaluate supervisor performance"], ans:1 },
+    { id:404, unit:4, q:"Which of the following is a method of Work Measurement?", opts:["String diagram","Time Study","Flow Process Chart","MEMO motion study"], ans:1 },
+    { id:405, unit:4, q:"Work Sampling is a technique that:", opts:["Measures exact time for each element","Observes worker or machine activity at random intervals to estimate time proportions","Records every motion of a worker","Calculates standard time using predetermined data"], ans:1 },
+    { id:406, unit:4, q:"PMTS stands for:", opts:["Process Measurement and Time Study","Predetermined Motion Time System","Production Management Timing Standard","Process and Motion Time Sequence"], ans:1 },
+    { id:407, unit:4, q:"Workplace Ergonomics in Work Measurement focuses on:", opts:["Maximising worker speed at any cost","Designing the work environment to fit the worker to reduce fatigue and improve efficiency","Measuring only machine performance","Recording daily output only"], ans:1 },
+    { id:408, unit:4, q:"Normal time is calculated as:", opts:["Observed time × Performance rating","Standard time − Allowances","Observed time + Allowances","Standard time × Performance rating"], ans:0 },
+    { id:409, unit:4, q:"Allowances in Work Measurement account for:", opts:["Machine breakdown only","Personal needs, fatigue, and unavoidable delays","Overtime pay","Product defects"], ans:1 },
+    { id:410, unit:4, q:"Which rating method compares worker pace to a 'standard' pace of 100?", opts:["Westinghouse System","British Standard Rating","Synthetic Rating","Objective Rating"], ans:1 },
+    { id:411, unit:4, q:"MTM stands for:", opts:["Motion-Time Measurement","Methods-Time Measurement","Machine-Tool Monitoring","Manual-Task Mapping"], ans:1 },
+    { id:412, unit:4, q:"The Westinghouse System of Performance Rating considers:", opts:["Only speed of worker","Skill, Effort, Conditions, and Consistency","Only output quantity","Wage rate and experience"], ans:1 },
+    { id:413, unit:4, q:"Standard time = Normal time +:", opts:["Idle time","Allowances","Waiting time","Setup time only"], ans:1 },
+    { id:414, unit:4, q:"Work Sampling is most useful when:", opts:["Tasks are short and repetitive","Activities are irregular or non-repetitive and continuous time study is impractical","Only one worker is being observed","Exact elemental times are needed"], ans:1 },
+    { id:415, unit:4, q:"Ergonomics is defined as the study of:", opts:["Work measurement techniques","The relationship between workers and their work environment to optimise well-being and performance","Production scheduling methods","Quality control standards"], ans:1 },
+
+    // ── Unit 5: Capacity, Aggregate Planning & Scheduling (15 Qs) ──
+    { id:501, unit:5, q:"Capacity of a system is defined as:", opts:["The number of workers available","The maximum rate of output or the ability to produce within normal operating conditions","The total floor area of a factory","The number of machines installed"], ans:1 },
+    { id:502, unit:5, q:"Aggregate Planning is concerned with:", opts:["Planning individual machine schedules","Matching production capacity to demand over a medium-term horizon (3–18 months)","Long-term facility location decisions","Day-to-day worker assignments"], ans:1 },
+    { id:503, unit:5, q:"Which aggregate planning strategy uses workforce adjustments like hiring and layoffs?", opts:["Chase strategy","Level strategy","Mixed strategy","Capacity cushion strategy"], ans:0 },
+    { id:504, unit:5, q:"In the Level strategy of aggregate planning:", opts:["Production rate changes with demand every month","A constant production rate is maintained regardless of demand fluctuations","Only demand is leveled, not production","Inventory is never used as a buffer"], ans:1 },
+    { id:505, unit:5, q:"Johnson's algorithm is used to solve:", opts:["Inventory control problems","Sequencing of n jobs on 2 machines to minimise total elapsed time","Capacity planning problems","Transportation problems"], ans:1 },
+    { id:506, unit:5, q:"For sequencing n jobs on 3 machines, the problem is reduced to:", opts:["A 2-machine problem using dominance condition","An inventory model","A transportation model","A network diagram"], ans:0 },
+    { id:507, unit:5, q:"Overcapacity means:", opts:["Demand exceeds available capacity","Available capacity exceeds demand, leading to idle resources","Capacity exactly matches demand","Machine utilisation is 100%"], ans:1 },
+    { id:508, unit:5, q:"Under capacity in production means:", opts:["Too many machines are idle","Available capacity is less than the required demand","Workers are underutilised","Production exceeds demand"], ans:1 },
+    { id:509, unit:5, q:"Aggregate planning strategies include all EXCEPT:", opts:["Varying workforce size","Using overtime or undertime","Changing price or promotions to influence demand","Redesigning the product"], ans:3 },
+    { id:510, unit:5, q:"In sequencing, the objective of minimising 'makespan' means:", opts:["Minimising the number of jobs","Minimising the total time to complete all jobs","Minimising idle time of workers only","Minimising material cost"], ans:1 },
+    { id:511, unit:5, q:"SPT rule in scheduling stands for:", opts:["Standard Processing Time","Shortest Processing Time — schedule shortest jobs first","Sequential Priority Technique","Standard Priority Test"], ans:1 },
+    { id:512, unit:5, q:"Capacity Cushion refers to:", opts:["Extra inventory kept as safety stock","A planned amount of capacity kept in reserve above expected demand","The difference between rated and effective capacity","Machine maintenance downtime"], ans:1 },
+    { id:513, unit:5, q:"Which measure of capacity represents the maximum theoretical output?", opts:["Effective capacity","Design capacity","Actual output","System capacity"], ans:1 },
+    { id:514, unit:5, q:"In sequencing n jobs on 1 machine, to minimise average flow time, the best rule is:", opts:["FCFS (First Come First Served)","SPT (Shortest Processing Time)","LPT (Longest Processing Time)","Random sequencing"], ans:1 },
+    { id:515, unit:5, q:"Aggregate planning is typically done for a time horizon of:", opts:["1–7 days","3–18 months","5–10 years","10–15 years"], ans:1 },
+
+    // ── Unit 6: Inventory Control & Network Techniques (15 Qs) ──
+    { id:601, unit:6, q:"LIFO stands for:", opts:["Last In First Out","Least Inventory First Out","Latest Investment For Operations","Last Input First Output"], ans:0 },
+    { id:602, unit:6, q:"FIFO inventory valuation method assumes:", opts:["Last items purchased are sold first","First items purchased are sold first","Items are sold in random order","Items are valued at average cost"], ans:1 },
+    { id:603, unit:6, q:"ABC analysis in inventory control classifies items based on:", opts:["Alphabetical order","Annual consumption value","Physical size of items","Storage location"], ans:1 },
+    { id:604, unit:6, q:"CPM stands for:", opts:["Critical Path Method","Cost Performance Measure","Continuous Production Management","Capacity Planning Model"], ans:0 },
+    { id:605, unit:6, q:"In a network diagram, the Critical Path is the path that:", opts:["Has the most activities","Has the maximum duration and determines the minimum project completion time","Has the minimum cost","Has the most resources"], ans:1 },
+    { id:606, unit:6, q:"Float (or Slack) in network techniques refers to:", opts:["Extra materials in inventory","The amount of time an activity can be delayed without delaying the project completion","The cost overrun in a project","The number of extra workers available"], ans:1 },
+    { id:607, unit:6, q:"Forward scheduling in production means:", opts:["Scheduling from due date backward","Scheduling from the start date forward to find the earliest completion date","Scheduling based on machine availability only","Using past data for future scheduling"], ans:1 },
+    { id:608, unit:6, q:"Backward scheduling means:", opts:["Scheduling from the start date forward","Scheduling from the due date backward to determine the latest start date","Scheduling the lowest priority jobs first","Using historical average times"], ans:1 },
+    { id:609, unit:6, q:"PERT stands for:", opts:["Project Evaluation and Review Technique","Production Efficiency and Resource Tracking","Process Evaluation and Risk Technique","Project Estimation and Reporting Tool"], ans:0 },
+    { id:610, unit:6, q:"The main difference between CPM and PERT is:", opts:["CPM uses probabilistic time estimates; PERT uses deterministic","PERT uses probabilistic time estimates (optimistic, most likely, pessimistic); CPM uses deterministic","Both are identical techniques","CPM is used only for inventory; PERT for projects"], ans:1 },
+    { id:611, unit:6, q:"In PERT, the expected time (te) for an activity is calculated as:", opts:["(a + m + b) / 3","(a + 4m + b) / 6","(a + b) / 2","(optimistic + pessimistic) / 2"], ans:1 },
+    { id:612, unit:6, q:"Under LIFO during inflation, the cost of goods sold will be:", opts:["Lower than FIFO","Higher than FIFO because newer higher-cost items are sold first","Same as FIFO","Cannot be determined"], ans:1 },
+    { id:613, unit:6, q:"'A' class items in ABC analysis typically represent:", opts:["About 70–80% of total inventory value but only 10–20% of items","All items equally","Low-value high-volume items","Items with highest physical count"], ans:0 },
+    { id:614, unit:6, q:"Total float of a critical activity is:", opts:["Greater than zero","Equal to zero","Less than zero","Equal to project duration"], ans:1 },
+    { id:615, unit:6, q:"A dummy activity in a network diagram:", opts:["Consumes resources and time","Has zero duration and zero resource, used only to show logical dependency","Represents a milestone only","Replaces real activities in CPM"], ans:1 },
+  ],
+
+  "2MEIE302": [
+    // ── Unit 4: Logistics Management & Outsourcing (15 Qs) ──
+    { id:401, unit:4, q:"The primary objective of Logistics Management is:", opts:["Only warehousing goods","Planning and implementing the efficient flow and storage of goods and services from origin to consumption","Managing only transportation","Financial cost reduction only"], ans:1 },
+    { id:402, unit:4, q:"Cross-docking in logistics means:", opts:["Storing goods for long periods","Transferring goods directly from inbound to outbound transport with minimal storage","Loading goods onto ships","Handling goods at border customs"], ans:1 },
+    { id:403, unit:4, q:"Third Party Logistics (3PL) refers to:", opts:["A company owning its own logistics fleet","Outsourcing logistics functions to a specialised external provider","Using three transport modes simultaneously","A government logistics agency"], ans:1 },
+    { id:404, unit:4, q:"Fourth Party Logistics (4PL) is:", opts:["A logistics provider managing multiple 3PLs and entire supply chain","A company with four warehouses","Using four transport modes","Government-regulated logistics"], ans:0 },
+    { id:405, unit:4, q:"Reverse Logistics refers to:", opts:["Moving goods backward in the production process","Managing the return, recycling, or disposal of products from customer back to the manufacturer","Shipping goods internationally","Last-mile delivery only"], ans:1 },
+    { id:406, unit:4, q:"Containerization in logistics refers to:", opts:["Storing goods in glass containers","Packing goods in standardised intermodal containers for efficient transport","Using containers only for sea freight","Refrigerating perishable goods"], ans:1 },
+    { id:407, unit:4, q:"Transportation mode selection in logistics depends on:", opts:["Only cost","Cost, speed, reliability, cargo type, and distance","Only delivery speed","Only government regulations"], ans:1 },
+    { id:408, unit:4, q:"Gaining competitive advantage through logistics means:", opts:["Reducing product quality to cut costs","Providing better service, faster delivery, and lower logistics costs than competitors","Outsourcing all operations","Increasing product prices"], ans:1 },
+    { id:409, unit:4, q:"Outsourcing in SCM refers to:", opts:["Hiring more permanent employees","Contracting external organisations to perform functions previously done in-house","Buying more machines","Expanding the factory"], ans:1 },
+    { id:410, unit:4, q:"Warehousing in logistics serves the purpose of:", opts:["Only storing goods permanently","Providing storage, sorting, consolidation, and value-added services in the supply chain","Only packaging goods","Managing customer returns only"], ans:1 },
+    { id:411, unit:4, q:"Which of the following is NOT a function of logistics management?", opts:["Transportation management","Inventory management","Product design and development","Warehousing and distribution"], ans:2 },
+    { id:412, unit:4, q:"The strategic decision to outsource is driven by:", opts:["Only cost reduction","Cost savings, focus on core competencies, access to expertise, and flexibility","Reducing product quality","Increasing workforce permanently"], ans:1 },
+    { id:413, unit:4, q:"Distribution challenges in logistics include:", opts:["Only road congestion","Last-mile delivery complexity, cost management, and service level requirements","Only weather conditions","Only customs regulations"], ans:1 },
+    { id:414, unit:4, q:"Multimodal transportation refers to:", opts:["Using only road transport","Using more than one mode of transport for a single shipment under one contract","Air freight only","Sea and river transport only"], ans:1 },
+    { id:415, unit:4, q:"A key benefit of effective Logistics Management is:", opts:["Increased product defects","Reduced lead times, lower costs, and improved customer satisfaction","Higher inventory levels","More warehouse space needed"], ans:1 },
+
+    // ── Unit 5: Digitization in SCM & Sustainability (15 Qs) ──
+    { id:501, unit:5, q:"The role of IT in Supply Chain is to:", opts:["Replace all human workers","Enable information sharing, improve visibility, and support decision-making across the supply chain","Only generate financial reports","Manage HR functions only"], ans:1 },
+    { id:502, unit:5, q:"TMS stands for:", opts:["Total Management System","Transport Management System","Technology Management Software","Trade and Marketing System"], ans:1 },
+    { id:503, unit:5, q:"WMS stands for:", opts:["Workforce Management System","Warehouse Management System","Work Measurement Software","Wholesale Market System"], ans:1 },
+    { id:504, unit:5, q:"RFID in supply chain is used for:", opts:["Radio frequency broadcasting","Automatic identification and tracking of goods using radio frequency tags","Financial data transfer","Customer relationship management"], ans:1 },
+    { id:505, unit:5, q:"Green Supply Chain Management focuses on:", opts:["Only reducing transportation costs","Integrating environmental considerations into supply chain decisions to reduce ecological impact","Using only green-coloured packaging","Planting trees near factories"], ans:1 },
+    { id:506, unit:5, q:"Bar coding in supply chain is used for:", opts:["Decorating products","Unique product identification and tracking throughout the supply chain","Financial billing only","Quality testing"], ans:1 },
+    { id:507, unit:5, q:"SAP in supply chain refers to:", opts:["Standard Accounting Procedure","Systems, Applications, and Products — an ERP software used for integrated supply chain management","Supply and Procurement","Statistical Analysis Programme"], ans:1 },
+    { id:508, unit:5, q:"CSR in supply chain stands for:", opts:["Customer Service Report","Corporate Social Responsibility — integrating social and ethical concerns into business operations","Cost and Supply Ratio","Consumer Sales Report"], ans:1 },
+    { id:509, unit:5, q:"E-commerce methods in supply chain include:", opts:["Only physical retail stores","Online ordering, digital marketplaces, and electronic data interchange (EDI)","Only telephone ordering","Only B2B transactions"], ans:1 },
+    { id:510, unit:5, q:"The Supply Chain IT framework helps in:", opts:["Designing physical products","Integrating information flow across suppliers, manufacturers, distributors, and customers","Financial auditing only","Only transportation route planning"], ans:1 },
+    { id:511, unit:5, q:"Sustainability in SCM refers to:", opts:["Producing as much as possible","Meeting present needs without compromising the ability of future generations, balancing economic, social, and environmental goals","Only recycling packaging","Reducing workforce permanently"], ans:1 },
+    { id:512, unit:5, q:"What is the significance of RFID over Bar codes?", opts:["RFID is cheaper","RFID can store more data, be read without line-of-sight, and track items in real time","Bar codes are less accurate","They are identical in function"], ans:1 },
+    { id:513, unit:5, q:"Sales Force automation tools in supply chain help with:", opts:["Machine maintenance","Managing sales processes, customer interactions, and demand data automatically","Warehouse packing only","Financial reporting only"], ans:1 },
+    { id:514, unit:5, q:"Environmental aspects of supply chain management include:", opts:["Only employee welfare","Carbon footprint reduction, waste management, resource efficiency, and pollution control","Only financial sustainability","Only customer satisfaction"], ans:1 },
+    { id:515, unit:5, q:"Resource utilization in sustainable SCM means:", opts:["Using maximum resources regardless of waste","Using resources efficiently to minimise waste and environmental impact","Only recycling metals","Reducing production output"], ans:1 },
+
+    // ── Unit 6: Supply Chain Network Design (15 Qs) ──
+    { id:601, unit:6, q:"Value Stream Mapping (VSM) is a tool used to:", opts:["Map financial cash flows","Visualise the flow of materials and information in a supply chain to identify waste and improvement opportunities","Map employee career paths","Design product aesthetics"], ans:1 },
+    { id:602, unit:6, q:"Lead Time in supply chain refers to:", opts:["The time to recruit a new employee","The total time from placing an order to receiving the goods","Time taken for production only","Machine setup time"], ans:1 },
+    { id:603, unit:6, q:"Takt Time is defined as:", opts:["The time a worker takes to complete a task","The available production time divided by customer demand rate — sets the required production pace","Machine cycle time","Standard time for one unit"], ans:1 },
+    { id:604, unit:6, q:"MOQ stands for:", opts:["Maximum Order Quantity","Minimum Order Quantity — the smallest quantity a supplier will accept in an order","Most Optimal Quantity","Minimum Output Quality"], ans:1 },
+    { id:605, unit:6, q:"Supply Chain Resilience refers to:", opts:["The ability to produce at maximum speed","The ability of a supply chain to anticipate, adapt to, and recover from disruptions","The strength of the supply chain contract","The number of suppliers in the chain"], ans:1 },
+    { id:606, unit:6, q:"Distribution network design decisions include:", opts:["Only product colour selection","Number and location of facilities, transportation modes, and inventory allocation","Only packaging decisions","Only pricing decisions"], ans:1 },
+    { id:607, unit:6, q:"The Transportation Problem in SCM is a type of:", opts:["Quality control problem","Linear programming problem used to minimise transportation cost from multiple sources to destinations","Inventory model","Network scheduling problem"], ans:1 },
+    { id:608, unit:6, q:"Order Fulfillment Process Flow includes:", opts:["Only placing the order","Order receipt, processing, picking, packing, shipping, and delivery confirmation","Only shipping the product","Only billing the customer"], ans:1 },
+    { id:609, unit:6, q:"Mathematical modelling in SCM is used for:", opts:["Designing product graphics","Optimising decisions such as facility location, inventory levels, and transportation routes","Employee training plans","Marketing campaigns"], ans:1 },
+    { id:610, unit:6, q:"Factors influencing distribution network design include:", opts:["Only product weight","Customer service requirements, costs, infrastructure, and demand patterns","Only warehouse size","Only number of employees"], ans:1 },
+    { id:611, unit:6, q:"A Direct Shipment distribution network means:", opts:["Products pass through multiple warehouses","Products are shipped directly from manufacturer to customer without intermediate storage","Products are always shipped by air","Only large orders are shipped directly"], ans:1 },
+    { id:612, unit:6, q:"Supply Chain Network Design considers all EXCEPT:", opts:["Number of warehouses and their locations","Transportation costs and modes","Employee personal preferences for work location","Customer demand patterns and locations"], ans:2 },
+    { id:613, unit:6, q:"VSM helps identify which type of waste?", opts:["Only financial waste","All forms of waste including overproduction, waiting, transportation, inventory, motion, over-processing, and defects","Only material waste","Only time waste"], ans:1 },
+    { id:614, unit:6, q:"Considerations in modelling SCM systems include:", opts:["Only cost minimisation","Demand uncertainty, lead times, capacity constraints, service levels, and cost trade-offs","Only speed maximisation","Only supplier count"], ans:1 },
+    { id:615, unit:6, q:"Reducing Lead Time in supply chain results in:", opts:["Higher inventory costs only","Lower inventory requirements, faster response to customers, and improved competitiveness","Increased transportation costs only","Reduced product quality"], ans:1 },
+  ],
+};
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
