@@ -1237,15 +1237,13 @@ function AttendanceReport({ students, attendance, activeSubject }) {
 
   const printReport = () => {
     const win = window.open("", "_blank");
-    win.document.write(`<html><head><title>Attendance Report - ${subj?.name}</title><style>body{font-family:Georgia,serif;padding:20px;color:#111}h1{color:#1e3a5f}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #ccc;padding:10px 14px;text-align:left}th{background:#1e3a5f;color:#fff}.low{color:#dc2626;font-weight:700}.ok{color:#16a34a;font-weight:700}</style></head><body>
-      <h1>ADCET – Attendance Report</h1>
-      <p><strong>Subject:</strong> ${subj?.fullName} (${subj?.code})</p>
-      <p><strong>Faculty:</strong> Mr. Santosh T Ghutukade</p>
-      <p><strong>Total Classes:</strong> ${allDates.length}</p>
-      <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
-      <table><thead><tr><th>#</th><th>Roll No</th><th>Name</th><th>Present</th><th>Absent</th><th>Total</th><th>%</th><th>Status</th></tr></thead>
-      <tbody>${rows.map((r, i) => `<tr><td>${i + 1}</td><td>${r.rollNo}</td><td>${r.name}</td><td>${r.present}</td><td>${r.absent}</td><td>${r.total}</td><td class="${r.pct < 75 ? "low" : "ok"}">${r.pct}%</td><td class="${r.pct < 75 ? "low" : "ok"}">${r.pct < 75 ? "⚠ Shortage" : "✓ OK"}</td></tr>`).join("")}</tbody></table>
-      </body></html>`);
+    const tableRows = rows.map((r, i) => {
+      const cls = r.pct < 75 ? "low" : "ok";
+      const status = r.pct < 75 ? "⚠ Shortage" : "✓ OK";
+      return "<tr><td>" + (i+1) + "</td><td>" + r.rollNo + "</td><td>" + r.name + "</td><td>" + r.present + "</td><td>" + r.absent + "</td><td>" + r.total + "</td><td class='" + cls + "'>" + r.pct + "%</td><td class='" + cls + "'>" + status + "</td></tr>";
+    }).join("");
+    const html = "<html><head><title>Attendance Report - " + subj?.name + "</title><style>body{font-family:Georgia,serif;padding:20px;color:#111}h1{color:#1e3a5f}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #ccc;padding:10px 14px;text-align:left}th{background:#1e3a5f;color:#fff}.low{color:#dc2626;font-weight:700}.ok{color:#16a34a;font-weight:700}</style></head><body><h1>ADCET – Attendance Report</h1><p><strong>Subject:</strong> " + subj?.fullName + " (" + subj?.code + ")</p><p><strong>Faculty:</strong> Mr. Santosh T Ghutukade</p><p><strong>Total Classes:</strong> " + allDates.length + "</p><p><strong>Generated:</strong> " + new Date().toLocaleDateString() + "</p><table><thead><tr><th>#</th><th>Roll No</th><th>Name</th><th>Present</th><th>Absent</th><th>Total</th><th>%</th><th>Status</th></tr></thead><tbody>" + tableRows + "</tbody></table></body></html>";
+    win.document.write(html);
     win.document.close();
     win.print();
   };
@@ -1372,14 +1370,13 @@ function MarksReport({ students, marks, activeSubject }) {
 
   const printReport = () => {
     const win = window.open("", "_blank");
-    win.document.write(`<html><head><title>Marks Report - ${subj?.name}</title><style>body{font-family:Georgia,serif;padding:20px;color:#111}h1{color:#1e3a5f}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #ccc;padding:10px 14px;text-align:left}th{background:#1e3a5f;color:#fff}</style></head><body>
-      <h1>ADCET – ISE Marks Report</h1>
-      <p><strong>Subject:</strong> ${subj?.fullName} (${subj?.code})</p>
-      <p><strong>Faculty:</strong> Mr. Santosh T Ghutukade</p>
-      <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
-      <table><thead><tr><th>#</th><th>Roll No</th><th>Name</th><th>ISE 1 (/20)</th><th>ISE 2 (/20)</th><th>Total (/40)</th><th>Grade</th></tr></thead>
-      <tbody>${rows.map((r, i) => `<tr><td>${i + 1}</td><td>${r.rollNo}</td><td>${r.name}</td><td>${r.ise1 ?? "–"}</td><td>${r.ise2 ?? "–"}</td><td>${r.ise1 !== null || r.ise2 !== null ? r.total : "–"}</td><td>${getGrade(r.ise1 !== null || r.ise2 !== null ? r.total : null)}</td></tr>`).join("")}</tbody></table>
-      </body></html>`);
+    const tableRows = rows.map((r, i) => {
+      const hasM = r.ise1 !== null || r.ise2 !== null;
+      const grade = getGrade(hasM ? r.total : null);
+      return "<tr><td>" + (i+1) + "</td><td>" + r.rollNo + "</td><td>" + r.name + "</td><td>" + (r.ise1 ?? "–") + "</td><td>" + (r.ise2 ?? "–") + "</td><td>" + (hasM ? r.total : "–") + "</td><td>" + grade + "</td></tr>";
+    }).join("");
+    const html = "<html><head><title>Marks Report - " + subj?.name + "</title><style>body{font-family:Georgia,serif;padding:20px;color:#111}h1{color:#1e3a5f}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #ccc;padding:10px 14px;text-align:left}th{background:#1e3a5f;color:#fff}</style></head><body><h1>ADCET – ISE Marks Report</h1><p><strong>Subject:</strong> " + subj?.fullName + " (" + subj?.code + ")</p><p><strong>Faculty:</strong> Mr. Santosh T Ghutukade</p><p><strong>Generated:</strong> " + new Date().toLocaleDateString() + "</p><table><thead><tr><th>#</th><th>Roll No</th><th>Name</th><th>ISE 1 (/20)</th><th>ISE 2 (/20)</th><th>Total (/40)</th><th>Grade</th></tr></thead><tbody>" + tableRows + "</tbody></table></body></html>";
+    win.document.write(html);
     win.document.close();
     win.print();
   };
