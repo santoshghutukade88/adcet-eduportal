@@ -9,6 +9,8 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <!-- 🔥 FIREBASE SDK -->
+  <!-- SheetJS for Excel Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script>
@@ -21,13 +23,13 @@
     //  4. Copy the firebaseConfig values and paste below
     // ════════════════════════════════════════════════════════
     const FIREBASE_CONFIG = {
-      apiKey:            "AIzaSyCI8dripZYe8xBy7ysxgzOqrT1xzEwzx_8",
-      authDomain:        "minor-mechanical.firebaseapp.com",
-      databaseURL:       "https://minor-mechanical-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId:         "minor-mechanical",
-      storageBucket:     "minor-mechanical.firebasestorage.app",
-      messagingSenderId: "831593339842",
-      appId:             "1:831593339842:web:d1b74c0ccb5272a801945b"
+      apiKey:            "AIzaSyCCGjVpgKIP5IwRLoFk-lShY1aQjnNIWo8",
+      authDomain:        "adcet-eduportal.firebaseapp.com",
+      databaseURL:       "https://adcet-eduportal-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:         "adcet-eduportal",
+      storageBucket:     "adcet-eduportal.firebasestorage.app",
+      messagingSenderId: "423812879430",
+      appId:             "1:423812879430:web:8e61785216d082989ae647"
     };
     window.FIREBASE_READY = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
     if (window.FIREBASE_READY) {
@@ -1349,6 +1351,25 @@ function MarksReport({ students, marks, activeSubject }) {
     return "#94a3b8";
   };
 
+  const exportExcel = () => {
+    const excelRows = rows.map((r, i) => ({
+      "Sr No": i + 1,
+      "Roll No": r.rollNo,
+      "URN": r.urn || "",
+      "Student Name": r.name,
+      "Department": r.department || "",
+      "ISE 1 (/20)": r.ise1 ?? "",
+      "ISE 2 (/20)": r.ise2 ?? "",
+      "Total (/40)": r.ise1 !== null || r.ise2 !== null ? r.total : "",
+      "Grade": getGrade(r.ise1 !== null || r.ise2 !== null ? r.total : null),
+    }));
+    const ws = XLSX.utils.json_to_sheet(excelRows);
+    ws["!cols"] = [{ wch: 6 }, { wch: 8 }, { wch: 13 }, { wch: 28 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 8 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "ISE Marks");
+    XLSX.writeFile(wb, `ADCET_ISE_Marks_${subj?.name}_${new Date().toLocaleDateString("en-GB").replace(/\//g, "-")}.xlsx`);
+  };
+
   const printReport = () => {
     const win = window.open("", "_blank");
     win.document.write(`<html><head><title>Marks Report - ${subj?.name}</title><style>body{font-family:Georgia,serif;padding:20px;color:#111}h1{color:#1e3a5f}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #ccc;padding:10px 14px;text-align:left}th{background:#1e3a5f;color:#fff}</style></head><body>
@@ -1376,10 +1397,10 @@ function MarksReport({ students, marks, activeSubject }) {
           <h2 style={{ margin: 0, color: "#a78bfa" }}>Marks Report – {subj?.name}</h2>
           <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>ISE 1 + ISE 2 = Total out of 40</p>
         </div>
-        <button onClick={printReport} style={{ ...btnStyle("#3b82f6", "#1d4ed8"), padding: "10px 20px", fontSize: 14 }}>🖨️ Print / PDF</button>
-      </div>
-
-      {/* Stats */}
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <button onClick={exportExcel} style={{ ...btnStyle("#16a34a", "#15803d"), padding: "10px 20px", fontSize: 14 }}>📥 Download Excel</button>
+          <button onClick={printReport} style={{ ...btnStyle("#3b82f6", "#1d4ed8"), padding: "10px 20px", fontSize: 14 }}>🖨️ Print / PDF</button>
+        </div>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 20 }}>
         {[["Class Avg", avg, "#a78bfa"], ["Highest", highest, "#22c55e"], ["Passed", passed + "/" + withMarks.length, "#f59e0b"]].map(([l, v, c]) => (
           <div key={l} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 20px", border: `1px solid ${c}40`, flex: 1, minWidth: 120 }}>
