@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADCET EduPortal – Mr. Santosh T Ghutukade</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- 🔥 FIREBASE SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script>
+    // ════════════════════════════════════════════════════════
+    //  🔥 PASTE YOUR FIREBASE CONFIG HERE
+    //  How to get it:
+    //  1. Go to console.firebase.google.com
+    //  2. Create project → Build → Realtime Database → Create (test mode)
+    //  3. Project Settings (⚙️) → Your apps → </> Web → Register
+    //  4. Copy the firebaseConfig values and paste below
+    // ════════════════════════════════════════════════════════
+    const FIREBASE_CONFIG = {
+      apiKey:            "AIzaSyCI8dripZYe8xBy7ysxgzOqrT1xzEwzx_8",
+      authDomain:        "minor-mechanical.firebaseapp.com",
+      databaseURL:       "https://minor-mechanical-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId:         "minor-mechanical",
+      storageBucket:     "minor-mechanical.firebasestorage.app",
+      messagingSenderId: "831593339842",
+      appId:             "1:831593339842:web:d1b74c0ccb5272a801945b"
+    };
+    window.FIREBASE_READY = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
+    if (window.FIREBASE_READY) {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      window.db = firebase.database();
+      console.log("✅ Firebase connected!");
+    } else {
+      console.warn("⚠️ Firebase not configured. App works offline only.");
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f172a; color: #f8fafc; font-family: Georgia, serif; }
+    select option { background: #1e293b; color: #f8fafc; }
+    textarea, input, select { outline: none; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    table { table-layout: auto; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const FACULTY_CREDENTIALS = { username: "santosh.ghutukade", password: "adcet@2024" };
+const SUBJECTS = [
+  { code: "2MEIE201", name: "IE", fullName: "Industrial Engineering" },
+  { code: "2MEIE302", name: "SCM", fullName: "Supply Chain Management" },
+];
+
+// ─── SAMPLE DATA ─────────────────────────────────────────────────────────────
+const INITIAL_STUDENTS = {
+  "2MEIE201": [
+    { rollNo: "1", urn: "1024071007", name: "Vinit Deepak Name.", department: "AERO" },
+    { rollNo: "2", urn: "1024071023", name: "Patil Ranoji Vinayak", department: "AERO" },
+    { rollNo: "3", urn: "1024071024", name: "Prajwal Popat Patil", department: "AERO" },
+    { rollNo: "4", urn: "1024071032", name: "Mayur Balu Patil", department: "AERO" },
+    { rollNo: "5", urn: "1024071044", name: "Mangesh Anil Banchhod", department: "AERO" },
+    { rollNo: "6", urn: "1024071061", name: "Sanika Tanaji Kashid", department: "AERO" },
+    { rollNo: "7", urn: "1025072018", name: "Prajakta Anil Hatgine", department: "AERO" },
+    { rollNo: "8", urn: "1024091007", name: "Adiba Akil Tamboli", department: "AIDS" },
+    { rollNo: "9", urn: "1024091010", name: "Prachi Ankush Jagadale", department: "AIDS" },
+    { rollNo: "10", urn: "1024091011", name: "Mrudula Sanjay Patil", department: "AIDS" },
+    { rollNo: "11", urn: "1024091014", name: "Jidnyasa Jitendra Jadhav", department: "AIDS" },
+    { rollNo: "12", urn: "1024091021", name: "More Amruta Arjun", department: "AIDS" },
+    { rollNo: "13", urn: "1024091022", name: "Piyusha Prashant Salavankar", department: "AIDS" },
+    { rollNo: "14", urn: "1024091023", name: "Sukhada Sadanand Kulkarni", department: "AIDS" },
+    { rollNo: "15", urn: "1024091025", name: "Gaytri Satish Magar", department: "AIDS" },
+    { rollNo: "16", urn: "1024091028", name: "Vedanki Vijay Karande", department: "AIDS" },
+    { rollNo: "17", urn: "1024091029", name: "Prajkta Nivas Shinde", department: "AIDS" },
+    { rollNo: "18", urn: "1024091032", name: "Sanika Uday Pawar", department: "AIDS" },
+    { rollNo: "19", urn: "1024091040", name: "Rushikesh Shashikant Kaware", department: "AIDS" },
+    { rollNo: "20", urn: "1024051005", name: "Mahek Intekhan Alam Inamdar", department: "Civil" },
+    { rollNo: "21", urn: "1024051033", name: "Shitej Ramdas Bandgar", department: "Civil" },
+    { rollNo: "22", urn: "1024051034", name: "Vishal Namdev Anuse", department: "Civil" },
+    { rollNo: "23", urn: "1024051036", name: "Madhura Anil Sawant", department: "Civil" },
+    { rollNo: "24", urn: "1024051069", name: "Shubham Vilas Gavade", department: "Civil" },
+    { rollNo: "25", urn: "1024051071", name: "Jayesh Haibatrao Pavane", department: "Civil" },
+    { rollNo: "26", urn: "1024051078", name: "Abhijeet Ishwar Vagare", department: "Civil" },
+    { rollNo: "27", urn: "1025052003", name: "Dipali Nagnath Bagal", department: "Civil" },
+    { rollNo: "28", urn: "1025052006", name: "Tejashri Pratap Pol", department: "Civil" },
+    { rollNo: "29", urn: "1025052008", name: "Sadiya Aslam Mujawar", department: "Civil" },
+    { rollNo: "30", urn: "1025052009", name: "Pragati Vijay Gavade", department: "Civil" },
+    { rollNo: "31", urn: "1025052010", name: "Sanidhya vijay waingade", department: "Civil" },
+    { rollNo: "32", urn: "1025052012", name: "Kokare Pradnya Nathaji", department: "Civil" },
+    { rollNo: "33", urn: "1025052014", name: "Landage Abhijeet Annaso", department: "Civil" },
+    { rollNo: "34", urn: "1025052017", name: "Adhyaraj Mansingrao Ghorpade Deshmukh", department: "Civil" },
+    { rollNo: "35", urn: "1024011121", name: "Mayur maruti kudale", department: "CSE" },
+    { rollNo: "36", urn: "1024031004", name: "Pragati Nilesh Patange", department: "CSE" },
+    { rollNo: "37", urn: "1024031011", name: "Sanskar Shankar Lokhande", department: "CSE" },
+    { rollNo: "38", urn: "1024031025", name: "Prathamesh Ganapati Kumbhar", department: "CSE" },
+    { rollNo: "39", urn: "1024031032", name: "Divya dinkar salunkhe", department: "CSE" },
+    { rollNo: "40", urn: "1024031051", name: "Pranav Madan Shekhar", department: "CSE" },
+    { rollNo: "41", urn: "1024031057", name: "Aarya Mahendra Phalle", department: "CSE" },
+    { rollNo: "42", urn: "1024031067", name: "Shekhar Laxman Pawar", department: "CSE" },
+    { rollNo: "43", urn: "1024031073", name: "Pruthviraj Popat Dethe", department: "CSE" },
+    { rollNo: "44", urn: "1024031088", name: "Ayush Mahesh Vibhute", department: "CSE" },
+    { rollNo: "45", urn: "1024031117", name: "Shweta Anil Chavan", department: "CSE" },
+    { rollNo: "46", urn: "1024031126", name: "Swaraj Avinash more", department: "CSE" },
+    { rollNo: "47", urn: "1024031140", name: "Chinmay Pravin Ghandge", department: "CSE" },
+    { rollNo: "48", urn: "1024031149", name: "Pranita Bajirao Raskar", department: "CSE" },
+    { rollNo: "49", urn: "1024031150", name: "Gayatri Sanjay Vibhute", department: "CSE" },
+    { rollNo: "50", urn: "1024031151", name: "Kruti Adhikrao Chavan", department: "CSE" },
+    { rollNo: "51", urn: "1024031198", name: "Tanishka Santosh Bodhale", department: "CSE" },
+    { rollNo: "52", urn: "1024031220", name: "Pranali Laxman Patil", department: "CSE" },
+    { rollNo: "53", urn: "1025032004", name: "Purva keripale", department: "CSE" },
+    { rollNo: "54", urn: "1025032005", name: "Aayusha Sachin Vanjari", department: "CSE" },
+    { rollNo: "55", urn: "1025032007", name: "Dhanashri Chandrashekhar Pol", department: "CSE" },
+    { rollNo: "56", urn: "1025032013", name: "Vrushali Deepak Kabade", department: "CSE" },
+    { rollNo: "57", urn: "1025032026", name: "Hina Raju Ansari", department: "CSE" },
+    { rollNo: "58", urn: "1024101010", name: "Siddhi  Ashok Patil", department: "CSE (IoT CSBT)" },
+    { rollNo: "59", urn: "1024101025", name: "Bhoomi Shashank Dounde", department: "CSE (IoT CSBT)" },
+    { rollNo: "60", urn: "1024101061", name: "Laxmi Maloji Garale", department: "CSE (IoT CSBT)" },
+    { rollNo: "61", urn: "1025102004", name: "Anuja Anandrao Dalavi", department: "CSE (IoT CSBT)" },
+    { rollNo: "62", urn: "1025102006", name: "Dnyaneshwari Sachin Sutar", department: "CSE (IoT CSBT)" },
+    { rollNo: "63", urn: "1024041001", name: "Sakshi Krantikumar Pharne", department: "ELE" },
+    { rollNo: "64", urn: "1024041004", name: "Payal Vikas Mane", department: "ELE" },
+    { rollNo: "65", urn: "1024041011", name: "Mrunali Ramesh Patil", department: "ELE" },
+    { rollNo: "66", urn: "1024041060", name: "Mayuri Annaso Patil", department: "ELE" },
+    { rollNo: "67", urn: "1024041065", name: "Amruta vinod patil", department: "ELE" },
+    { rollNo: "68", urn: "1024051038", name: "Aditi Arun Patil", department: "ELE" },
+    { rollNo: "69", urn: "1025042007", name: "Pratiraj vilas shinde", department: "ELE" },
+    { rollNo: "70", urn: "1024081001", name: "Sujit Adhikrao Vanave", department: "FT" },
+    { rollNo: "71", urn: "1024081009", name: "Khushbu kawdu tikle", department: "FT" },
+    { rollNo: "72", urn: "1024081012", name: "Paras Arun Shende", department: "FT" },
+    { rollNo: "73", urn: "1024081018", name: "Krishna Malendra Rode", department: "FT" },
+    { rollNo: "74", urn: "1024081022", name: "Bhumika Narendra Mane", department: "FT" },
+    { rollNo: "75", urn: "1024081023", name: "Pranav Umesh Mahajan", department: "FT" },
+  ],
+  "2MEIE302": [
+    { rollNo: "1", urn: "23041129", name: "Mokashi Shreya Pramod", department: "Artificial Intelligence and Data Science" },
+    { rollNo: "2", urn: "23091005", name: "Patil Diksha Mandar", department: "Artificial Intelligence and Data Science" },
+    { rollNo: "3", urn: "23091019", name: "Koli Mansi Santosh", department: "Artificial Intelligence and Data Science" },
+    { rollNo: "4", urn: "23091036", name: "Rushikesh Dilip Dhapse", department: "Artificial Intelligence and Data Science" },
+    { rollNo: "5", urn: "23091045", name: "Jagjeevan Kshid Anandrao", department: "Artificial Intelligence and Data Science" },
+    { rollNo: "6", urn: "23101026", name: "Falguni Subhash Udagire", department: "Artificial Intelligence and Data Science" },
+    { rollNo: "7", urn: "1024092002", name: "Khatkale Rupali Shahaji", department: "Artificial Intelligence and Data Science" },
+    { rollNo: "8", urn: "1024092018", name: "Shinde Srushti Tanaji", department: "Artificial Intelligence and Data Science" },
+    { rollNo: "9", urn: "1024092035", name: "Shinde Amruta Anil", department: "Artificial Intelligence and Data Science" },
+    { rollNo: "10", urn: "23051002", name: "Bhosale Jayant Babaso", department: "Civil Engineering" },
+    { rollNo: "11", urn: "23051004", name: "Bandgar Samruddhi Sunil", department: "Civil Engineering" },
+    { rollNo: "12", urn: "23051014", name: "Atugade Ayush Pramod", department: "Civil Engineering" },
+    { rollNo: "13", urn: "23051018", name: "Pandit Durgesh Kanhaiya", department: "Civil Engineering" },
+    { rollNo: "14", urn: "23051023", name: "Madane Sanika Arjun", department: "Civil Engineering" },
+    { rollNo: "15", urn: "1024052001", name: "Patil Shourya Vijaykumar", department: "Civil Engineering" },
+    { rollNo: "16", urn: "1024052006", name: "Alhat Chandersh Sachin", department: "Civil Engineering" },
+    { rollNo: "17", urn: "1024052007", name: "Lade Omkar Atul", department: "Civil Engineering" },
+    { rollNo: "18", urn: "1024052011", name: "Gaikwad Sanika Bharat", department: "Civil Engineering" },
+    { rollNo: "19", urn: "1024052020", name: "Pruthviraj Bharat Patil", department: "Civil Engineering" },
+    { rollNo: "20", urn: "1024052025", name: "Patil Prasad Udaysinh", department: "Civil Engineering" },
+    { rollNo: "21", urn: "1024052045", name: "Gavade Diksha Sunil", department: "Civil Engineering" },
+    { rollNo: "22", urn: "1024052047", name: "Rangari Mohin Iliyas", department: "Civil Engineering" },
+    { rollNo: "23", urn: "1024052049", name: "Bajare Vedantraje Suryakant", department: "Civil Engineering" },
+    { rollNo: "24", urn: "1024052052", name: "Shinde Rohit Damodar", department: "Civil Engineering" },
+    { rollNo: "25", urn: "1024052055", name: "Ghodake Devyani Shrikant", department: "Civil Engineering" },
+    { rollNo: "26", urn: "1024052062", name: "Shekhar Jyotiraditya Prakash", department: "Civil Engineering" },
+    { rollNo: "27", urn: "1024052063", name: "Mane Pranav Babaso", department: "Civil Engineering" },
+    { rollNo: "28", urn: "1024052068", name: "Patil Vighnesh Subhash", department: "Civil Engineering" },
+    { rollNo: "29", urn: "1024052070", name: "Yedage Sanika Baburao", department: "Civil Engineering" },
+    { rollNo: "30", urn: "1024052073", name: "Chavan Shreya Rajendra", department: "Civil Engineering" },
+    { rollNo: "31", urn: "1024052074", name: "Pratik Mahadaji Shinde", department: "Civil Engineering" },
+    { rollNo: "32", urn: "1024052075", name: "Patil Prajakta Sagar", department: "Civil Engineering" },
+    { rollNo: "33", urn: "23031008", name: "Rajmane Vaishnavi Shrikant", department: "Computer Science and Engineering" },
+    { rollNo: "34", urn: "23031020", name: "Londhe Vivek Tanaji", department: "Computer Science and Engineering" },
+    { rollNo: "35", urn: "23031023", name: "Kore Siddhant Santosh", department: "Computer Science and Engineering" },
+    { rollNo: "36", urn: "23031027", name: "Gurav Prajakta Pandurang", department: "Computer Science and Engineering" },
+    { rollNo: "37", urn: "23031029", name: "Rohan Dadasaheb Jadhav", department: "Computer Science and Engineering" },
+    { rollNo: "38", urn: "23031041", name: "Patil Soham Sharad", department: "Computer Science and Engineering" },
+    { rollNo: "39", urn: "23031043", name: "Pruthviraj Ankush Thorbole", department: "Computer Science and Engineering" },
+    { rollNo: "40", urn: "23031044", name: "Nalawade Sakshi Dhanaji", department: "Computer Science and Engineering" },
+    { rollNo: "41", urn: "23031047", name: "Mali Pratik Chandrakant", department: "Computer Science and Engineering" },
+    { rollNo: "42", urn: "23031066", name: "Gaikwad Ganesh Bhairavnath", department: "Computer Science and Engineering" },
+    { rollNo: "43", urn: "23031073", name: "Jadhav Sahil Dattatray", department: "Computer Science and Engineering" },
+    { rollNo: "44", urn: "23031083", name: "Jawale Abhishek Vijay", department: "Computer Science and Engineering" },
+    { rollNo: "45", urn: "23031084", name: "Shreya Sachin Chougule", department: "Computer Science and Engineering" },
+    { rollNo: "46", urn: "23031085", name: "Kachare Suraj Narayan", department: "Computer Science and Engineering" },
+    { rollNo: "47", urn: "23031089", name: "Soham Sachin Pirale", department: "Computer Science and Engineering" },
+    { rollNo: "48", urn: "23031093", name: "Koshti Sudarshan Bajirao", department: "Computer Science and Engineering" },
+    { rollNo: "49", urn: "23031125", name: "Pritam Mahadev Shinde", department: "Computer Science and Engineering" },
+    { rollNo: "50", urn: "23031128", name: "Patil Prakash Tanvi", department: "Computer Science and Engineering" },
+    { rollNo: "51", urn: "1024032007", name: "Jadhav Pratiksha Pradip", department: "Computer Science and Engineering" },
+    { rollNo: "52", urn: "1024032117", name: "Sunaina Devi", department: "Computer Science and Engineering" },
+    { rollNo: "53", urn: "23101009", name: "Lohar Tanisha Prakash", department: "CSE (IOT)" },
+    { rollNo: "54", urn: "23101039", name: "Mandar Bajarang Mirajkar", department: "CSE (IOT)" },
+    { rollNo: "55", urn: "23101067", name: "Kale Komal Devraj", department: "CSE (IOT)" },
+    { rollNo: "56", urn: "1024102002", name: "Sawant Shubhankar Dhananjay", department: "CSE (IOT)" },
+    { rollNo: "57", urn: "23041035", name: "Karmarkar Atharv Chandrashekhar", department: "Electrical Engineering" },
+    { rollNo: "58", urn: "1024042004", name: "Shinde Ganesh Sambhaji", department: "Electrical Engineering" },
+    { rollNo: "59", urn: "1024042087", name: "Powar Atharva Sushant", department: "Electrical Engineering" },
+    { rollNo: "60", urn: "23081004", name: "Khot Sumit Sunil", department: "Food Technology" },
+    { rollNo: "61", urn: "23051015", name: "Shaikh Nihal", department: "Civil Engineering" },
+    { rollNo: "62", urn: "102203104", name: "Shraddha Satish Shinde", department: "Computer Science and Engineering" },
+    { rollNo: "63", urn: "20151032", name: "Nagargoje Prathamesh Parshuram", department: "Civil Engineering" },
+  ],
+};
+
+function parseExcelLikeCSV(text) {
+  const lines = text.trim().split("\n");
+  const students = [];
+  // detect header row
+  const firstCols = lines[0].split(/[,\t]/).map(c => c.trim().toLowerCase());
+  const hasHeader = firstCols.some(c => ["roll", "rollno", "roll no", "urn", "name"].includes(c));
+  const startIdx = hasHeader ? 1 : 0;
+  // detect column positions from header or assume order: rollNo, urn, name, department
+  let rollIdx = 0, urnIdx = 1, nameIdx = 2, deptIdx = 3;
+  if (hasHeader) {
+    firstCols.forEach((c, i) => {
+      if (c.includes("roll")) rollIdx = i;
+      else if (c === "urn") urnIdx = i;
+      else if (c === "name") nameIdx = i;
+      else if (c.includes("dept") || c.includes("department")) deptIdx = i;
+    });
+  }
+  for (let i = startIdx; i < lines.length; i++) {
+    const cols = lines[i].split(/[,\t]/);
+    if (cols.length >= 2) {
+      const rollNo = (cols[rollIdx] || "").trim();
+      const urn    = (cols[urnIdx]  || "").trim();
+      const name   = (cols[nameIdx] || "").trim();
+      const department = (cols[deptIdx] || "").trim();
+      if (rollNo && name) {
+        students.push({ rollNo, urn, name, department });
+      }
+    }
+  }
+  return students;
+}
+
+// ─── ICONS ────────────────────────────────────────────────────────────────────
+const Icon = ({ d, size = 18, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d={d} />
+  </svg>
+);
+
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+function App() {
+  const [role, setRole] = useState(null);
+  const [loginError, setLoginError] = useState("");
+  const [loggedInStudent, setLoggedInStudent] = useState(null);
+  const [dbStatus, setDbStatus] = useState("connecting"); // connecting | online | offline
+  const [appReady, setAppReady] = useState(!window.FIREBASE_READY); // true immediately if offline
+
+  // ── Firebase write helper ──
+  const fbSet = (path, val) => {
+    if (window.FIREBASE_READY && val !== undefined) {
+      window.db.ref(path).set(val).catch(e => console.error("Firebase write error:", e));
+    }
+  };
+
+  // Core state — wrapped setters auto-sync to Firebase
+  const [studentsRaw, setStudentsRaw] = useState(INITIAL_STUDENTS);
+  const students = studentsRaw;
+  const setStudents = v => {
+    const val = typeof v === "function" ? v(studentsRaw) : v;
+    setStudentsRaw(val);
+    fbSet("adcet/students", val);
+  };
+  const [attendanceRaw, setAttendanceRaw] = useState({
+  "2MEIE201": {
+    "2026-01-12 (Lecture)": { "1": "P", "2": "A", "3": "P", "4": "A", "5": "P", "6": "P", "7": "A", "8": "P", "9": "P", "10": "P", "11": "A", "12": "A", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "A", "28": "P", "29": "P", "30": "P", "31": "P", "32": "A", "33": "P", "34": "A", "35": "A", "36": "P", "37": "P", "38": "A", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "A", "49": "A", "50": "P", "51": "A", "52": "A", "53": "A", "54": "P", "55": "A", "56": "P", "57": "P", "58": "P", "59": "P", "60": "A", "61": "A", "62": "A", "63": "P", "64": "P", "65": "P", "66": "P", "67": "P", "68": "P", "69": "A", "70": "A", "71": "P", "72": "A", "73": "P", "74": "P", "75": "P" },
+    "2026-01-13 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "A", "8": "P", "9": "P", "10": "P", "11": "A", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "P", "37": "P", "38": "A", "39": "P", "40": "P", "41": "A", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "A", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "A", "62": "A", "63": "P", "64": "P", "65": "P", "66": "P", "67": "P", "68": "P", "69": "A", "70": "P", "71": "P", "72": "A", "73": "P", "74": "P", "75": "P" },
+    "2026-01-20 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "A", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "A", "15": "P", "16": "P", "17": "P", "18": "P", "19": "P", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "P", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "A", "47": "P", "48": "P", "49": "P", "50": "A", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "P", "64": "P", "65": "P", "66": "P", "67": "P", "68": "P", "69": "P", "70": "P", "71": "P", "72": "P", "73": "P", "74": "P", "75": "P" },
+    "2026-01-24 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "P", "20": "P", "21": "A", "22": "P", "23": "P", "24": "A", "25": "P", "26": "A", "27": "P", "28": "P", "29": "P", "30": "P", "31": "A", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "A", "39": "P", "40": "A", "41": "P", "42": "P", "43": "A", "44": "A", "45": "P", "46": "A", "47": "P", "48": "P", "49": "A", "50": "P", "51": "P", "52": "P", "53": "A", "54": "P", "55": "P", "56": "P", "57": "A", "58": "P", "59": "A", "60": "P", "61": "P", "62": "P", "63": "P", "64": "A", "65": "A", "66": "P", "67": "P", "68": "P", "69": "P", "70": "P", "71": "P", "72": "P", "73": "P", "74": "P", "75": "P" },
+    "2026-01-27 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "A", "31": "P", "32": "P", "33": "A", "34": "A", "35": "P", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "A", "50": "P", "51": "P", "52": "P", "53": "A", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "P", "64": "A", "65": "P", "66": "P", "67": "P", "68": "P", "69": "P", "70": "P", "71": "P", "72": "P", "73": "P", "74": "P", "75": "P" },
+    "2026-02-02 (Lecture)": { "1": "A", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "A", "16": "P", "17": "P", "18": "P", "19": "P", "20": "P", "21": "P", "22": "P", "23": "P", "24": "A", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "A", "35": "A", "36": "P", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "A", "59": "A", "60": "P", "61": "P", "62": "P", "63": "P", "64": "P", "65": "P", "66": "P", "67": "P", "68": "A", "69": "P", "70": "P", "71": "P", "72": "P", "73": "P", "74": "P", "75": "P" },
+    "2026-02-03 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "A", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "P", "20": "P", "21": "P", "22": "A", "23": "A", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "A", "35": "P", "36": "P", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "A", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "A", "59": "A", "60": "P", "61": "P", "62": "P", "63": "P", "64": "P", "65": "P", "66": "P", "67": "P", "68": "P", "69": "P", "70": "P", "71": "P", "72": "P", "73": "P", "74": "P", "75": "P" },
+    "2026-02-09 (Lecture)": { "1": "A", "2": "A", "3": "A", "4": "P", "5": "A", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "A", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "P", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "A", "31": "A", "32": "P", "33": "P", "34": "A", "35": "P", "36": "P", "37": "P", "38": "A", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "A", "52": "P", "53": "A", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "P", "64": "P", "65": "P", "66": "P", "67": "P", "68": "P", "69": "P", "70": "P", "71": "P", "72": "P", "73": "P", "74": "A", "75": "A" },
+    "2026-02-10 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "A", "12": "A", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "P", "20": "A", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "A", "35": "P", "36": "P", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "A", "49": "P", "50": "A", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "P", "57": "A", "58": "P", "59": "P", "60": "P", "61": "P", "62": "A", "63": "P", "64": "P", "65": "P", "66": "A", "67": "P", "68": "P", "69": "P", "70": "P", "71": "P", "72": "P", "73": "P", "74": "P", "75": "A" },
+    "2026-02-16 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "A", "8": "P", "9": "P", "10": "A", "11": "P", "12": "P", "13": "A", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "P", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "A", "35": "P", "36": "P", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "A", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "P", "57": "A", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "P", "64": "P", "65": "P", "66": "P", "67": "A", "68": "P", "69": "P", "70": "P", "71": "P", "72": "P", "73": "P", "74": "P", "75": "P" },
+    "2026-02-17 (Lecture)": { "1": "A", "2": "A", "3": "A", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "A", "12": "P", "13": "A", "14": "P", "15": "P", "16": "A", "17": "P", "18": "P", "19": "P", "20": "P", "21": "A", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "A", "28": "P", "29": "P", "30": "P", "31": "A", "32": "P", "33": "A", "34": "A", "35": "P", "36": "P", "37": "P", "38": "P", "39": "A", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "A", "46": "P", "47": "P", "48": "A", "49": "A", "50": "A", "51": "P", "52": "A", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "P", "64": "P", "65": "A", "66": "A", "67": "A", "68": "P", "69": "P", "70": "P", "71": "P", "72": "P", "73": "P", "74": "P", "75": "P" },
+    "2026-02-23 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "P", "20": "P", "21": "P", "22": "A", "23": "P", "24": "P", "25": "A", "26": "A", "27": "P", "28": "A", "29": "P", "30": "P", "31": "P", "32": "P", "33": "A", "34": "A", "35": "P", "36": "P", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "P", "54": "A", "55": "A", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "P", "64": "P", "65": "P", "66": "P", "67": "P", "68": "P", "69": "A", "70": "P", "71": "P", "72": "P", "73": "P", "74": "P", "75": "P" },
+    "2026-02-24 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "A", "18": "A", "19": "P", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "A", "35": "P", "36": "P", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "A", "43": "P", "44": "A", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "P", "64": "A", "65": "P", "66": "P", "67": "P", "68": "P", "69": "A", "70": "P", "71": "P", "72": "P", "73": "A", "74": "A", "75": "P" }
+  },
+  "2MEIE302": {
+    "2026-01-14 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "A", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "A", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "A", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "A", "35": "P", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "A", "45": "P", "46": "P", "47": "A", "48": "P", "49": "P", "50": "P", "51": "P", "52": "A", "53": "A", "54": "A", "55": "P", "56": "P", "57": "P", "58": "A", "59": "P", "60": "P", "61": "A", "62": "P", "63": "A" },
+    "2026-01-16 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "A", "14": "P", "15": "P", "16": "P", "17": "A", "18": "P", "19": "A", "20": "P", "21": "A", "22": "P", "23": "A", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "A", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "A", "49": "P", "50": "P", "51": "P", "52": "P", "53": "A", "54": "A", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "A", "62": "A", "63": "P" },
+    "2026-01-17 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "A", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "A", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "A", "39": "A", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "A", "49": "P", "50": "P", "51": "P", "52": "P", "53": "A", "54": "P", "55": "P", "56": "A", "57": "P", "58": "P", "59": "P", "60": "A", "61": "A", "62": "P", "63": "P" },
+    "2026-01-21 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "P", "8": "P", "9": "P", "10": "A", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "A", "43": "P", "44": "P", "45": "A", "46": "A", "47": "P", "48": "P", "49": "A", "50": "A", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "A", "61": "A", "62": "P", "63": "P" },
+    "2026-01-22 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "P", "8": "P", "9": "P", "10": "A", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "A", "34": "P", "35": "P", "36": "A", "37": "A", "38": "P", "39": "P", "40": "A", "41": "P", "42": "A", "43": "P", "44": "P", "45": "A", "46": "A", "47": "P", "48": "P", "49": "A", "50": "A", "51": "P", "52": "A", "53": "P", "54": "P", "55": "A", "56": "P", "57": "P", "58": "P", "59": "A", "60": "P", "61": "P", "62": "P", "63": "P" },
+    "2026-01-23 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "A", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "A", "43": "A", "44": "P", "45": "A", "46": "P", "47": "A", "48": "P", "49": "A", "50": "A", "51": "P", "52": "A", "53": "P", "54": "P", "55": "A", "56": "P", "57": "P", "58": "P", "59": "P", "60": "A", "61": "P", "62": "A", "63": "A" },
+    "2026-01-29 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "A", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "A", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "A" },
+    "2026-01-30 (Lecture)": { "1": "P", "2": "A", "3": "P", "4": "P", "5": "A", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "A", "13": "P", "14": "P", "15": "A", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "A", "24": "A", "25": "P", "26": "A", "27": "A", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "P", "39": "P", "40": "A", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "A", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "A" },
+    "2026-02-04 (Lecture)": { "1": "A", "2": "A", "3": "A", "4": "A", "5": "A", "6": "A", "7": "A", "8": "A", "9": "A", "10": "A", "11": "A", "12": "A", "13": "A", "14": "A", "15": "A", "16": "A", "17": "A", "18": "A", "19": "A", "20": "A", "21": "A", "22": "A", "23": "A", "24": "A", "25": "A", "26": "A", "27": "A", "28": "A", "29": "A", "30": "A", "31": "A", "32": "A", "33": "A", "34": "A", "35": "A", "36": "A", "37": "A", "38": "A", "39": "A", "40": "A", "41": "A", "42": "A", "43": "A", "44": "A", "45": "A", "46": "A", "47": "A", "48": "A", "49": "A", "50": "A", "51": "A", "52": "A", "53": "A", "54": "A", "55": "A", "56": "A", "57": "A", "58": "A", "59": "A", "60": "A", "61": "A", "62": "A", "63": "A" },
+    "2026-02-05 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "A", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "A", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "A", "43": "A", "44": "P", "45": "P", "46": "P", "47": "A", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "A", "57": "P", "58": "P", "59": "P", "60": "A", "61": "P", "62": "A", "63": "A" },
+    "2026-02-06 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "A", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "A", "11": "P", "12": "A", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "A", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "A", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "A", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "A", "52": "P", "53": "P", "54": "P", "55": "P", "56": "A", "57": "P", "58": "P", "59": "P", "60": "A", "61": "P", "62": "P", "63": "A" },
+    "2026-02-11 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "A", "12": "A", "13": "P", "14": "P", "15": "A", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "A", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "P", "39": "P", "40": "A", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "P", "54": "A", "55": "P", "56": "P", "57": "P", "58": "A", "59": "A", "60": "P", "61": "P", "62": "P", "63": "A" },
+    "2026-02-12 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "P", "54": "P", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "P" },
+    "2026-02-13 (Lecture)": { "1": "A", "2": "P", "3": "P", "4": "P", "5": "P", "6": "P", "7": "P", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "P", "36": "A", "37": "P", "38": "A", "39": "A", "40": "P", "41": "P", "42": "P", "43": "A", "44": "P", "45": "A", "46": "P", "47": "P", "48": "P", "49": "P", "50": "A", "51": "P", "52": "A", "53": "A", "54": "A", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "A", "62": "A", "63": "A" },
+    "2026-02-18 (Lecture)": { "1": "P", "2": "A", "3": "A", "4": "P", "5": "A", "6": "A", "7": "A", "8": "A", "9": "A", "10": "P", "11": "A", "12": "A", "13": "P", "14": "P", "15": "P", "16": "A", "17": "A", "18": "P", "19": "A", "20": "P", "21": "A", "22": "P", "23": "P", "24": "P", "25": "P", "26": "P", "27": "P", "28": "P", "29": "P", "30": "A", "31": "P", "32": "P", "33": "A", "34": "P", "35": "A", "36": "A", "37": "P", "38": "A", "39": "A", "40": "A", "41": "P", "42": "P", "43": "P", "44": "P", "45": "A", "46": "P", "47": "A", "48": "P", "49": "P", "50": "A", "51": "P", "52": "P", "53": "A", "54": "A", "55": "A", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "A" },
+    "2026-02-20 (Lecture)": { "1": "A", "2": "P", "3": "A", "4": "A", "5": "P", "6": "A", "7": "A", "8": "A", "9": "A", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "P", "25": "A", "26": "P", "27": "P", "28": "A", "29": "A", "30": "P", "31": "P", "32": "P", "33": "P", "34": "P", "35": "A", "36": "A", "37": "A", "38": "P", "39": "A", "40": "P", "41": "P", "42": "P", "43": "P", "44": "A", "45": "A", "46": "P", "47": "A", "48": "A", "49": "P", "50": "P", "51": "P", "52": "A", "53": "A", "54": "A", "55": "A", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "A" },
+    "2026-02-25 (Lecture)": { "1": "A", "2": "P", "3": "A", "4": "A", "5": "A", "6": "A", "7": "A", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "A", "19": "A", "20": "P", "21": "A", "22": "A", "23": "A", "24": "P", "25": "P", "26": "P", "27": "P", "28": "A", "29": "P", "30": "P", "31": "A", "32": "P", "33": "P", "34": "P", "35": "A", "36": "A", "37": "A", "38": "A", "39": "P", "40": "A", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "A", "48": "P", "49": "P", "50": "A", "51": "A", "52": "P", "53": "A", "54": "A", "55": "A", "56": "P", "57": "A", "58": "P", "59": "P", "60": "P", "61": "P", "62": "A", "63": "A" },
+    "2026-02-26 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "A", "8": "P", "9": "P", "10": "P", "11": "P", "12": "P", "13": "P", "14": "P", "15": "P", "16": "P", "17": "P", "18": "P", "19": "A", "20": "P", "21": "P", "22": "P", "23": "P", "24": "A", "25": "P", "26": "P", "27": "A", "28": "P", "29": "P", "30": "P", "31": "A", "32": "A", "33": "P", "34": "A", "35": "A", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "P", "42": "P", "43": "P", "44": "P", "45": "P", "46": "P", "47": "P", "48": "P", "49": "P", "50": "P", "51": "P", "52": "P", "53": "A", "54": "A", "55": "P", "56": "P", "57": "P", "58": "P", "59": "P", "60": "P", "61": "P", "62": "P", "63": "A" },
+    "2026-02-27 (Lecture)": { "1": "P", "2": "P", "3": "P", "4": "P", "5": "A", "6": "P", "7": "A", "8": "A", "9": "A", "10": "P", "11": "P", "12": "A", "13": "P", "14": "A", "15": "P", "16": "P", "17": "P", "18": "A", "19": "A", "20": "A", "21": "P", "22": "A", "23": "P", "24": "A", "25": "A", "26": "A", "27": "A", "28": "P", "29": "A", "30": "A", "31": "P", "32": "A", "33": "P", "34": "A", "35": "A", "36": "A", "37": "P", "38": "P", "39": "P", "40": "P", "41": "A", "42": "P", "43": "P", "44": "P", "45": "P", "46": "A", "47": "P", "48": "P", "49": "P", "50": "A", "51": "A", "52": "A", "53": "P", "54": "A", "55": "A", "56": "P", "57": "P", "58": "A", "59": "A", "60": "A", "61": "P", "62": "P", "63": "A" }
+  }
+});
+  const attendance = attendanceRaw;
+  const setAttendance = v => {
+    const val = typeof v === "function" ? v(attendanceRaw) : v;
+    setAttendanceRaw(val);
+    fbSet("adcet/attendance", val);
+  };
+
+  const [marksRaw, setMarksRaw] = useState({ "2MEIE201": {}, "2MEIE302": {} });
+  const marks = marksRaw;
+  const setMarks = v => {
+    const val = typeof v === "function" ? v(marksRaw) : v;
+    setMarksRaw(val);
+    fbSet("adcet/marks", val);
+  };
+
+  const [customTabsRaw, setCustomTabsRaw] = useState([]);
+  const customTabs = customTabsRaw;
+  const setCustomTabs = v => {
+    const val = typeof v === "function" ? v(customTabsRaw) : v;
+    setCustomTabsRaw(val);
+    fbSet("adcet/customtabs", val);
+  };
+
+  const [ise2ActiveRaw, setIse2ActiveRaw] = useState({ "2MEIE201": false, "2MEIE302": false });
+  const ise2Active = ise2ActiveRaw;
+  const setIse2Active = v => {
+    const val = typeof v === "function" ? v(ise2ActiveRaw) : v;
+    setIse2ActiveRaw(val);
+    fbSet("adcet/ise2active", val);
+  };
+
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeSubject, setActiveSubject] = useState("2MEIE201");
+  const [notification, setNotification] = useState(null);
+
+  // ── Firebase: load all data on mount, then listen for live changes ──
+  useEffect(() => {
+    if (!window.FIREBASE_READY) { setDbStatus("offline"); return; }
+    const ref = window.db.ref("adcet");
+    // Load once on startup
+    ref.once("value", snap => {
+      const d = snap.val();
+      if (!d) {
+        // First ever run: push built-in seed data to Firebase
+        fbSet("adcet/students",   studentsRaw);
+        fbSet("adcet/attendance", attendanceRaw);
+        fbSet("adcet/marks",      marksRaw);
+        fbSet("adcet/customtabs", customTabsRaw);
+        fbSet("adcet/ise2active", ise2ActiveRaw);
+      } else {
+        if (d.students)   setStudentsRaw(d.students);
+        if (d.attendance) setAttendanceRaw(d.attendance);
+        if (d.marks)      setMarksRaw(d.marks);
+        if (d.customtabs) setCustomTabsRaw(d.customtabs);
+        if (d.ise2active) setIse2ActiveRaw(d.ise2active);
+      }
+      setAppReady(true);
+    });
+    // Live listener — students see updates instantly when faculty saves
+    ref.on("value", snap => {
+      const d = snap.val();
+      if (!d) return;
+      if (d.attendance) setAttendanceRaw(d.attendance);
+      if (d.marks)      setMarksRaw(d.marks);
+      if (d.ise2active) setIse2ActiveRaw(d.ise2active);
+      if (d.customtabs) setCustomTabsRaw(d.customtabs);
+    });
+    // Connection state badge
+    window.db.ref(".info/connected").on("value", snap => {
+      setDbStatus(snap.val() ? "online" : "offline");
+    });
+    return () => { ref.off(); window.db.ref(".info/connected").off(); };
+  }, []);
+
+  const showNotif = (msg, type = "success") => {
+    setNotification({ msg, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleFacultyLogin = (u, p) => {
+    if (u === FACULTY_CREDENTIALS.username && p === FACULTY_CREDENTIALS.password) {
+      setRole("faculty");
+      setLoginError("");
+    } else {
+      setLoginError("Invalid credentials. Try santosh.ghutukade / adcet@2024");
+    }
+  };
+
+  const handleStudentLogin = (rollNo, urn, subjectCode) => {
+    const found = students[subjectCode]?.find(
+      s => s.rollNo === rollNo.trim() && s.urn === urn.trim()
+    );
+    if (found) {
+      setLoggedInStudent({ ...found, subjectCode });
+      setRole("student");
+      setLoginError("");
+    } else {
+      const rollExists = students[subjectCode]?.find(s => s.rollNo === rollNo.trim());
+      if (!rollExists) setLoginError("Roll number not found in this subject.");
+      else setLoginError("URN does not match. Please check and try again.");
+    }
+  };
+
+  // Loading screen while Firebase data loads
+  if (!appReady) return (
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#0f172a",gap:16}}>
+      <div style={{fontSize:40}}>🔥</div>
+      <div style={{fontSize:18,color:"#f97316",fontWeight:700}}>Connecting to Firebase...</div>
+      <div style={{fontSize:13,color:"#64748b"}}>Loading your data from the cloud</div>
+      <div style={{marginTop:8,width:200,height:4,background:"#1e293b",borderRadius:4,overflow:"hidden"}}>
+        <div style={{height:"100%",background:"linear-gradient(90deg,#f97316,#fbbf24)",borderRadius:4,animation:"loadBar 1.5s ease-in-out infinite"}}/>
+      </div>
+      <style>{`@keyframes loadBar{0%{width:0%}50%{width:80%}100%{width:100%}}`}</style>
+    </div>
+  );
+
+  if (!role) return <LoginScreen onFaculty={handleFacultyLogin} onStudent={handleStudentLogin} students={students} error={loginError} setError={setLoginError} dbStatus={dbStatus} />;
+  if (role === "student") return <StudentView student={loggedInStudent} attendance={attendance} marks={marks} ise2Active={ise2Active} onLogout={() => { setRole(null); setLoggedInStudent(null); }} />;
+
+  return (
+    <FacultyDashboard
+      students={students} setStudents={setStudents}
+      attendance={attendance} setAttendance={setAttendance}
+      marks={marks} setMarks={setMarks}
+      customTabs={customTabs} setCustomTabs={setCustomTabs}
+      ise2Active={ise2Active} setIse2Active={setIse2Active}
+      activeTab={activeTab} setActiveTab={setActiveTab}
+      activeSubject={activeSubject} setActiveSubject={setActiveSubject}
+      showNotif={showNotif}
+      onLogout={() => setRole(null)}
+      notification={notification}
+      dbStatus={dbStatus}
+    />
+  );
+}
+
+// ─── LOGIN SCREEN ─────────────────────────────────────────────────────────────
+function LoginScreen({ onFaculty, onStudent, students, error, setError, dbStatus }) {
+  const [mode, setMode] = useState("select"); // select | faculty | student
+  const [fu, setFu] = useState(""); const [fp, setFp] = useState("");
+  const [sRoll, setSRoll] = useState(""); const [sUrn, setSUrn] = useState(""); const [sSub, setSSub] = useState("2MEIE201");
+
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Georgia', serif", padding: "20px" }}>
+      <div style={{ width: "100%", maxWidth: 460 }}>
+        {/* Firebase status banner */}
+        {dbStatus === "offline" && (
+          <div style={{ background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:12, padding:"12px 16px", marginBottom:20, display:"flex", gap:10, alignItems:"flex-start" }}>
+            <span style={{fontSize:18}}>⚠️</span>
+            <div>
+              <div style={{fontSize:13,fontWeight:700,color:"#f87171",marginBottom:3}}>Firebase Not Configured</div>
+              <div style={{fontSize:11,color:"#94a3b8",lineHeight:1.5}}>Running offline — data saves only on this device. Add your Firebase config in the HTML to enable cloud sync across all devices.</div>
+            </div>
+          </div>
+        )}
+        {dbStatus === "online" && (
+          <div style={{ background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.25)", borderRadius:12, padding:"10px 16px", marginBottom:16, display:"flex", gap:8, alignItems:"center" }}>
+            <span style={{fontSize:16}}>🔥</span>
+            <span style={{fontSize:12,color:"#86efac",fontWeight:600}}>Firebase connected — data syncs across all devices</span>
+          </div>
+        )}
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: 40 }}>
+          <div style={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg, #f59e0b, #ef4444)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 36 }}>🎓</div>
+          <h1 style={{ color: "#f8fafc", fontSize: 28, fontWeight: 700, margin: "0 0 6px", letterSpacing: "0.5px" }}>ADCET EduPortal</h1>
+          <p style={{ color: "#94a3b8", fontSize: 14, margin: 0 }}>Mr. Santosh T Ghutukade · IE & SCM</p>
+          <div style={{ height: 2, background: "linear-gradient(90deg, transparent, #f59e0b, transparent)", marginTop: 16 }} />
+        </div>
+
+        {mode === "select" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <button onClick={() => { setMode("faculty"); setError(""); }} style={btnStyle("#f59e0b", "#b45309")}>
+              🧑‍🏫 Faculty Login
+            </button>
+            <button onClick={() => { setMode("student"); setError(""); }} style={btnStyle("#3b82f6", "#1d4ed8")}>
+              👨‍🎓 Student Login
+            </button>
+          </div>
+        )}
+
+        {mode === "faculty" && (
+          <div style={cardStyle}>
+            <h2 style={{ color: "#f8fafc", fontSize: 20, marginBottom: 20, textAlign: "center" }}>Faculty Login</h2>
+            <input placeholder="Username" value={fu} onChange={e => setFu(e.target.value)} style={inputStyle} />
+            <input placeholder="Password" type="password" value={fp} onChange={e => setFp(e.target.value)} style={{ ...inputStyle, marginTop: 12 }} onKeyDown={e => e.key === "Enter" && onFaculty(fu, fp)} />
+            {error && <p style={{ color: "#f87171", fontSize: 13, marginTop: 8 }}>{error}</p>}
+            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+              <button onClick={() => { setMode("select"); setError(""); }} style={{ ...btnStyle("#475569", "#334155"), flex: 1 }}>← Back</button>
+              <button onClick={() => onFaculty(fu, fp)} style={{ ...btnStyle("#f59e0b", "#b45309"), flex: 2 }}>Login</button>
+            </div>
+            <p style={{ color: "#64748b", fontSize: 12, marginTop: 12, textAlign: "center" }}>Hint: santosh.ghutukade / adcet@2024</p>
+          </div>
+        )}
+
+        {mode === "student" && (
+          <div style={cardStyle}>
+            <h2 style={{ color: "#f8fafc", fontSize: 20, marginBottom: 20, textAlign: "center" }}>Student Login</h2>
+            <div style={{ marginBottom: 6, fontSize: 12, color: "#94a3b8" }}>Subject</div>
+            <select value={sSub} onChange={e => setSSub(e.target.value)} style={{ ...inputStyle }}>
+              {SUBJECTS.map(s => <option key={s.code} value={s.code}>{s.name} – {s.fullName}</option>)}
+            </select>
+            <div style={{ marginTop: 12, marginBottom: 6, fontSize: 12, color: "#94a3b8" }}>Roll Number</div>
+            <input placeholder="e.g. 5" value={sRoll} onChange={e => setSRoll(e.target.value)} style={{ ...inputStyle }} />
+            <div style={{ marginTop: 12, marginBottom: 6, fontSize: 12, color: "#94a3b8" }}>URN (University Roll Number)</div>
+            <input placeholder="e.g. 2021ME005" value={sUrn} onChange={e => setSUrn(e.target.value)} style={{ ...inputStyle }} onKeyDown={e => e.key === "Enter" && onStudent(sRoll, sUrn, sSub)} />
+            {error && <div style={{ marginTop: 10, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: "10px 14px", color: "#f87171", fontSize: 13 }}>⚠️ {error}</div>}
+            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+              <button onClick={() => { setMode("select"); setError(""); }} style={{ ...btnStyle("#475569", "#334155"), flex: 1 }}>← Back</button>
+              <button onClick={() => onStudent(sRoll, sUrn, sSub)} style={{ ...btnStyle("#3b82f6", "#1d4ed8"), flex: 2 }}>Login</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const btnStyle = (bg, hbg) => ({
+  background: `linear-gradient(135deg, ${bg}, ${hbg})`,
+  color: "#fff",
+  border: "none",
+  borderRadius: 12,
+  padding: "14px 20px",
+  fontSize: 16,
+  fontWeight: 600,
+  cursor: "pointer",
+  letterSpacing: "0.3px",
+  fontFamily: "inherit",
+});
+const cardStyle = {
+  background: "rgba(255,255,255,0.07)",
+  backdropFilter: "blur(20px)",
+  borderRadius: 20,
+  padding: 32,
+  border: "1px solid rgba(255,255,255,0.1)",
+};
+const inputStyle = {
+  width: "100%",
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(255,255,255,0.2)",
+  borderRadius: 10,
+  padding: "12px 16px",
+  color: "#f8fafc",
+  fontSize: 15,
+  fontFamily: "inherit",
+  boxSizing: "border-box",
+};
+
+// ─── STUDENT VIEW ─────────────────────────────────────────────────────────────
+function StudentView({ student, attendance, marks, ise2Active, onLogout }) {
+  const subj = SUBJECTS.find(s => s.code === student.subjectCode);
+  const subjAtt = attendance[student.subjectCode] || {};
+  const allDates = Object.keys(subjAtt).sort();
+  let present = 0, absent = 0;
+  allDates.forEach(d => {
+    const rec = subjAtt[d]?.[student.rollNo];
+    if (rec === "P") present++;
+    else if (rec === "A") absent++;
+  });
+  const total = present + absent;
+  const pct = total ? Math.round((present / total) * 100) : 0;
+  const subjMarks = marks[student.subjectCode]?.[student.rollNo] || {};
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#0f172a", fontFamily: "'Georgia', serif", color: "#f8fafc" }}>
+      {/* Header */}
+      <div style={{ background: "linear-gradient(135deg, #1e3a5f, #0f172a)", padding: "20px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 20 }}>👋 {student.name}</h2>
+          <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>Roll No: {student.rollNo} &nbsp;|&nbsp; URN: {student.urn || "–"} &nbsp;|&nbsp; {student.department || ""} · {subj?.name}</p>
+        </div>
+        <button onClick={onLogout} style={{ background: "#ef4444", border: "none", borderRadius: 8, padding: "8px 16px", color: "#fff", cursor: "pointer", fontFamily: "inherit" }}>Logout</button>
+      </div>
+      <div style={{ padding: 24, maxWidth: 700, margin: "0 auto" }}>
+        {/* Attendance Card */}
+        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, marginBottom: 20, border: "1px solid rgba(255,255,255,0.1)" }}>
+          <h3 style={{ margin: "0 0 20px", color: "#f59e0b" }}>📊 Attendance – {subj?.fullName}</h3>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 20 }}>
+            {[["Total Classes", total, "#64748b"], ["Present", present, "#22c55e"], ["Absent", absent, "#ef4444"], ["Percentage", pct + "%", pct >= 75 ? "#22c55e" : "#ef4444"]].map(([l, v, c]) => (
+              <div key={l} style={{ flex: 1, minWidth: 100, background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 12px", textAlign: "center", border: `1px solid ${c}40` }}>
+                <div style={{ fontSize: 24, fontWeight: 700, color: c }}>{v}</div>
+                <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+          {pct < 75 && total > 0 && <div style={{ background: "#7f1d1d", borderRadius: 10, padding: "10px 16px", fontSize: 13, color: "#fca5a5" }}>⚠️ Attendance below 75%. {Math.ceil((0.75 * total - present) / 0.25)} more classes needed to reach 75%.</div>}
+          {/* Date-wise */}
+          {allDates.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 10 }}>Date-wise Record</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {allDates.map(d => {
+                  const s = subjAtt[d]?.[student.rollNo];
+                  return <div key={d} style={{ background: s === "P" ? "#14532d" : "#7f1d1d", borderRadius: 6, padding: "4px 10px", fontSize: 12, color: s === "P" ? "#86efac" : "#fca5a5" }}>{d}<br />{s || "–"}</div>;
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Marks Card */}
+        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, border: "1px solid rgba(255,255,255,0.1)" }}>
+          <h3 style={{ margin: "0 0 20px", color: "#a78bfa" }}>📝 ISE Marks – {subj?.fullName}</h3>
+          <div style={{ display: "flex", gap: 16 }}>
+            {["ISE1", "ISE2"].map(ise => {
+              const m = subjMarks[ise];
+              return (
+                <div key={ise} style={{ flex: 1, background: "rgba(167,139,250,0.1)", borderRadius: 12, padding: 20, textAlign: "center", border: "1px solid rgba(167,139,250,0.3)" }}>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: "#a78bfa" }}>{m !== undefined ? m : "–"}</div>
+                  <div style={{ color: "#94a3b8", fontSize: 13, marginTop: 4 }}>{ise} / 20</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── FACULTY DASHBOARD ────────────────────────────────────────────────────────
+function FacultyDashboard({ students, setStudents, attendance, setAttendance, marks, setMarks, customTabs, setCustomTabs, ise2Active, setIse2Active, activeTab, setActiveTab, activeSubject, setActiveSubject, showNotif, onLogout, notification, dbStatus }) {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const baseTabs = [
+    { id: "dashboard", label: "Dashboard", icon: "📊" },
+    { id: "students", label: "Students", icon: "👥" },
+    { id: "attendance", label: "Attendance", icon: "✅" },
+    { id: "marks", label: "ISE Marks", icon: "📝" },
+    { id: "att-report", label: "Attendance Report", icon: "📋" },
+    { id: "marks-report", label: "Marks Report", icon: "🏆" },
+    { id: "atr", label: "Action Taken Report", icon: "📄" },
+    { id: "custom-tabs", label: "Manage Tabs", icon: "⚙️" },
+  ];
+  const allTabs = [...baseTabs, ...customTabs.map(t => ({ id: `custom_${t.id}`, label: t.label, icon: t.icon }))];
+
+  return (
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'Georgia', serif", background: "#0f172a", color: "#f8fafc" }}>
+      {/* Sidebar */}
+      <div style={{ width: sidebarOpen ? 240 : 60, background: "linear-gradient(180deg, #1e293b 0%, #0f172a 100%)", borderRight: "1px solid rgba(255,255,255,0.08)", transition: "width 0.3s", flexShrink: 0, display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: sidebarOpen ? "24px 20px 20px" : "24px 10px 20px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          {sidebarOpen ? (
+            <>
+              <div style={{ fontSize: 22, fontWeight: 700, color: "#f59e0b", lineHeight: 1.2 }}>ADCET</div>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>EduPortal</div>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 8 }}>Mr. Santosh T Ghutukade</div>
+            </>
+          ) : <div style={{ fontSize: 20, textAlign: "center" }}>🎓</div>}
+        </div>
+        <nav style={{ flex: 1, padding: "12px 8px", overflowY: "auto" }}>
+          {allTabs.map(t => (
+            <div key={t.id} onClick={() => setActiveTab(t.id)} style={{ display: "flex", alignItems: "center", gap: 10, padding: sidebarOpen ? "10px 12px" : "10px 6px", borderRadius: 10, marginBottom: 4, cursor: "pointer", background: activeTab === t.id ? "rgba(245,158,11,0.15)" : "transparent", borderLeft: activeTab === t.id ? "3px solid #f59e0b" : "3px solid transparent", transition: "all 0.15s" }}>
+              <span style={{ fontSize: 18, flexShrink: 0 }}>{t.icon}</span>
+              {sidebarOpen && <span style={{ fontSize: 14, color: activeTab === t.id ? "#f59e0b" : "#cbd5e1", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.label}</span>}
+            </div>
+          ))}
+        </nav>
+        <div style={{ padding: 8 }}>
+          <div onClick={() => setSidebarOpen(!sidebarOpen)} style={{ padding: "10px 12px", borderRadius: 10, cursor: "pointer", textAlign: "center", color: "#64748b", fontSize: 18 }}>{sidebarOpen ? "◀" : "▶"}</div>
+          <div onClick={onLogout} style={{ padding: "10px 12px", borderRadius: 10, cursor: "pointer", textAlign: "center", color: "#ef4444", fontSize: sidebarOpen ? 14 : 18, display: "flex", alignItems: "center", gap: 8, justifyContent: "center" }}>
+            <span>🚪</span>{sidebarOpen && <span>Logout</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Main */}
+      <div style={{ flex: 1, overflow: "auto" }}>
+        {/* Top bar */}
+        <div style={{ background: "rgba(30,41,59,0.8)", borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "16px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, backdropFilter: "blur(10px)", zIndex: 10 }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>{allTabs.find(t => t.id === activeTab)?.icon} {allTabs.find(t => t.id === activeTab)?.label}</h1>
+          </div>
+          {/* Subject Selector + Firebase Badge */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {SUBJECTS.map(s => (
+              <button key={s.code} onClick={() => setActiveSubject(s.code)} style={{ padding: "8px 16px", borderRadius: 20, border: "none", cursor: "pointer", background: activeSubject === s.code ? "linear-gradient(135deg, #f59e0b, #b45309)" : "rgba(255,255,255,0.08)", color: activeSubject === s.code ? "#fff" : "#94a3b8", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>
+                {s.name}
+              </button>
+            ))}
+            <div style={{ display:"flex", alignItems:"center", gap:5, background: dbStatus==="online" ? "rgba(34,197,94,0.12)" : dbStatus==="offline" ? "rgba(239,68,68,0.12)" : "rgba(251,191,36,0.12)", border:`1px solid ${dbStatus==="online"?"#22c55e":dbStatus==="offline"?"#ef4444":"#fbbf24"}`, borderRadius:20, padding:"5px 12px" }}>
+              <div style={{ width:7, height:7, borderRadius:"50%", background: dbStatus==="online"?"#22c55e":dbStatus==="offline"?"#ef4444":"#fbbf24", boxShadow: dbStatus==="online"?"0 0 6px #22c55e":"none" }}/>
+              <span style={{ fontSize:11, fontWeight:700, color: dbStatus==="online"?"#22c55e":dbStatus==="offline"?"#ef4444":"#fbbf24" }}>
+                {dbStatus==="online"?"🔥 Live":dbStatus==="offline"?"⚠️ Offline":"⟳ ..."}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Notification */}
+        {notification && (
+          <div style={{ position: "fixed", top: 80, right: 24, background: notification.type === "success" ? "#14532d" : "#7f1d1d", color: notification.type === "success" ? "#86efac" : "#fca5a5", padding: "12px 20px", borderRadius: 12, zIndex: 1000, fontSize: 14, boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
+            {notification.type === "success" ? "✅" : "❌"} {notification.msg}
+          </div>
+        )}
+
+        {/* Content */}
+        <div style={{ padding: 28 }}>
+          {activeTab === "dashboard" && <DashboardView students={students} attendance={attendance} marks={marks} activeSubject={activeSubject} />}
+          {activeTab === "students" && <StudentsView students={students} setStudents={setStudents} activeSubject={activeSubject} showNotif={showNotif} />}
+          {activeTab === "attendance" && <AttendanceView students={students} attendance={attendance} setAttendance={setAttendance} activeSubject={activeSubject} showNotif={showNotif} />}
+          {activeTab === "marks" && <MarksView students={students} marks={marks} setMarks={setMarks} activeSubject={activeSubject} showNotif={showNotif} />}
+          {activeTab === "att-report" && <AttendanceReport students={students} attendance={attendance} activeSubject={activeSubject} />}
+          {activeTab === "marks-report" && <MarksReport students={students} marks={marks} activeSubject={activeSubject} />}
+          {activeTab === "atr" && <ATRView students={students} attendance={attendance} activeSubject={activeSubject} />}
+          {activeTab === "custom-tabs" && <CustomTabsManager customTabs={customTabs} setCustomTabs={setCustomTabs} showNotif={showNotif} />}
+          {activeTab.startsWith("custom_") && <CustomTabContent tab={customTabs.find(t => `custom_${t.id}` === activeTab)} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── DASHBOARD VIEW ───────────────────────────────────────────────────────────
+function DashboardView({ students, attendance, marks, activeSubject }) {
+  const subj = SUBJECTS.find(s => s.code === activeSubject);
+  const studs = students[activeSubject] || [];
+  const subjAtt = attendance[activeSubject] || {};
+  const allDates = Object.keys(subjAtt);
+  const totalClasses = allDates.length;
+
+  let belowThreshold = 0;
+  studs.forEach(st => {
+    let p = 0;
+    allDates.forEach(d => { if (subjAtt[d]?.[st.rollNo] === "P") p++; });
+    const pct = totalClasses ? (p / totalClasses) * 100 : 100;
+    if (pct < 75 && totalClasses > 0) belowThreshold++;
+  });
+
+  const subjMarks = marks[activeSubject] || {};
+  let ise1Avg = 0, ise2Avg = 0, ise1Count = 0, ise2Count = 0;
+  studs.forEach(st => {
+    const m = subjMarks[st.rollNo] || {};
+    if (m.ISE1 !== undefined) { ise1Avg += m.ISE1; ise1Count++; }
+    if (m.ISE2 !== undefined) { ise2Avg += m.ISE2; ise2Count++; }
+  });
+
+  const cards = [
+    { label: "Total Students", value: studs.length, icon: "👥", color: "#3b82f6" },
+    { label: "Classes Conducted", value: totalClasses, icon: "📅", color: "#f59e0b" },
+    { label: "Below 75% Attendance", value: belowThreshold, icon: "⚠️", color: "#ef4444" },
+    { label: "ISE 1 Avg", value: ise1Count ? (ise1Avg / ise1Count).toFixed(1) : "–", icon: "📝", color: "#a78bfa" },
+    { label: "ISE 2 Avg", value: ise2Count ? (ise2Avg / ise2Count).toFixed(1) : "–", icon: "📝", color: "#22d3ee" },
+  ];
+
+  return (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ margin: 0, color: "#f59e0b", fontSize: 22 }}>{subj?.fullName} ({subj?.code})</h2>
+        <p style={{ color: "#94a3b8", margin: "4px 0 0", fontSize: 14 }}>Academic Overview</p>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16, marginBottom: 28 }}>
+        {cards.map(c => (
+          <div key={c.label} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "20px 16px", border: `1px solid ${c.color}30`, textAlign: "center" }}>
+            <div style={{ fontSize: 32 }}>{c.icon}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: c.color, marginTop: 8 }}>{c.value}</div>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{c.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Recent attendance */}
+      {allDates.length > 0 && (
+        <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, padding: 20, border: "1px solid rgba(255,255,255,0.08)" }}>
+          <h3 style={{ margin: "0 0 16px", fontSize: 16, color: "#f8fafc" }}>Recent Attendance Sessions</h3>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+            {allDates.slice(-10).reverse().map(d => {
+              let p = 0, a = 0;
+              studs.forEach(st => { subjAtt[d]?.[st.rollNo] === "P" ? p++ : a++; });
+              return (
+                <div key={d} style={{ background: "rgba(255,255,255,0.07)", borderRadius: 10, padding: "10px 14px", minWidth: 130 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#f8fafc" }}>{d}</div>
+                  <div style={{ fontSize: 12, color: "#22c55e", marginTop: 4 }}>✅ {p} Present</div>
+                  <div style={{ fontSize: 12, color: "#ef4444" }}>❌ {a} Absent</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── STUDENTS VIEW ────────────────────────────────────────────────────────────
+function StudentsView({ students, setStudents, activeSubject, showNotif }) {
+  const subj = SUBJECTS.find(s => s.code === activeSubject);
+  const studs = students[activeSubject] || [];
+  const [newRoll, setNewRoll] = useState(""); const [newUrn, setNewUrn] = useState(""); const [newName, setNewName] = useState(""); const [newDept, setNewDept] = useState("");
+  const [editIdx, setEditIdx] = useState(null); const [editRoll, setEditRoll] = useState(""); const [editUrn, setEditUrn] = useState(""); const [editName, setEditName] = useState(""); const [editDept, setEditDept] = useState("");
+  const fileRef = useRef();
+
+  const addStudent = () => {
+    if (!newRoll.trim() || !newName.trim()) return showNotif("Roll No and Name required", "error");
+    if (!newUrn.trim()) return showNotif("URN is required", "error");
+    if (studs.find(s => s.rollNo === newRoll.trim())) return showNotif("Roll No already exists", "error");
+    if (studs.find(s => s.urn === newUrn.trim())) return showNotif("URN already exists", "error");
+    setStudents(prev => ({ ...prev, [activeSubject]: [...prev[activeSubject], { rollNo: newRoll.trim(), urn: newUrn.trim(), name: newName.trim(), department: newDept.trim() }] }));
+    setNewRoll(""); setNewUrn(""); setNewName(""); setNewDept("");
+    showNotif("Student added!");
+  };
+
+  const deleteStudent = (roll) => {
+    setStudents(prev => ({ ...prev, [activeSubject]: prev[activeSubject].filter(s => s.rollNo !== roll) }));
+    showNotif("Student removed");
+  };
+
+  const saveEdit = (idx) => {
+    const updated = [...studs];
+    updated[idx] = { rollNo: editRoll, urn: editUrn, name: editName, department: editDept };
+    setStudents(prev => ({ ...prev, [activeSubject]: updated }));
+    setEditIdx(null);
+    showNotif("Student updated!");
+  };
+
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const parsed = parseExcelLikeCSV(ev.target.result);
+      if (parsed.length === 0) return showNotif("No valid data found. Use RollNo,Name format", "error");
+      setStudents(prev => {
+        const existing = prev[activeSubject];
+        const merged = [...existing];
+        parsed.forEach(p => { if (!merged.find(s => s.rollNo === p.rollNo)) merged.push(p); });
+        return { ...prev, [activeSubject]: merged };
+      });
+      showNotif(`${parsed.length} students imported!`);
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h2 style={{ margin: 0, color: "#f59e0b" }}>Students – {subj?.name}</h2>
+          <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>{studs.length} enrolled</p>
+        </div>
+        <button onClick={() => fileRef.current.click()} style={{ ...btnStyle("#22c55e", "#15803d"), padding: "10px 18px", fontSize: 14 }}>📤 Import CSV/Excel</button>
+        <input ref={fileRef} type="file" accept=".csv,.txt,.xls,.xlsx" onChange={handleFile} style={{ display: "none" }} />
+      </div>
+
+      {/* Add row */}
+      <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
+        <input placeholder="Roll No" value={newRoll} onChange={e => setNewRoll(e.target.value)} style={{ ...inputStyle, width: 90, flex: "0 0 auto" }} />
+        <input placeholder="URN" value={newUrn} onChange={e => setNewUrn(e.target.value)} style={{ ...inputStyle, width: 140, flex: "0 0 auto" }} />
+        <input placeholder="Student Name" value={newName} onChange={e => setNewName(e.target.value)} style={{ ...inputStyle, flex: 1, minWidth: 150 }} />
+        <input placeholder="Department" value={newDept} onChange={e => setNewDept(e.target.value)} style={{ ...inputStyle, width: 130, flex: "0 0 auto" }} onKeyDown={e => e.key === "Enter" && addStudent()} />
+        <button onClick={addStudent} style={{ ...btnStyle("#f59e0b", "#b45309"), padding: "10px 20px", fontSize: 14 }}>+ Add</button>
+      </div>
+
+      <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ background: "rgba(255,255,255,0.08)" }}>
+              {["#", "Roll No", "URN", "Name", "Department", "Actions"].map(h => <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 13, color: "#94a3b8", fontWeight: 600 }}>{h}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {studs.map((s, i) => (
+              <tr key={s.rollNo} style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <td style={{ padding: "12px 16px", color: "#64748b", fontSize: 13 }}>{i + 1}</td>
+                {editIdx === i ? (
+                  <>
+                    <td style={{ padding: "8px 10px" }}><input value={editRoll} onChange={e => setEditRoll(e.target.value)} style={{ ...inputStyle, padding: "7px 10px", fontSize: 13 }} /></td>
+                    <td style={{ padding: "8px 10px" }}><input value={editUrn} onChange={e => setEditUrn(e.target.value)} style={{ ...inputStyle, padding: "7px 10px", fontSize: 13 }} /></td>
+                    <td style={{ padding: "8px 10px" }}><input value={editName} onChange={e => setEditName(e.target.value)} style={{ ...inputStyle, padding: "7px 10px", fontSize: 13 }} /></td>
+                    <td style={{ padding: "8px 10px" }}><input value={editDept} onChange={e => setEditDept(e.target.value)} style={{ ...inputStyle, padding: "7px 10px", fontSize: 13 }} /></td>
+                    <td style={{ padding: "8px 10px" }}>
+                      <button onClick={() => saveEdit(i)} style={{ background: "#22c55e", border: "none", borderRadius: 6, padding: "6px 12px", color: "#fff", cursor: "pointer", marginRight: 6, fontFamily: "inherit" }}>Save</button>
+                      <button onClick={() => setEditIdx(null)} style={{ background: "#475569", border: "none", borderRadius: 6, padding: "6px 12px", color: "#fff", cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td style={{ padding: "12px 16px", fontSize: 14, color: "#f59e0b", fontWeight: 600 }}>{s.rollNo}</td>
+                    <td style={{ padding: "12px 14px", fontSize: 13, color: "#22d3ee" }}>{s.urn || "–"}</td>
+                    <td style={{ padding: "12px 16px", fontSize: 14 }}>{s.name}</td>
+                    <td style={{ padding: "12px 14px", fontSize: 13, color: "#94a3b8" }}>{s.department || "–"}</td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <button onClick={() => { setEditIdx(i); setEditRoll(s.rollNo); setEditUrn(s.urn || ""); setEditName(s.name); setEditDept(s.department || ""); }} style={{ background: "#3b82f6", border: "none", borderRadius: 6, padding: "6px 12px", color: "#fff", cursor: "pointer", marginRight: 6, fontSize: 12, fontFamily: "inherit" }}>✏️ Edit</button>
+                      <button onClick={() => deleteStudent(s.rollNo)} style={{ background: "#ef4444", border: "none", borderRadius: 6, padding: "6px 12px", color: "#fff", cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>🗑️ Delete</button>
+                    </td>
+                  </>
+                )}
+              </tr>
+            ))}
+            {studs.length === 0 && <tr><td colSpan={4} style={{ padding: 32, textAlign: "center", color: "#64748b" }}>No students yet. Add manually or import CSV.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      <p style={{ fontSize: 12, color: "#64748b", marginTop: 12 }}>📌 CSV/Excel format: <strong style={{color:"#94a3b8"}}>RollNo, URN, Name, Department</strong> — header row optional. Auto-detects columns.</p>
+    </div>
+  );
+}
+
+// ─── ATTENDANCE VIEW ──────────────────────────────────────────────────────────
+function AttendanceView({ students, attendance, setAttendance, activeSubject, showNotif }) {
+  const subj = SUBJECTS.find(s => s.code === activeSubject);
+  const studs = students[activeSubject] || [];
+  const today = new Date().toISOString().slice(0, 10);
+  const [selDate, setSelDate] = useState(today);
+  const [session, setSession] = useState("Lecture");
+  const subjAtt = attendance[activeSubject] || {};
+  const dateKey = `${selDate} (${session})`;
+  const existing = subjAtt[dateKey] || {};
+  const [localAtt, setLocalAtt] = useState({});
+  const [mode, setMode] = useState("full"); // "full" | "quick"
+  const [absentInput, setAbsentInput] = useState("");
+  const [quickPreview, setQuickPreview] = useState(null); // { valid, invalid, att }
+
+  useEffect(() => {
+    const init = {};
+    studs.forEach(s => { init[s.rollNo] = existing[s.rollNo] || "P"; });
+    setLocalAtt(init);
+    setQuickPreview(null);
+    setAbsentInput("");
+  }, [selDate, session, activeSubject, students]);
+
+  const toggle = (roll) => setLocalAtt(prev => ({ ...prev, [roll]: prev[roll] === "P" ? "A" : "P" }));
+  const markAll = (val) => { const o = {}; studs.forEach(s => { o[s.rollNo] = val; }); setLocalAtt(o); };
+
+  // ── Quick Absent Logic ──
+  const parseAbsentRolls = (input) => {
+    // supports: "1,2,3"  or "1 2 3"  or "1, 2, 3"  or newlines
+    return input.split(/[\s,;\n]+/).map(r => r.trim()).filter(Boolean);
+  };
+
+  const handleQuickPreview = () => {
+    const entered = parseAbsentRolls(absentInput);
+    const valid = [], invalid = [];
+    entered.forEach(r => {
+      if (studs.find(s => s.rollNo === r)) valid.push(r);
+      else invalid.push(r);
+    });
+    // Build attendance: everyone present except entered absent rolls
+    const att = {};
+    studs.forEach(s => { att[s.rollNo] = valid.includes(s.rollNo) ? "A" : "P"; });
+    setQuickPreview({ valid, invalid, att });
+  };
+
+  const applyQuickAbsent = () => {
+    if (!quickPreview) return;
+    setLocalAtt(quickPreview.att);
+    setMode("full");
+    showNotif(`✅ ${quickPreview.valid.length} absent, ${studs.length - quickPreview.valid.length} present — review & save below`);
+  };
+
+  const save = () => {
+    setAttendance(prev => ({ ...prev, [activeSubject]: { ...prev[activeSubject], [dateKey]: { ...localAtt } } }));
+    showNotif(`Attendance saved for ${dateKey}`);
+  };
+
+  const deleteSession = () => {
+    setAttendance(prev => {
+      const copy = { ...prev[activeSubject] };
+      delete copy[dateKey];
+      return { ...prev, [activeSubject]: copy };
+    });
+    showNotif("Session deleted");
+  };
+
+  const presentCount = Object.values(localAtt).filter(v => v === "P").length;
+
+  return (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ margin: 0, color: "#f59e0b" }}>Take Attendance – {subj?.name}</h2>
+      </div>
+
+      {/* Date + Session */}
+      <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap", alignItems: "flex-end" }}>
+        <div>
+          <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 4 }}>Date</label>
+          <input type="date" value={selDate} onChange={e => setSelDate(e.target.value)} style={{ ...inputStyle, width: 160 }} />
+        </div>
+        <div>
+          <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 4 }}>Session</label>
+          <select value={session} onChange={e => setSession(e.target.value)} style={{ ...inputStyle, width: 140 }}>
+            {["Lecture", "Tutorial", "Practical", "Extra Class"].map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* Mode Toggle */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <button onClick={() => { setMode("full"); setQuickPreview(null); }} style={{ padding: "9px 20px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600, background: mode === "full" ? "linear-gradient(135deg,#f59e0b,#b45309)" : "rgba(255,255,255,0.08)", color: mode === "full" ? "#fff" : "#94a3b8" }}>
+          📋 Full Roll Call
+        </button>
+        <button onClick={() => { setMode("quick"); setQuickPreview(null); }} style={{ padding: "9px 20px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600, background: mode === "quick" ? "linear-gradient(135deg,#ef4444,#b91c1c)" : "rgba(255,255,255,0.08)", color: mode === "quick" ? "#fff" : "#94a3b8" }}>
+          ⚡ Quick Absent Entry
+        </button>
+      </div>
+
+      {/* ── QUICK ABSENT MODE ── */}
+      {mode === "quick" && (
+        <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 16, padding: 24, marginBottom: 20 }}>
+          <h3 style={{ margin: "0 0 6px", color: "#f87171", fontSize: 16 }}>⚡ Quick Absent Entry</h3>
+          <p style={{ margin: "0 0 16px", color: "#94a3b8", fontSize: 13 }}>
+            Enter only the <strong style={{ color: "#fca5a5" }}>absent students' roll numbers</strong>. Everyone else will be marked <strong style={{ color: "#86efac" }}>Present</strong> automatically.
+          </p>
+          <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 6 }}>
+            Absent Roll Numbers <span style={{ color: "#64748b" }}>(separate by comma, space, or new line)</span>
+          </label>
+          <textarea
+            placeholder={"e.g.  3, 7, 12, 15\nor one per line:\n3\n7\n12"}
+            value={absentInput}
+            onChange={e => { setAbsentInput(e.target.value); setQuickPreview(null); }}
+            style={{ ...inputStyle, height: 100, resize: "vertical", fontFamily: "monospace", fontSize: 15, marginBottom: 12 }}
+          />
+
+          {/* live chip preview while typing */}
+          {absentInput.trim() && !quickPreview && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+              {parseAbsentRolls(absentInput).map(r => {
+                const exists = studs.find(s => s.rollNo === r);
+                return (
+                  <span key={r} style={{ padding: "3px 10px", borderRadius: 20, fontSize: 13, background: exists ? "#7f1d1d" : "#1c1917", color: exists ? "#fca5a5" : "#78716c", border: `1px solid ${exists ? "#ef4444" : "#44403c"}` }}>
+                    {r}{exists ? "" : " ✗"}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+
+          <button onClick={handleQuickPreview} style={{ ...btnStyle("#ef4444", "#b91c1c"), padding: "10px 24px", fontSize: 14 }}>
+            👁️ Preview Attendance
+          </button>
+
+          {/* Preview result */}
+          {quickPreview && (
+            <div style={{ marginTop: 20 }}>
+              {quickPreview.invalid.length > 0 && (
+                <div style={{ background: "#7c2d12", borderRadius: 10, padding: "10px 16px", marginBottom: 12, fontSize: 13, color: "#fdba74" }}>
+                  ⚠️ Roll numbers not found (ignored): <strong>{quickPreview.invalid.join(", ")}</strong>
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
+                <div style={{ background: "#14532d", borderRadius: 10, padding: "10px 20px", flex: 1, minWidth: 120, textAlign: "center" }}>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: "#86efac" }}>{studs.length - quickPreview.valid.length}</div>
+                  <div style={{ fontSize: 12, color: "#86efac", marginTop: 2 }}>✅ Present</div>
+                </div>
+                <div style={{ background: "#7f1d1d", borderRadius: 10, padding: "10px 20px", flex: 1, minWidth: 120, textAlign: "center" }}>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: "#fca5a5" }}>{quickPreview.valid.length}</div>
+                  <div style={{ fontSize: 12, color: "#fca5a5", marginTop: 2 }}>❌ Absent</div>
+                </div>
+              </div>
+
+              {/* Absent names */}
+              {quickPreview.valid.length > 0 && (
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 6 }}>Absent Students:</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {quickPreview.valid.map(r => {
+                      const s = studs.find(st => st.rollNo === r);
+                      return <span key={r} style={{ background: "#7f1d1d", color: "#fca5a5", borderRadius: 20, padding: "4px 12px", fontSize: 13 }}>🔴 {r} – {s?.name}</span>;
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: 10 }}>
+                <button onClick={applyQuickAbsent} style={{ ...btnStyle("#22c55e", "#15803d"), padding: "10px 24px", fontSize: 14 }}>
+                  ✅ Apply & Review Full List
+                </button>
+                <button onClick={() => setQuickPreview(null)} style={{ ...btnStyle("#475569", "#334155"), padding: "10px 18px", fontSize: 14 }}>
+                  ✏️ Edit
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── FULL ROLL CALL MODE ── */}
+      {mode === "full" && (
+        <>
+          <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+            <button onClick={() => markAll("P")} style={{ ...btnStyle("#22c55e", "#15803d"), padding: "9px 16px", fontSize: 13 }}>✅ All Present</button>
+            <button onClick={() => markAll("A")} style={{ ...btnStyle("#ef4444", "#b91c1c"), padding: "9px 16px", fontSize: 13 }}>❌ All Absent</button>
+          </div>
+          <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", marginBottom: 16 }}>
+            <div style={{ padding: "12px 16px", background: "rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", fontSize: 13, color: "#94a3b8" }}>
+              <span>{dateKey}</span>
+              <span style={{ color: "#22c55e" }}>{presentCount}/{studs.length} Present</span>
+            </div>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "rgba(255,255,255,0.04)" }}>
+                  {["Roll No", "Name", "Status", "Toggle"].map(h => <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 13, color: "#94a3b8" }}>{h}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {studs.map(s => (
+                  <tr key={s.rollNo} style={{ borderTop: "1px solid rgba(255,255,255,0.05)", background: localAtt[s.rollNo] === "A" ? "rgba(239,68,68,0.05)" : "transparent" }}>
+                    <td style={{ padding: "12px 16px", color: "#f59e0b", fontSize: 14, fontWeight: 600 }}>{s.rollNo}</td>
+                    <td style={{ padding: "12px 16px", fontSize: 14 }}>{s.name}</td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <span style={{ padding: "4px 12px", borderRadius: 20, fontSize: 13, fontWeight: 600, background: localAtt[s.rollNo] === "P" ? "#14532d" : "#7f1d1d", color: localAtt[s.rollNo] === "P" ? "#86efac" : "#fca5a5" }}>
+                        {localAtt[s.rollNo] === "P" ? "Present" : "Absent"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <button onClick={() => toggle(s.rollNo)} style={{ background: localAtt[s.rollNo] === "P" ? "#ef4444" : "#22c55e", border: "none", borderRadius: 8, padding: "6px 14px", color: "#fff", cursor: "pointer", fontSize: 13, fontFamily: "inherit" }}>
+                        {localAtt[s.rollNo] === "P" ? "Mark Absent" : "Mark Present"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      <div style={{ display: "flex", gap: 10 }}>
+        <button onClick={save} style={{ ...btnStyle("#f59e0b", "#b45309"), padding: "12px 28px" }}>💾 Save Attendance</button>
+        {subjAtt[dateKey] && <button onClick={deleteSession} style={{ ...btnStyle("#ef4444", "#b91c1c"), padding: "12px 20px" }}>🗑️ Delete Session</button>}
+      </div>
+
+      {/* Existing sessions */}
+      <div style={{ marginTop: 28 }}>
+        <h3 style={{ fontSize: 16, color: "#f8fafc", marginBottom: 12 }}>All Sessions ({Object.keys(subjAtt).length})</h3>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+          {Object.keys(subjAtt).sort().map(dk => {
+            let p = 0;
+            studs.forEach(s => { if (subjAtt[dk]?.[s.rollNo] === "P") p++; });
+            return (
+              <div key={dk} onClick={() => { const parts = dk.match(/^(.+) \((.+)\)$/); if (parts) { setSelDate(parts[1]); setSession(parts[2]); setMode("full"); } }} style={{ background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 14px", cursor: "pointer", border: `1px solid ${dk === dateKey ? "#f59e0b" : "transparent"}`, minWidth: 140 }}>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{dk}</div>
+                <div style={{ fontSize: 12, color: "#22c55e", marginTop: 2 }}>{p}/{studs.length} present</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MARKS VIEW ───────────────────────────────────────────────────────────────
+function MarksView({ students, marks, setMarks, activeSubject, showNotif }) {
+  const subj = SUBJECTS.find(s => s.code === activeSubject);
+  const studs = students[activeSubject] || [];
+  const subjMarks = marks[activeSubject] || {};
+  const [localMarks, setLocalMarks] = useState({});
+
+  useEffect(() => {
+    const init = {};
+    studs.forEach(s => {
+      init[s.rollNo] = { ISE1: subjMarks[s.rollNo]?.ISE1 ?? "", ISE2: subjMarks[s.rollNo]?.ISE2 ?? "" };
+    });
+    setLocalMarks(init);
+  }, [activeSubject, students]);
+
+  const update = (roll, ise, val) => {
+    const num = val === "" ? "" : Math.max(0, Math.min(20, parseInt(val) || 0));
+    setLocalMarks(prev => ({ ...prev, [roll]: { ...prev[roll], [ise]: num } }));
+  };
+
+  const save = () => {
+    const toSave = {};
+    studs.forEach(s => {
+      toSave[s.rollNo] = { ISE1: localMarks[s.rollNo]?.ISE1, ISE2: localMarks[s.rollNo]?.ISE2 };
+    });
+    setMarks(prev => ({ ...prev, [activeSubject]: toSave }));
+    showNotif("Marks saved!");
+  };
+
+  return (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ margin: 0, color: "#a78bfa" }}>ISE Marks – {subj?.name}</h2>
+        <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>ISE1 and ISE2 — out of 20 each</p>
+      </div>
+      <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", marginBottom: 16 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ background: "rgba(255,255,255,0.08)" }}>
+              {["Roll No", "Name", "ISE 1 (/20)", "ISE 2 (/20)", "Total (/40)"].map(h => <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 13, color: "#94a3b8" }}>{h}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {studs.map(s => {
+              const m = localMarks[s.rollNo] || {};
+              const total = (m.ISE1 !== "" && m.ISE1 !== undefined ? parseInt(m.ISE1) : 0) + (m.ISE2 !== "" && m.ISE2 !== undefined ? parseInt(m.ISE2) : 0);
+              return (
+                <tr key={s.rollNo} style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                  <td style={{ padding: "10px 16px", color: "#f59e0b", fontWeight: 600, fontSize: 14 }}>{s.rollNo}</td>
+                  <td style={{ padding: "10px 16px", fontSize: 14 }}>{s.name}</td>
+                  <td style={{ padding: "10px 12px" }}>
+                    <input type="number" min="0" max="20" value={m.ISE1 ?? ""} onChange={e => update(s.rollNo, "ISE1", e.target.value)} style={{ ...inputStyle, width: 80, padding: "8px 12px", textAlign: "center" }} placeholder="–" />
+                  </td>
+                  <td style={{ padding: "10px 12px" }}>
+                    <input type="number" min="0" max="20" value={m.ISE2 ?? ""} onChange={e => update(s.rollNo, "ISE2", e.target.value)} style={{ ...inputStyle, width: 80, padding: "8px 12px", textAlign: "center" }} placeholder="–" />
+                  </td>
+                  <td style={{ padding: "10px 16px", fontWeight: 700, color: "#a78bfa", fontSize: 16 }}>{m.ISE1 !== "" || m.ISE2 !== "" ? total : "–"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <button onClick={save} style={{ ...btnStyle("#a78bfa", "#7c3aed"), padding: "12px 28px" }}>💾 Save Marks</button>
+    </div>
+  );
+}
+
+// ─── ATTENDANCE REPORT ────────────────────────────────────────────────────────
+function AttendanceReport({ students, attendance, activeSubject }) {
+  const subj = SUBJECTS.find(s => s.code === activeSubject);
+  const studs = students[activeSubject] || [];
+  const subjAtt = attendance[activeSubject] || {};
+  const allDates = Object.keys(subjAtt).sort();
+
+  const rows = studs.map(s => {
+    let p = 0;
+    allDates.forEach(d => { if (subjAtt[d]?.[s.rollNo] === "P") p++; });
+    const total = allDates.length;
+    const pct = total ? Math.round((p / total) * 100) : 0;
+    return { ...s, present: p, absent: total - p, total, pct };
+  });
+
+  const printReport = () => {
+    const win = window.open("", "_blank");
+    win.document.write(`<html><head><title>Attendance Report - ${subj?.name}</title><style>body{font-family:Georgia,serif;padding:20px;color:#111}h1{color:#1e3a5f}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #ccc;padding:10px 14px;text-align:left}th{background:#1e3a5f;color:#fff}.low{color:#dc2626;font-weight:700}.ok{color:#16a34a;font-weight:700}</style></head><body>
+      <h1>ADCET – Attendance Report</h1>
+      <p><strong>Subject:</strong> ${subj?.fullName} (${subj?.code})</p>
+      <p><strong>Faculty:</strong> Mr. Santosh T Ghutukade</p>
+      <p><strong>Total Classes:</strong> ${allDates.length}</p>
+      <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
+      <table><thead><tr><th>#</th><th>Roll No</th><th>Name</th><th>Present</th><th>Absent</th><th>Total</th><th>%</th><th>Status</th></tr></thead>
+      <tbody>${rows.map((r, i) => `<tr><td>${i + 1}</td><td>${r.rollNo}</td><td>${r.name}</td><td>${r.present}</td><td>${r.absent}</td><td>${r.total}</td><td class="${r.pct < 75 ? "low" : "ok"}">${r.pct}%</td><td class="${r.pct < 75 ? "low" : "ok"}">${r.pct < 75 ? "⚠ Shortage" : "✓ OK"}</td></tr>`).join("")}</tbody></table>
+      </body></html>`);
+    win.document.close();
+    win.print();
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h2 style={{ margin: 0, color: "#f59e0b" }}>Attendance Report – {subj?.name}</h2>
+          <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>Total Classes: {allDates.length}</p>
+        </div>
+        <button onClick={printReport} style={{ ...btnStyle("#3b82f6", "#1d4ed8"), padding: "10px 20px", fontSize: 14 }}>🖨️ Print / PDF</button>
+      </div>
+      <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ background: "rgba(255,255,255,0.08)" }}>
+              {["#", "Roll", "Name", "Present", "Absent", "Total", "%", "Status"].map(h => <th key={h} style={{ padding: "14px 14px", textAlign: "left", fontSize: 13, color: "#94a3b8" }}>{h}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={r.rollNo} style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <td style={{ padding: "12px 14px", color: "#64748b", fontSize: 13 }}>{i + 1}</td>
+                <td style={{ padding: "12px 14px", color: "#f59e0b", fontWeight: 600, fontSize: 14 }}>{r.rollNo}</td>
+                <td style={{ padding: "12px 14px", fontSize: 14 }}>{r.name}</td>
+                <td style={{ padding: "12px 14px", color: "#22c55e", fontWeight: 600 }}>{r.present}</td>
+                <td style={{ padding: "12px 14px", color: "#ef4444", fontWeight: 600 }}>{r.absent}</td>
+                <td style={{ padding: "12px 14px", color: "#94a3b8" }}>{r.total}</td>
+                <td style={{ padding: "12px 14px" }}>
+                  <div style={{ background: r.pct >= 75 ? "#14532d" : "#7f1d1d", borderRadius: 20, padding: "3px 12px", display: "inline-block", fontSize: 13, fontWeight: 700, color: r.pct >= 75 ? "#86efac" : "#fca5a5" }}>{r.pct}%</div>
+                </td>
+                <td style={{ padding: "12px 14px", fontSize: 13, color: r.pct >= 75 ? "#22c55e" : "#ef4444" }}>
+                  {r.pct >= 75 ? "✓ OK" : "⚠ Shortage"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Date-wise summary */}
+      {allDates.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <h3 style={{ fontSize: 16, marginBottom: 12, color: "#f8fafc" }}>Session-wise Summary</h3>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ borderCollapse: "collapse", minWidth: 600 }}>
+              <thead>
+                <tr style={{ background: "rgba(255,255,255,0.08)" }}>
+                  <th style={{ padding: "10px 14px", textAlign: "left", fontSize: 13, color: "#94a3b8", whiteSpace: "nowrap" }}>Roll / Date →</th>
+                  {allDates.map(d => <th key={d} style={{ padding: "10px 10px", fontSize: 12, color: "#94a3b8", whiteSpace: "nowrap", maxWidth: 90 }}>{d}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {studs.map(s => (
+                  <tr key={s.rollNo} style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                    <td style={{ padding: "8px 14px", fontSize: 13, color: "#f59e0b", whiteSpace: "nowrap" }}>{s.rollNo} – {s.name}</td>
+                    {allDates.map(d => {
+                      const v = subjAtt[d]?.[s.rollNo];
+                      return <td key={d} style={{ padding: "8px 10px", textAlign: "center", fontSize: 13, color: v === "P" ? "#22c55e" : "#ef4444" }}>{v || "–"}</td>;
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── MARKS REPORT ─────────────────────────────────────────────────────────────
+function MarksReport({ students, marks, activeSubject }) {
+  const subj = SUBJECTS.find(s => s.code === activeSubject);
+  const studs = students[activeSubject] || [];
+  const subjMarks = marks[activeSubject] || {};
+
+  const rows = studs.map(s => {
+    const m = subjMarks[s.rollNo] || {};
+    const ise1 = m.ISE1 !== undefined ? parseInt(m.ISE1) || 0 : null;
+    const ise2 = m.ISE2 !== undefined ? parseInt(m.ISE2) || 0 : null;
+    const total = (ise1 ?? 0) + (ise2 ?? 0);
+    return { ...s, ise1, ise2, total };
+  });
+
+  const getGrade = (total) => {
+    if (total === null) return "–";
+    if (total >= 36) return "O";
+    if (total >= 32) return "A+";
+    if (total >= 28) return "A";
+    if (total >= 24) return "B+";
+    if (total >= 20) return "B";
+    if (total >= 16) return "C";
+    return "F";
+  };
+
+  const gradeColor = (g) => {
+    if (g === "O" || g === "A+" || g === "A") return "#22c55e";
+    if (g === "B+" || g === "B") return "#f59e0b";
+    if (g === "C") return "#f97316";
+    if (g === "F") return "#ef4444";
+    return "#94a3b8";
+  };
+
+  const printReport = () => {
+    const win = window.open("", "_blank");
+    win.document.write(`<html><head><title>Marks Report - ${subj?.name}</title><style>body{font-family:Georgia,serif;padding:20px;color:#111}h1{color:#1e3a5f}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:1px solid #ccc;padding:10px 14px;text-align:left}th{background:#1e3a5f;color:#fff}</style></head><body>
+      <h1>ADCET – ISE Marks Report</h1>
+      <p><strong>Subject:</strong> ${subj?.fullName} (${subj?.code})</p>
+      <p><strong>Faculty:</strong> Mr. Santosh T Ghutukade</p>
+      <p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p>
+      <table><thead><tr><th>#</th><th>Roll No</th><th>Name</th><th>ISE 1 (/20)</th><th>ISE 2 (/20)</th><th>Total (/40)</th><th>Grade</th></tr></thead>
+      <tbody>${rows.map((r, i) => `<tr><td>${i + 1}</td><td>${r.rollNo}</td><td>${r.name}</td><td>${r.ise1 ?? "–"}</td><td>${r.ise2 ?? "–"}</td><td>${r.ise1 !== null || r.ise2 !== null ? r.total : "–"}</td><td>${getGrade(r.ise1 !== null || r.ise2 !== null ? r.total : null)}</td></tr>`).join("")}</tbody></table>
+      </body></html>`);
+    win.document.close();
+    win.print();
+  };
+
+  // Stats
+  const withMarks = rows.filter(r => r.ise1 !== null || r.ise2 !== null);
+  const avg = withMarks.length ? (withMarks.reduce((s, r) => s + r.total, 0) / withMarks.length).toFixed(1) : "–";
+  const highest = withMarks.length ? Math.max(...withMarks.map(r => r.total)) : "–";
+  const passed = withMarks.filter(r => r.total >= 16).length;
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h2 style={{ margin: 0, color: "#a78bfa" }}>Marks Report – {subj?.name}</h2>
+          <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>ISE 1 + ISE 2 = Total out of 40</p>
+        </div>
+        <button onClick={printReport} style={{ ...btnStyle("#3b82f6", "#1d4ed8"), padding: "10px 20px", fontSize: 14 }}>🖨️ Print / PDF</button>
+      </div>
+
+      {/* Stats */}
+      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 20 }}>
+        {[["Class Avg", avg, "#a78bfa"], ["Highest", highest, "#22c55e"], ["Passed", passed + "/" + withMarks.length, "#f59e0b"]].map(([l, v, c]) => (
+          <div key={l} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 20px", border: `1px solid ${c}40`, flex: 1, minWidth: 120 }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: c }}>{v}</div>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{l}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ background: "rgba(255,255,255,0.08)" }}>
+              {["#", "Roll", "Name", "ISE 1 (/20)", "ISE 2 (/20)", "Total (/40)", "Grade"].map(h => <th key={h} style={{ padding: "14px 14px", textAlign: "left", fontSize: 13, color: "#94a3b8" }}>{h}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => {
+              const hasMarks = r.ise1 !== null || r.ise2 !== null;
+              const grade = getGrade(hasMarks ? r.total : null);
+              return (
+                <tr key={r.rollNo} style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                  <td style={{ padding: "12px 14px", color: "#64748b", fontSize: 13 }}>{i + 1}</td>
+                  <td style={{ padding: "12px 14px", color: "#f59e0b", fontWeight: 600 }}>{r.rollNo}</td>
+                  <td style={{ padding: "12px 14px", fontSize: 14 }}>{r.name}</td>
+                  <td style={{ padding: "12px 14px", color: "#a78bfa", fontWeight: 600, fontSize: 15 }}>{r.ise1 ?? "–"}</td>
+                  <td style={{ padding: "12px 14px", color: "#22d3ee", fontWeight: 600, fontSize: 15 }}>{r.ise2 ?? "–"}</td>
+                  <td style={{ padding: "12px 14px", fontWeight: 700, fontSize: 16, color: "#f8fafc" }}>{hasMarks ? r.total : "–"}</td>
+                  <td style={{ padding: "12px 14px" }}>
+                    <span style={{ padding: "4px 12px", borderRadius: 20, background: `${gradeColor(grade)}22`, color: gradeColor(grade), fontWeight: 700, fontSize: 14 }}>{grade}</span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p style={{ fontSize: 12, color: "#64748b", marginTop: 10 }}>Grade: O(≥36) A+(≥32) A(≥28) B+(≥24) B(≥20) C(≥16) F(&lt;16)</p>
+    </div>
+  );
+}
+
+// ─── CUSTOM TABS MANAGER ──────────────────────────────────────────────────────
+function CustomTabsManager({ customTabs, setCustomTabs, showNotif }) {
+  const [label, setLabel] = useState(""); const [icon, setIcon] = useState("📌"); const [content, setContent] = useState("");
+  const [editId, setEditId] = useState(null);
+
+  const ICONS = ["📌", "📊", "📅", "📎", "🗂️", "🔔", "💡", "🎯", "📢", "🗒️"];
+
+  const save = () => {
+    if (!label.trim()) return showNotif("Tab name required", "error");
+    if (editId) {
+      setCustomTabs(prev => prev.map(t => t.id === editId ? { ...t, label, icon, content } : t));
+      setEditId(null);
+      showNotif("Tab updated!");
+    } else {
+      const id = Date.now().toString();
+      setCustomTabs(prev => [...prev, { id, label, icon, content }]);
+      showNotif("New tab added!");
+    }
+    setLabel(""); setIcon("📌"); setContent("");
+  };
+
+  const startEdit = (t) => { setEditId(t.id); setLabel(t.label); setIcon(t.icon); setContent(t.content || ""); };
+  const deleteTab = (id) => { setCustomTabs(prev => prev.filter(t => t.id !== id)); showNotif("Tab deleted"); };
+
+  return (
+    <div>
+      <h2 style={{ margin: "0 0 20px", color: "#f59e0b" }}>{editId ? "✏️ Edit Tab" : "⚙️ Add Custom Tab"}</h2>
+      <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: 24, border: "1px solid rgba(255,255,255,0.08)", marginBottom: 28 }}>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 6 }}>Tab Name</label>
+            <input placeholder="e.g. Lab Attendance" value={label} onChange={e => setLabel(e.target.value)} style={{ ...inputStyle }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 6 }}>Icon</label>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {ICONS.map(ic => (
+                <button key={ic} onClick={() => setIcon(ic)} style={{ fontSize: 18, background: icon === ic ? "rgba(245,158,11,0.2)" : "rgba(255,255,255,0.06)", border: icon === ic ? "2px solid #f59e0b" : "2px solid transparent", borderRadius: 8, padding: "4px 8px", cursor: "pointer" }}>{ic}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 6 }}>Notes / Content (optional)</label>
+          <textarea placeholder="Add any notes, reminders, or content for this tab..." value={content} onChange={e => setContent(e.target.value)} style={{ ...inputStyle, height: 100, resize: "vertical" }} />
+        </div>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={save} style={{ ...btnStyle("#f59e0b", "#b45309"), padding: "10px 24px" }}>{editId ? "💾 Update" : "+ Add Tab"}</button>
+          {editId && <button onClick={() => { setEditId(null); setLabel(""); setIcon("📌"); setContent(""); }} style={{ ...btnStyle("#475569", "#334155"), padding: "10px 20px" }}>Cancel</button>}
+        </div>
+      </div>
+
+      <h3 style={{ fontSize: 16, marginBottom: 12 }}>Your Custom Tabs ({customTabs.length})</h3>
+      {customTabs.length === 0 && <p style={{ color: "#64748b" }}>No custom tabs yet. Add one above!</p>}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {customTabs.map(t => (
+          <div key={t.id} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 24 }}>{t.icon}</span>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 15 }}>{t.label}</div>
+                {t.content && <div style={{ color: "#94a3b8", fontSize: 13, marginTop: 2 }}>{t.content.slice(0, 60)}{t.content.length > 60 ? "..." : ""}</div>}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => startEdit(t)} style={{ background: "#3b82f6", border: "none", borderRadius: 8, padding: "6px 14px", color: "#fff", cursor: "pointer", fontSize: 13, fontFamily: "inherit" }}>✏️ Edit</button>
+              <button onClick={() => deleteTab(t.id)} style={{ background: "#ef4444", border: "none", borderRadius: 8, padding: "6px 14px", color: "#fff", cursor: "pointer", fontSize: 13, fontFamily: "inherit" }}>🗑️</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CustomTabContent({ tab }) {
+  if (!tab) return <div style={{ color: "#94a3b8" }}>Tab not found.</div>;
+  return (
+    <div>
+      <h2 style={{ margin: "0 0 20px", color: "#f59e0b" }}>{tab.icon} {tab.label}</h2>
+      {tab.content ? (
+        <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: 24, border: "1px solid rgba(255,255,255,0.08)", whiteSpace: "pre-wrap", lineHeight: 1.8, color: "#e2e8f0" }}>
+          {tab.content}
+        </div>
+      ) : (
+        <div style={{ color: "#64748b", background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: 32, textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>{tab.icon}</div>
+          <p>This tab is empty. Edit it in "Manage Tabs" to add content.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── ACTION TAKEN REPORT VIEW ─────────────────────────────────────────────────
+function ATRView({ students, attendance, activeSubject }) {
+  const subj = SUBJECTS.find(s => s.code === activeSubject);
+  const studs = students[activeSubject] || [];
+  const subjAtt = attendance[activeSubject] || {};
+  const allSessions = Object.keys(subjAtt).sort();
+
+  const today = new Date();
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  // Report mode: "monthly" = single month, "upto" = cumulative up to selected month
+  const [reportMode, setReportMode] = useState("upto");
+  const [selMonth, setSelMonth] = useState(today.getMonth());
+  const [selYear, setSelYear] = useState(today.getFullYear());
+  const [periodFrom, setPeriodFrom] = useState("01.01.2026");
+  const [periodTo, setPeriodTo] = useState("28.02.2026");
+  const [reportDate, setReportDate] = useState(today.toLocaleDateString('en-GB').replace(/\//g,'.'));
+  const [acYear, setAcYear] = useState("2025-26");
+
+  // Filter sessions based on mode
+  const monthStr = `${selYear}-${String(selMonth+1).padStart(2,'0')}`;
+  const filteredSessions = reportMode === "monthly"
+    ? allSessions.filter(s => s.startsWith(monthStr))
+    : allSessions.filter(s => {
+        const sessionMonth = s.slice(0,7); // "YYYY-MM"
+        return sessionMonth <= monthStr;
+      });
+
+  // Compute per-student attendance for filtered sessions
+  const computed = studs.map(s => {
+    let present = 0;
+    filteredSessions.forEach(sess => { if (subjAtt[sess]?.[s.rollNo] === 'P') present++; });
+    const total = filteredSessions.length;
+    const pct = total > 0 ? Math.round((present / total) * 100) : null;
+    return { ...s, present, total, pct };
+  });
+  const defaulters = computed.filter(s => s.pct !== null && s.pct < 75);
+
+  // Dept summary
+  const deptMap = {};
+  studs.forEach(s => {
+    if (!deptMap[s.department]) deptMap[s.department] = { total: 0, def: 0 };
+    deptMap[s.department].total++;
+  });
+  defaulters.forEach(s => { if (deptMap[s.department]) deptMap[s.department].def++; });
+
+  const modeLabel = reportMode === "monthly"
+    ? `${months[selMonth]} ${selYear}`
+    : `Upto ${months[selMonth]} ${selYear}`;
+
+  const generateReport = () => {
+    const subjectLabel = activeSubject === "2MEIE201"
+      ? "Minor Industrial Engineering (2MEIE201)"
+      : "Minor Supply Chain Management (2MEIE302)";
+
+    const rows = defaulters.map((s, i) =>
+      `<tr><td>${i+1}</td><td>${s.urn||'–'}</td><td>${s.name}</td><td>${s.department||'–'}</td><td>${s.present}/${s.total} (${s.pct}%)</td><td></td></tr>`
+    ).join('');
+
+    const deptRows = Object.entries(deptMap).map(([d, v]) =>
+      `<tr><td>${d}</td><td>${v.total}</td><td>${v.def}</td></tr>`
+    ).join('');
+
+    const html = `<!DOCTYPE html><html><head><title>ATR - ${subj?.name} - ${modeLabel}</title>
+    <style>
+      body { font-family: 'Times New Roman', serif; padding: 40px; max-width: 900px; margin: auto; font-size: 13pt; }
+      h2 { text-align: center; font-size: 14pt; margin: 4px 0; }
+      .date-right { text-align: right; font-weight: bold; }
+      table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+      th, td { border: 1px solid #000; padding: 6px 10px; }
+      th { background: #e0e0e0; font-weight: bold; text-align: center; }
+      td { text-align: center; }
+      td:nth-child(3) { text-align: left; }
+      .sig { display: flex; justify-content: space-between; margin-top: 60px; font-size: 12pt; }
+      .info { margin: 4px 0; line-height: 2; }
+      @media print { body { padding: 20px; } }
+    </style></head><body>
+    <h2>Annasaheb Dange College of Engineering and Technology, Ashta</h2>
+    <h2>Academic Year: ${acYear} (Term I)</h2>
+    <h2>Action Taken Report on Monthly Attendance for Minor Course</h2>
+    <div class="date-right">Date: ${reportDate}</div>
+    <br/>
+    <div class="info">Course Code and Name : ${subjectLabel}</div>
+    <div class="info">Month &amp; Year &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${modeLabel}</div>
+    <div class="info"><b>Period &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: ${periodFrom} to ${periodTo}</b></div>
+    <div class="info">Total No of Students : ${studs.length} &nbsp;&nbsp; Total Sessions : ${filteredSessions.length}</div>
+    <br/>
+    <table>
+      <thead><tr><th>Dept</th><th>No of Students</th><th>No of Defaulters</th></tr></thead>
+      <tbody>${deptRows}</tbody>
+    </table>
+    <br/>
+    <div><u><b>Read and Understood:</b></u></div>
+    <div style="font-size:11pt; margin: 6px 0 10px;">I have to maintain a minimum of 75% attendance in each course. If I fail to maintain it, I will be detained. I am aware about the detention policy.</div>
+    <div><b>No of Defaulters (Less than 75%) : ${defaulters.length}</b></div>
+    <br/>
+    <table>
+      <thead><tr><th>Sr. No</th><th>URN</th><th>Student Name</th><th>Department</th><th>Attendance %</th><th>Student Signature</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="6">No defaulters for this period</td></tr>'}</tbody>
+    </table>
+    <div class="sig">
+      <span>Course Coordinator</span>
+      <span>Head of the Department</span>
+      <span>Dean Academics</span>
+    </div>
+    </body></html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    setTimeout(() => win.print(), 600);
+  };
+
+  return (
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ margin: 0, color: "#f59e0b" }}>📄 Action Taken Report – {subj?.name}</h2>
+        <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 13 }}>Auto-filled from attendance data · Print or save as PDF</p>
+      </div>
+
+      {/* Mode Toggle */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <button onClick={() => setReportMode("upto")} style={{ padding: "9px 20px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600, background: reportMode === "upto" ? "linear-gradient(135deg,#f59e0b,#b45309)" : "rgba(255,255,255,0.08)", color: reportMode === "upto" ? "#fff" : "#94a3b8" }}>
+          📊 Cumulative (Upto Month)
+        </button>
+        <button onClick={() => setReportMode("monthly")} style={{ padding: "9px 20px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600, background: reportMode === "monthly" ? "linear-gradient(135deg,#3b82f6,#1d4ed8)" : "rgba(255,255,255,0.08)", color: reportMode === "monthly" ? "#fff" : "#94a3b8" }}>
+          📅 Single Month Only
+        </button>
+      </div>
+
+      {/* Info banner */}
+      <div style={{ background: reportMode === "upto" ? "rgba(245,158,11,0.08)" : "rgba(59,130,246,0.08)", border: `1px solid ${reportMode === "upto" ? "rgba(245,158,11,0.25)" : "rgba(59,130,246,0.25)"}`, borderRadius: 10, padding: "10px 16px", fontSize: 13, color: "#94a3b8", marginBottom: 20 }}>
+        {reportMode === "upto"
+          ? `📊 Cumulative mode: counts ALL sessions from the beginning up to end of ${months[selMonth]} ${selYear}. This matches "upto Feb total" style reports.`
+          : `📅 Monthly mode: counts only sessions within ${months[selMonth]} ${selYear}.`}
+      </div>
+
+      {/* Settings */}
+      <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: 24, border: "1px solid rgba(255,255,255,0.08)", marginBottom: 24 }}>
+        <h3 style={{ margin: "0 0 16px", fontSize: 15, color: "#f8fafc" }}>⚙️ Report Settings</h3>
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+          <div>
+            <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 5 }}>{reportMode === "upto" ? "Upto Month" : "Month"}</label>
+            <select value={selMonth} onChange={e => setSelMonth(parseInt(e.target.value))} style={{ ...inputStyle, width: 150 }}>
+              {months.map((m, i) => <option key={m} value={i}>{m}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 5 }}>Year</label>
+            <input type="number" value={selYear} onChange={e => setSelYear(parseInt(e.target.value))} style={{ ...inputStyle, width: 100 }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 5 }}>Academic Year</label>
+            <input value={acYear} onChange={e => setAcYear(e.target.value)} style={{ ...inputStyle, width: 120 }} placeholder="2025-26" />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 5 }}>Period From</label>
+            <input value={periodFrom} onChange={e => setPeriodFrom(e.target.value)} style={{ ...inputStyle, width: 130 }} placeholder="01.01.2026" />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 5 }}>Period To</label>
+            <input value={periodTo} onChange={e => setPeriodTo(e.target.value)} style={{ ...inputStyle, width: 130 }} placeholder="28.02.2026" />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, color: "#94a3b8", display: "block", marginBottom: 5 }}>Report Date</label>
+            <input value={reportDate} onChange={e => setReportDate(e.target.value)} style={{ ...inputStyle, width: 130 }} placeholder="28.02.2026" />
+          </div>
+        </div>
+      </div>
+
+      {/* Preview Summary */}
+      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 20 }}>
+        {[
+          ["Sessions Counted", filteredSessions.length, "#f59e0b"],
+          ["Total Students", studs.length, "#3b82f6"],
+          ["Defaulters (<75%)", defaulters.length, "#ef4444"],
+        ].map(([l, v, c]) => (
+          <div key={l} style={{ flex: 1, minWidth: 140, background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 20px", border: `1px solid ${c}40`, textAlign: "center" }}>
+            <div style={{ fontSize: 28, fontWeight: 700, color: c }}>{v}</div>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{l}</div>
+          </div>
+        ))}
+      </div>
+
+      {filteredSessions.length === 0 && (
+        <div style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 12, padding: "14px 20px", color: "#fcd34d", fontSize: 14, marginBottom: 20 }}>
+          ⚠️ No attendance sessions found for this period. Take attendance first.
+        </div>
+      )}
+
+      {/* Sessions used */}
+      {filteredSessions.length > 0 && (
+        <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "10px 16px", marginBottom: 16, fontSize: 12, color: "#64748b" }}>
+          Sessions included: {filteredSessions.join(" · ")}
+        </div>
+      )}
+
+      {/* Dept Preview Table */}
+      {filteredSessions.length > 0 && (
+        <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 14, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", marginBottom: 20 }}>
+          <div style={{ padding: "12px 16px", background: "rgba(255,255,255,0.06)", fontSize: 13, color: "#94a3b8" }}>Department Summary</div>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: "rgba(255,255,255,0.06)" }}>
+                {["Department", "Students", "Defaulters"].map(h => <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 13, color: "#94a3b8" }}>{h}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(deptMap).map(([d, v]) => (
+                <tr key={d} style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                  <td style={{ padding: "10px 16px", fontSize: 13 }}>{d}</td>
+                  <td style={{ padding: "10px 16px", fontSize: 13, color: "#3b82f6" }}>{v.total}</td>
+                  <td style={{ padding: "10px 16px", fontSize: 13, color: v.def > 0 ? "#ef4444" : "#22c55e", fontWeight: 600 }}>{v.def}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Defaulters Preview */}
+      {defaulters.length > 0 && (
+        <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 14, overflow: "hidden", border: "1px solid rgba(239,68,68,0.2)", marginBottom: 20 }}>
+          <div style={{ padding: "12px 16px", background: "rgba(239,68,68,0.1)", fontSize: 13, color: "#fca5a5" }}>Defaulters List — {defaulters.length} students below 75% ({modeLabel})</div>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: "rgba(255,255,255,0.04)" }}>
+                {["#","Roll","URN","Name","Dept","Present","Total","%"].map(h => <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 12, color: "#94a3b8" }}>{h}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {defaulters.map((s, i) => (
+                <tr key={s.rollNo} style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                  <td style={{ padding: "9px 14px", fontSize: 13, color: "#64748b" }}>{i+1}</td>
+                  <td style={{ padding: "9px 14px", fontSize: 13, color: "#f59e0b", fontWeight: 600 }}>{s.rollNo}</td>
+                  <td style={{ padding: "9px 14px", fontSize: 13, color: "#22d3ee" }}>{s.urn||'–'}</td>
+                  <td style={{ padding: "9px 14px", fontSize: 13 }}>{s.name}</td>
+                  <td style={{ padding: "9px 14px", fontSize: 12, color: "#94a3b8" }}>{s.department}</td>
+                  <td style={{ padding: "9px 14px", fontSize: 13, color: "#22c55e", fontWeight: 600 }}>{s.present}</td>
+                  <td style={{ padding: "9px 14px", fontSize: 13, color: "#94a3b8" }}>{s.total}</td>
+                  <td style={{ padding: "9px 14px" }}>
+                    <span style={{ background: "#7f1d1d", color: "#fca5a5", borderRadius: 20, padding: "3px 12px", fontSize: 13, fontWeight: 700 }}>{s.pct}%</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <button onClick={generateReport} style={{ ...btnStyle("#f59e0b", "#b45309"), padding: "13px 32px", fontSize: 15 }}>
+        🖨️ Generate & Print Report (Word-ready)
+      </button>
+      <p style={{ color: "#64748b", fontSize: 12, marginTop: 10 }}>Opens print dialog → Save as PDF or print directly. Layout matches the original ATR format.</p>
+    </div>
+  );
+}
+
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
