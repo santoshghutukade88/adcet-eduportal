@@ -427,7 +427,7 @@ function App() {
   );
 
   if (!role) return <LoginScreen onFaculty={handleFacultyLogin} onStudent={handleStudentLogin} students={students} error={loginError} setError={setLoginError} dbStatus={dbStatus} />;
-  if (role === "student") return <StudentView student={loggedInStudent} attendance={attendance} marks={marks} ise2Active={ise2Active} onLogout={() => { setRole(null); setLoggedInStudent(null); }} />;
+  if (role === "student") return <StudentView student={loggedInStudent} attendance={attendance} marks={marks} setMarks={setMarks} students={students} ise2Active={ise2Active} onLogout={() => { setRole(null); setLoggedInStudent(null); }} />;
 
   return (
     <FacultyDashboard
@@ -559,7 +559,690 @@ const inputStyle = {
 };
 
 // ─── STUDENT VIEW ─────────────────────────────────────────────────────────────
-function StudentView({ student, attendance, marks, ise2Active, onLogout }) {
+
+// ─── ISE TEST QUESTION BANKS ─────────────────────────────────────────────────
+const QUESTION_BANK = {
+  "2MEIE201": [
+    // ── Unit 1: Industrial Engineering & Productivity (15 Qs) ──
+    { id:101, unit:1, q:"Which of the following BEST defines Industrial Engineering?", opts:["Study of manufacturing machines only","Application of scientific principles to optimise systems of people, machines and materials","Design of industrial buildings","Quality inspection in factories"], ans:1 },
+    { id:102, unit:1, q:"Productivity is defined as the ratio of:", opts:["Input to Output","Output to Input","Cost to Profit","Labour to Capital"], ans:1 },
+    { id:103, unit:1, q:"Value Analysis primarily focuses on:", opts:["Increasing product weight","Reducing cost while maintaining or improving function","Increasing production speed only","Reducing workforce blindly"], ans:1 },
+    { id:104, unit:1, q:"Which of these is NOT a primary tool of Industrial Engineering?", opts:["Method Study","Work Measurement","Lean Manufacturing","Architectural Interior Design"], ans:3 },
+    { id:105, unit:1, q:"An increase in output with the same input indicates:", opts:["Decreased productivity","Constant productivity","Increased productivity","Production loss"], ans:2 },
+    { id:106, unit:1, q:"Value Engineering is typically performed:", opts:["After product failure in market","During the design and development stage","Only after product launch","During the recycling phase"], ans:1 },
+    { id:107, unit:1, q:"Which factor does NOT directly affect productivity?", opts:["Technology upgradation","Worker motivation","Company logo redesign","Management practices"], ans:2 },
+    { id:108, unit:1, q:"The role of an Industrial Engineer primarily includes:", opts:["Only supervising workers","Optimising processes, reducing waste and improving efficiency","Designing products only","Auditing financial accounts"], ans:1 },
+    { id:109, unit:1, q:"Which of the following is a technique to improve productivity?", opts:["Increasing raw material cost","Value Analysis and Value Engineering","Reducing quality standards","Increasing idle time"], ans:1 },
+    { id:110, unit:1, q:"Partial productivity measure considers:", opts:["All inputs together","Only one input factor such as labour or material","Only output quantity","Revenue per employee"], ans:1 },
+    { id:111, unit:1, q:"Total productivity is measured as:", opts:["Output / Labour input only","Total output / Total input","Profit / Revenue","Sales / Inventory"], ans:1 },
+    { id:112, unit:1, q:"Value Analysis was developed by:", opts:["F.W. Taylor","Lawrence D. Miles","Henry Gantt","Frank Gilbreth"], ans:1 },
+    { id:113, unit:1, q:"Which of these best describes 'scope of Industrial Engineering'?", opts:["Only factory floor supervision","Improving productivity, quality, and efficiency across all types of systems","Designing mechanical components","Financial forecasting"], ans:1 },
+    { id:114, unit:1, q:"Multi-factor productivity considers:", opts:["Only labour input","Two or more input factors simultaneously","Only machine utilization","Revenue and profit only"], ans:1 },
+    { id:115, unit:1, q:"The primary objective of Value Engineering is to:", opts:["Increase product weight","Achieve required function at lowest cost","Improve aesthetic appearance","Add more features to product"], ans:1 },
+
+    // ── Unit 2: Lean Manufacturing (15 Qs) ──
+    { id:201, unit:2, q:"JIT stands for:", opts:["Just In Time","Job Integration Technique","Joint Industrial Testing","Job Inventory Tracking"], ans:0 },
+    { id:202, unit:2, q:"The 5S methodology includes Sort, Set in Order, Shine, Standardize, and:", opts:["Supply","Sustain","Schedule","Simplify"], ans:1 },
+    { id:203, unit:2, q:"SMED stands for:", opts:["Standard Material Evaluation Design","Single Minute Exchange of Die","Supply Management and Equipment Design","Statistical Method for Equipment Downtime"], ans:1 },
+    { id:204, unit:2, q:"Poka-Yoke is a technique used to:", opts:["Increase machine speed","Mistake-proof a process","Calculate cycle time","Schedule production batches"], ans:1 },
+    { id:205, unit:2, q:"Kanban is a visual signal system used in:", opts:["Financial auditing","Pull-based production control","Product design review","Marketing campaigns"], ans:1 },
+    { id:206, unit:2, q:"Kaizen means:", opts:["Rapid large-scale redesign","Continuous incremental improvement","Full automation of processes","Radical breakthrough innovation"], ans:1 },
+    { id:207, unit:2, q:"Six Sigma aims to reduce defects to approximately:", opts:["3.4 per million opportunities","34 per thousand","3.4 per thousand","340 per million"], ans:0 },
+    { id:208, unit:2, q:"Total Productive Maintenance (TPM) primarily aims to:", opts:["Replace all old machines","Maximise equipment effectiveness with zero breakdowns","Reduce workforce size","Increase product variety"], ans:1 },
+    { id:209, unit:2, q:"In JIT manufacturing, inventory is:", opts:["Kept very high as buffer","Produced and delivered exactly when needed","Maintained in large warehouses","Ordered monthly in bulk"], ans:1 },
+    { id:210, unit:2, q:"Which lean tool helps in identifying and eliminating waste in a process?", opts:["5S","Kanban","Value Stream Mapping","Poka-Yoke"], ans:2 },
+    { id:211, unit:2, q:"The eight wastes in lean manufacturing include all EXCEPT:", opts:["Overproduction","Waiting","Transportation","Value addition"], ans:3 },
+    { id:212, unit:2, q:"MIS in lean manufacturing stands for:", opts:["Machine Inspection System","Management Information System","Material Inventory Schedule","Manufacturing Integration Software"], ans:1 },
+    { id:213, unit:2, q:"SMED technique is primarily used to:", opts:["Increase batch sizes","Reduce setup and changeover time","Improve product design","Calculate OEE"], ans:1 },
+    { id:214, unit:2, q:"Poka-Yoke was developed as part of which system?", opts:["Six Sigma","Toyota Production System","ISO 9001","Theory of Constraints"], ans:1 },
+    { id:215, unit:2, q:"Which of the following is NOT one of the 5S pillars?", opts:["Sort","Shine","Standardize","Strategize"], ans:3 },
+
+    // ── Unit 3: Method Study (15 Qs) ──
+    { id:301, unit:3, q:"Therblings were developed by:", opts:["F.W. Taylor","Frank and Lillian Gilbreth","Henry Gantt","Elton Mayo"], ans:1 },
+    { id:302, unit:3, q:"The primary objective of Method Study is to:", opts:["Measure time taken for a task","Find the best way of doing a job","Calculate standard time only","Record machine utilisation"], ans:1 },
+    { id:303, unit:3, q:"Which chart shows the sequence and relationship of activities in a process?", opts:["Gantt Chart","Flow Process Chart","Pie Chart","Scatter Diagram"], ans:1 },
+    { id:304, unit:3, q:"Micro-motion study involves:", opts:["Measuring hourly output","Analysing basic motion elements using film or video","Counting workers per shift","Scheduling preventive maintenance"], ans:1 },
+    { id:305, unit:3, q:"The principles of motion economy aim to:", opts:["Increase the number of motions performed","Reduce fatigue and improve efficiency by minimising unnecessary motions","Record all body movements of workers","Automate all manual tasks"], ans:1 },
+    { id:306, unit:3, q:"MEMO Motion Study is used for:", opts:["Financial auditing of processes","Long-cycle operations studied using slow-speed filming","Short-cycle precision operations","Statistical quality control"], ans:1 },
+    { id:307, unit:3, q:"Which recording technique uses standard ASME symbols to represent activities?", opts:["Bar Chart","Flow Process Chart with ASME symbols","Histogram","Control Chart"], ans:1 },
+    { id:308, unit:3, q:"Method Study follows which correct sequence of steps?", opts:["Record → Select → Define → Install","Select → Record → Examine → Develop → Install → Maintain","Examine → Record → Select → Install","Define → Measure → Analyse → Improve"], ans:1 },
+    { id:309, unit:3, q:"A String Diagram is used to:", opts:["Show time on a task","Trace the movement path of workers or materials in a workplace","Record machine idle time","Plan production schedules"], ans:1 },
+    { id:310, unit:3, q:"An Outline Process Chart records:", opts:["Only transport and delay activities","Only the main operations and inspections in a process","All five types of activities in detail","Worker fatigue levels"], ans:1 },
+    { id:311, unit:3, q:"How many basic therbligs did Gilbreth identify?", opts:["10","15","17","20"], ans:2 },
+    { id:312, unit:3, q:"A Two-Handed Process Chart is used to:", opts:["Record activities of two different workers","Record simultaneous activities of both hands of a worker","Plan a two-shift operation","Compare two methods of production"], ans:1 },
+    { id:313, unit:3, q:"Which of the following is a principle of motion economy related to the workplace?", opts:["Use of momentum to assist worker","Materials should be located far from the point of use","Avoid definite and fixed locations for tools","Increase the number of hand motions"], ans:0 },
+    { id:314, unit:3, q:"The critical examination technique in Method Study uses:", opts:["What, Why, Where, When, Who, How questions","Only time measurements","Statistical sampling","Computer simulation only"], ans:0 },
+    { id:315, unit:3, q:"Cyclegraph and Chronocyclegraph techniques are used for:", opts:["Inventory control","Studying path and speed of motion of body parts","Scheduling machines","Financial analysis"], ans:1 },
+  ],
+
+  "2MEIE302": [
+    // ── Unit 1: Introduction to SCM (15 Qs) ──
+    { id:101, unit:1, q:"A Supply Chain encompasses activities associated with:", opts:["Only manufacturing operations","Flow and transformation of goods from raw materials to the end user","Marketing and advertising only","Retail sales alone"], ans:1 },
+    { id:102, unit:1, q:"The 'Make or Buy' decision in SCM refers to:", opts:["Deciding production shift timings","Choosing between in-house production versus outsourcing","Buying raw materials in bulk always","Manufacturing and selling simultaneously"], ans:1 },
+    { id:103, unit:1, q:"Strategic Fit in SCM means:", opts:["Having the best suppliers in the world","Alignment between the competitive strategy and the supply chain strategy","Physically fitting products in containers","Matching supply with demand perfectly at all times"], ans:1 },
+    { id:104, unit:1, q:"The Cycle View of a supply chain identifies:", opts:["Financial payment cycles","Customer Order, Replenishment, Manufacturing, and Procurement cycles","Product life cycles only","Employee work shift cycles"], ans:1 },
+    { id:105, unit:1, q:"Logistics in SCM refers to:", opts:["Only warehousing activities","Planning and execution of the movement and storage of goods","Only transportation of goods","Financial and budget planning"], ans:1 },
+    { id:106, unit:1, q:"Which is a key driver of Supply Chain performance?", opts:["Company logo and branding","Facilities, Inventory, Transportation, Information, Sourcing, and Pricing","Number of employees in HR","Office location and design"], ans:1 },
+    { id:107, unit:1, q:"Obstacles of a streamlined SCM include:", opts:["Too many customers","Information distortion, incentive conflicts, and large lot sizes","Excess product quality","Too much automation"], ans:1 },
+    { id:108, unit:1, q:"The Value Chain Process in SCM represents:", opts:["Financial value of inventory","Series of activities that add value from supplier to customer","Value of company shares","Market pricing strategy"], ans:1 },
+    { id:109, unit:1, q:"Best practices in SCM include:", opts:["Ignoring supplier relationships","Collaborative planning, demand forecasting, and lean operations","Maximum inventory holding at all times","Eliminating all information technology"], ans:1 },
+    { id:110, unit:1, q:"Supply Chain strategy should align with:", opts:["Only cost reduction goals","The overall competitive strategy of the business","Only customer delivery speed","Inventory minimisation alone"], ans:1 },
+    { id:111, unit:1, q:"The 'Push' strategy in supply chain means:", opts:["Products are pulled by customer demand","Products are pushed based on forecasted demand","Suppliers push materials without orders","Customers push for discounts"], ans:1 },
+    { id:112, unit:1, q:"Which of the following is NOT a stage of a supply chain?", opts:["Supplier","Manufacturer","Distributor","Advertiser"], ans:3 },
+    { id:113, unit:1, q:"The Bullwhip Effect in SCM refers to:", opts:["Effect of wind on logistics","Amplification of demand fluctuations as you move up the supply chain","Reduction in inventory levels","Effect of automation on supply chain"], ans:1 },
+    { id:114, unit:1, q:"A responsive supply chain strategy is best suited for:", opts:["Low demand uncertainty, commodity products","High demand uncertainty, innovative products","Stable, predictable demand","Very low margin products"], ans:1 },
+    { id:115, unit:1, q:"Key issues in SCM include:", opts:["Product colour selection","Demand forecasting, inventory management, and supplier relationship management","Employee leave management","Office facility management"], ans:1 },
+
+    // ── Unit 2: Supply Chain Performance (15 Qs) ──
+    { id:201, unit:2, q:"SCOR stands for:", opts:["Supply Chain Operations Reference model","Standard Cost Operations Report","Supply Cost Output Ratio","Strategic Chain Operational Review"], ans:0 },
+    { id:202, unit:2, q:"Supply Chain Risk Management deals with:", opts:["Only financial market risks","Identifying and mitigating risks like supplier failure, demand uncertainty, and cyber threats","Natural disaster insurance only","Stock market investment risks"], ans:1 },
+    { id:203, unit:2, q:"Demand Chain Management focuses on:", opts:["Managing the supply side only","Creating and managing customer demand proactively","Reducing production costs alone","Inventory management only"], ans:1 },
+    { id:204, unit:2, q:"Global Supply Chain challenges include:", opts:["Only language barriers","Currency fluctuations, political instability, lead time variability, and compliance issues","Only weather and climate conditions","Domestic regulations only"], ans:1 },
+    { id:205, unit:2, q:"Performance measurement dimensions in SCM include:", opts:["Only cost metrics","Cost, Quality, Time, Flexibility, and Innovation","Only delivery speed metrics","Customer satisfaction surveys only"], ans:1 },
+    { id:206, unit:2, q:"Cyber Security risk in supply chain refers to:", opts:["Physical security of warehouses and factories","Protecting digital supply chain systems from cyber attacks and data breaches","Encrypting product barcodes only","Securing individual employee records"], ans:1 },
+    { id:207, unit:2, q:"Compliance Risk in supply chain arises from:", opts:["Risk of product defects only","Failure to follow regulations, standards, or contractual obligations","Risk of employee strikes","Financial credit risk alone"], ans:1 },
+    { id:208, unit:2, q:"The SCOR model covers which processes?", opts:["Only Plan and Source","Plan, Source, Make, Deliver, Return, and Enable","Only Make and Deliver","Finance and HR processes"], ans:1 },
+    { id:209, unit:2, q:"Factors that influence designing a Global Supply Chain Network include:", opts:["Office interior design","Infrastructure quality, labour costs, tax incentives, and political stability","Number of domestic suppliers","Product colour preferences"], ans:1 },
+    { id:210, unit:2, q:"Supplier Financial Risk in SCM refers to:", opts:["Risk that the supplier overcharges","Risk that a key supplier becomes financially unstable or bankrupt","Risk of product price increase","Risk of delayed payments by customers"], ans:1 },
+    { id:211, unit:2, q:"Which tool is used to measure supply chain performance against best-in-class benchmarks?", opts:["Kanban","SCOR Model","ABC Analysis","EOQ Model"], ans:1 },
+    { id:212, unit:2, q:"Country-specific risk in global supply chain includes:", opts:["Supplier delivery delays only","Political instability, trade restrictions, and regulatory changes in a country","Customer payment defaults","Currency exchange gains"], ans:1 },
+    { id:213, unit:2, q:"Performance Risk in supply chain refers to:", opts:["Risk of product underperformance in market","Risk that a supplier fails to meet performance standards or SLAs","Risk of machine breakdown","Financial audit failure"], ans:1 },
+    { id:214, unit:2, q:"Global Supply Chain refers to:", opts:["A supply chain operating in a single country","A supply chain that spans multiple countries and regions","Supply chain within a single factory","Local distribution network only"], ans:1 },
+    { id:215, unit:2, q:"Which of the following is a dimension of supply chain performance measurement?", opts:["Employee satisfaction only","Reliability, Responsiveness, Agility, Cost, and Asset Management","Brand awareness","Profit margin alone"], ans:1 },
+
+    // ── Unit 3: Inventory Management (15 Qs) ──
+    { id:301, unit:3, q:"EOQ stands for:", opts:["Estimated Order Quantity","Economic Order Quantity","Expected Output Quality","Effective Order Quota"], ans:1 },
+    { id:302, unit:3, q:"Buffer Stock is maintained to:", opts:["Reduce production speed intentionally","Protect against demand or supply uncertainties","Increase warehouse rental size","Meet seasonal bulk discounts"], ans:1 },
+    { id:303, unit:3, q:"ABC Analysis classifies inventory based on:", opts:["Alphabetical order of product names","Annual consumption value — A items highest, C items lowest","Supplier names alphabetically","Product colour and size"], ans:1 },
+    { id:304, unit:3, q:"In the Q-system of inventory control, orders are placed:", opts:["At fixed regular time intervals","When inventory falls to a predetermined reorder level","Every Monday morning","Randomly based on supplier availability"], ans:1 },
+    { id:305, unit:3, q:"ROL stands for:", opts:["Rate of Loss","Reorder Level","Record of Logistics","Rate of Labour cost"], ans:1 },
+    { id:306, unit:3, q:"In the EOQ model, as order quantity increases, holding cost:", opts:["Decreases proportionally","Increases proportionally","Remains constant","Becomes zero"], ans:1 },
+    { id:307, unit:3, q:"The P-system of inventory replenishment involves:", opts:["Variable order quantity at fixed time intervals","Fixed order quantity at variable time intervals","Random ordering without any system","EOQ-based ordering only"], ans:0 },
+    { id:308, unit:3, q:"The basic EOQ model assumes:", opts:["Variable demand and lead time","Constant demand rate and instantaneous replenishment","Backorders are always allowed","Quantity discounts are always available"], ans:1 },
+    { id:309, unit:3, q:"'A' category items in ABC analysis should be:", opts:["Controlled loosely with minimal review","Controlled tightly with frequent review and close monitoring","Ordered in very large quantities","Stored in the most remote warehouse location"], ans:1 },
+    { id:310, unit:3, q:"When demand and production rate are different in EOQ, which model is used?", opts:["Simple EOQ model","Production Order Quantity (POQ) model","ABC Analysis model","Reorder Point model"], ans:1 },
+    { id:311, unit:3, q:"In EOQ model, total inventory cost is minimised when:", opts:["Ordering cost is zero","Holding cost equals ordering cost","Holding cost is zero","Order quantity is maximum"], ans:1 },
+    { id:312, unit:3, q:"When backorders are allowed in inventory, the EOQ model:", opts:["Remains unchanged","Results in a higher optimal order quantity compared to basic EOQ","Results in a lower order quantity","Is not applicable"], ans:1 },
+    { id:313, unit:3, q:"Instantaneous replenishment in EOQ assumes:", opts:["Long lead time for delivery","The entire order quantity arrives at once","Orders arrive in small batches","Demand is seasonal"], ans:1 },
+    { id:314, unit:3, q:"'C' category items in ABC analysis typically represent:", opts:["High value, low volume items","Low value, high volume items requiring tight control","Medium value and medium volume","Items with no demand"], ans:1 },
+    { id:315, unit:3, q:"Inventory Control through ABC analysis helps management to:", opts:["Focus equal attention on all items","Focus maximum attention on A items which contribute most to value","Reduce all inventory to zero","Order all items in equal quantities"], ans:1 },
+  ],
+};
+
+// ─── ISE TEST VIEW ────────────────────────────────────────────────────────────
+function ISETestView({ students, marks, setMarks, activeSubject, ise2Active, setIse2Active, showNotif }) {
+  const [mode, setMode] = useState("home"); // home | login | test | result | results-table
+  const [studentUrn, setStudentUrn] = useState("");
+  const [studentRoll, setStudentRoll] = useState("");
+  const [currentStudent, setCurrentStudent] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState({});
+  const [currentQ, setCurrentQ] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [tabViolations, setTabViolations] = useState(0);
+  const [warningMsg, setWarningMsg] = useState("");
+  const [score, setScore] = useState(0);
+  const [testResults, setTestResults] = useState({}); // rollNo -> { mcq20, mcq5, presentation15, total20 }
+  const timerRef = useRef(null);
+  const subj = SUBJECTS.find(s => s.code === activeSubject);
+  const allStudents = students[activeSubject] || [];
+
+  // Sync presentation marks from main marks state into testResults
+  useEffect(() => {
+    const subjMarks = marks[activeSubject] || {};
+    setTestResults(prev => {
+      const updated = { ...prev };
+      allStudents.forEach(s => {
+        const pres = subjMarks[s.rollNo]?.Presentation ?? prev[s.rollNo]?.presentation15 ?? "";
+        if (pres !== "" && pres !== undefined) {
+          updated[s.rollNo] = { ...(updated[s.rollNo] || {}), presentation15: pres };
+        }
+      });
+      return updated;
+    });
+  }, [marks, activeSubject]);
+
+  // Tab switch detection
+  useEffect(() => {
+    if (mode !== "test") return;
+    const onVis = () => {
+      if (!document.hidden) return;
+      setTabViolations(v => {
+        const nv = v + 1;
+        if (nv >= 3) {
+          setWarningMsg("❌ 3 violations — auto-submitting!");
+          setTimeout(() => doSubmit(), 800);
+        } else {
+          setWarningMsg(`⚠️ Tab switch detected! Violation ${nv}/3`);
+          setTimeout(() => setWarningMsg(""), 3500);
+        }
+        return nv;
+      });
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [mode]);
+
+  // Timer
+  useEffect(() => {
+    if (mode !== "test") return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) { clearInterval(timerRef.current); doSubmit(); return 0; }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [mode]);
+
+  const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+
+  const startTest = () => {
+    const found = allStudents.find(s => s.urn === studentUrn.trim() || s.rollNo === studentRoll.trim());
+    if (!found) return showNotif("Student not found. Check URN or Roll No.", "error");
+    const bank = QUESTION_BANK[activeSubject] || [];
+    // 7 from unit1, 7 from unit2, 6 from unit3
+    const u1 = shuffle(bank.filter(q => q.unit === 1)).slice(0, 7);
+    const u2 = shuffle(bank.filter(q => q.unit === 2)).slice(0, 7);
+    const u3 = shuffle(bank.filter(q => q.unit === 3)).slice(0, 6);
+    const final = shuffle([...u1, ...u2, ...u3]).map(q => ({
+      ...q,
+      shuffledOpts: shuffle(q.opts.map((o, i) => ({ text: o, origIdx: i }))),
+    }));
+    setCurrentStudent(found);
+    setQuestions(final);
+    setAnswers({});
+    setCurrentQ(0);
+    setTimeLeft(20 * 60); // 20 minutes fixed
+    setTabViolations(0);
+    setWarningMsg("");
+    setMode("test");
+  };
+
+  const doSubmit = () => {
+    clearInterval(timerRef.current);
+    setAnswers(latestAns => {
+      setQuestions(latestQs => {
+        let correct = 0;
+        latestQs.forEach((q, i) => {
+          const chosen = latestAns[i];
+          if (chosen !== undefined && q.shuffledOpts[chosen].origIdx === q.ans) correct++;
+        });
+        const mcq5 = parseFloat((correct * 5 / 20).toFixed(2));
+        setScore(correct);
+        setCurrentStudent(cs => {
+          if (cs) {
+            // Save MCQ marks
+            setMarks(prev => ({
+              ...prev,
+              [activeSubject]: {
+                ...(prev[activeSubject] || {}),
+                [cs.rollNo]: {
+                  ...(prev[activeSubject]?.[cs.rollNo] || {}),
+                  ISE1_MCQ20: correct,
+                  ISE1_MCQ5: mcq5,
+                }
+              }
+            }));
+            // Save to testResults
+            setTestResults(prev => {
+              const existing = prev[cs.rollNo] || {};
+              const pres = existing.presentation15 ?? marks[activeSubject]?.[cs.rollNo]?.Presentation ?? "";
+              const total = pres !== "" ? parseFloat((mcq5 + parseFloat(pres)).toFixed(2)) : "";
+              return { ...prev, [cs.rollNo]: { ...existing, mcq20: correct, mcq5, presentation15: pres, total20: total } };
+            });
+          }
+          return cs;
+        });
+        setMode("result");
+        return latestQs;
+      });
+      return latestAns;
+    });
+  };
+
+  // Update presentation mark and recompute total
+  const updatePresentation = (rollNo, val) => {
+    const pres = parseFloat(val);
+    if (isNaN(pres) || pres < 0 || pres > 15) return;
+    setTestResults(prev => {
+      const existing = prev[rollNo] || {};
+      const mcq5 = existing.mcq5 ?? 0;
+      const total = parseFloat((mcq5 + pres).toFixed(2));
+      return { ...prev, [rollNo]: { ...existing, presentation15: pres, total20: total } };
+    });
+    setMarks(prev => ({
+      ...prev,
+      [activeSubject]: {
+        ...(prev[activeSubject] || {}),
+        [rollNo]: { ...(prev[activeSubject]?.[rollNo] || {}), Presentation: pres }
+      }
+    }));
+  };
+
+  const fmtTime = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const timePct = (timeLeft / (20 * 60)) * 100;
+
+  // CSV download
+  const downloadCSV = () => {
+    const rows = [["Sr.No","Roll No","URN","Name","Department","MCQ /20","MCQ /5","Presentation /15","Total ISE I /20"]];
+    allStudents.forEach((s, i) => {
+      const r = testResults[s.rollNo] || {};
+      const m = marks[activeSubject]?.[s.rollNo] || {};
+      const mcq20 = r.mcq20 ?? m.ISE1_MCQ20 ?? "";
+      const mcq5  = r.mcq5  ?? m.ISE1_MCQ5  ?? "";
+      const pres  = r.presentation15 ?? m.Presentation ?? "";
+      const total = (mcq5 !== "" && pres !== "") ? parseFloat((parseFloat(mcq5) + parseFloat(pres)).toFixed(2)) : "";
+      rows.push([i+1, s.rollNo, s.urn||"", s.name, s.department||"", mcq20, mcq5, pres, total]);
+    });
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type:"text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url;
+    a.download = `ISE1_Results_${activeSubject}_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  };
+
+  // Print result analysis
+  const printResults = () => {
+    const rows = allStudents.map((s, i) => {
+      const r = testResults[s.rollNo] || {};
+      const m = marks[activeSubject]?.[s.rollNo] || {};
+      const mcq20 = r.mcq20 ?? m.ISE1_MCQ20 ?? "–";
+      const mcq5  = r.mcq5  ?? m.ISE1_MCQ5  ?? "–";
+      const pres  = r.presentation15 ?? m.Presentation ?? "–";
+      const total = (mcq5 !== "–" && pres !== "–") ? parseFloat((parseFloat(mcq5) + parseFloat(pres)).toFixed(2)) : "–";
+      return `<tr><td>${i+1}</td><td>${s.rollNo}</td><td>${s.urn||""}</td><td>${s.name}</td><td>${s.department||""}</td><td>${mcq20}</td><td>${mcq5}</td><td>${pres}</td><td style="font-weight:700">${total}</td></tr>`;
+    }).join("");
+    const w = window.open("","_blank");
+    w.document.write(`<!DOCTYPE html><html><head><title>ISE I Result – ${subj?.fullName}</title>
+    <style>body{font-family:Arial,sans-serif;padding:20px;font-size:12px}h2{color:#1e3a5f}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1e3a5f;color:#fff;padding:8px 10px;text-align:left}td{padding:7px 10px;border-bottom:1px solid #ddd}tr:nth-child(even){background:#f5f5f5}.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}.sub{color:#555;font-size:11px}</style>
+    </head><body>
+    <div class="header"><div><h2>ISE I Result Analysis</h2><div class="sub">Subject: ${subj?.fullName} (${activeSubject}) &nbsp;|&nbsp; Date: ${new Date().toLocaleDateString("en-IN")}</div><div class="sub">Faculty: Mr. Santosh T. Ghutukade &nbsp;|&nbsp; ADCET, Ashta</div></div></div>
+    <table><thead><tr><th>#</th><th>Roll</th><th>URN</th><th>Name</th><th>Dept</th><th>MCQ /20</th><th>MCQ /5</th><th>Pres. /15</th><th>Total /20</th></tr></thead><tbody>${rows}</tbody></table>
+    <p style="margin-top:20px;font-size:11px;color:#888">Generated on ${new Date().toLocaleString("en-IN")} &nbsp;·&nbsp; ADCET EduPortal</p>
+    </body></html>`);
+    w.document.close(); w.print();
+  };
+
+  // ── HOME ──
+  if (mode === "home") {
+    const ise2On = ise2Active?.[activeSubject] === true;
+    const toggleIse2 = () => {
+      setIse2Active(prev => ({ ...prev, [activeSubject]: !prev[activeSubject] }));
+      showNotif(`ISE II Test ${ise2On ? "deactivated" : "activated"} for ${subj?.name}`, "success");
+    };
+    return (
+    <div>
+      <h2 style={{ margin:"0 0 6px", color:"#f59e0b" }}>🎯 ISE I – MCQ Test Activity</h2>
+      <p style={{ margin:"0 0 24px", color:"#94a3b8", fontSize:13 }}>{subj?.fullName} ({activeSubject}) &nbsp;·&nbsp; 20 Questions &nbsp;·&nbsp; 20 min &nbsp;·&nbsp; Units 1, 2 & 3</p>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:14, marginBottom:28 }}>
+        {[["📋","Questions","20 MCQs (7+7+6) randomly picked from 45-question bank"],["⏱️","Duration","20 minutes fixed timer"],["🔒","Proctored","Tab-switch detection – 3 violations = auto-submit"],["📊","Marks","MCQ /20 → converted to /5 &nbsp;+&nbsp; Presentation /15 = Total /20"],["📥","Download","CSV + Print PDF result analysis"],].map(([ic,ti,de]) => (
+          <div key={ti} style={{ background:"rgba(255,255,255,0.04)", borderRadius:14, padding:"18px 16px", border:"1px solid rgba(255,255,255,0.08)" }}>
+            <div style={{ fontSize:22, marginBottom:8 }}>{ic}</div>
+            <div style={{ fontSize:13, fontWeight:700, color:"#f8fafc", marginBottom:4 }}>{ti}</div>
+            <div style={{ fontSize:12.5, color:"#94a3b8", lineHeight:1.6 }} dangerouslySetInnerHTML={{__html:de}} />
+          </div>
+        ))}
+      </div>
+
+      {/* ISE II Activation Control */}
+      <div style={{ background: ise2On ? "rgba(167,139,250,0.08)" : "rgba(255,255,255,0.04)", borderRadius: 16, padding: "20px 24px", border: `1px solid ${ise2On ? "rgba(167,139,250,0.3)" : "rgba(255,255,255,0.1)"}`, marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#f8fafc", marginBottom: 4 }}>📝 ISE II MCQ Test — Units 4, 5 & 6</div>
+          <div style={{ fontSize: 13, color: "#94a3b8" }}>
+            {ise2On
+              ? <span style={{ color: "#a78bfa" }}>✅ Active — Students can now take the ISE II test for <strong>{subj?.name}</strong></span>
+              : <span>🔒 Not Active — Students see a locked screen. Activate when ready.</span>
+            }
+          </div>
+        </div>
+        <button onClick={toggleIse2} style={{ ...btnStyle(ise2On ? "#ef4444" : "#a78bfa", ise2On ? "#b91c1c" : "#7c3aed"), padding: "11px 24px", fontSize: 14, flexShrink: 0 }}>
+          {ise2On ? "🔒 Deactivate ISE II" : "🔓 Activate ISE II"}
+        </button>
+      </div>
+
+      <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+        <button onClick={() => setMode("login")} style={{ ...btnStyle("#f59e0b","#b45309"), padding:"12px 28px", fontSize:15 }}>▶ Start ISE I Test (as Student)</button>
+        <button onClick={() => setMode("results-table")} style={{ ...btnStyle("#3b82f6","#1d4ed8"), padding:"12px 28px", fontSize:15 }}>📊 Results & Marks Entry</button>
+      </div>
+    </div>
+  );};
+
+  // ── LOGIN ──
+  if (mode === "login") return (
+    <div style={{ maxWidth:440 }}>
+      <h2 style={{ margin:"0 0 20px", color:"#f59e0b" }}>Student Login</h2>
+      <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16, padding:28, border:"1px solid rgba(255,255,255,0.1)" }}>
+        <div style={{ marginBottom:14 }}>
+          <label style={{ fontSize:12, color:"#94a3b8", display:"block", marginBottom:6 }}>URN</label>
+          <input value={studentUrn} onChange={e => setStudentUrn(e.target.value)} placeholder="e.g. 1024031004" style={{ ...inputStyle }} />
+        </div>
+        <div style={{ textAlign:"center", color:"#475569", fontSize:13, marginBottom:14 }}>— OR —</div>
+        <div style={{ marginBottom:20 }}>
+          <label style={{ fontSize:12, color:"#94a3b8", display:"block", marginBottom:6 }}>Roll Number</label>
+          <input value={studentRoll} onChange={e => setStudentRoll(e.target.value)} placeholder="e.g. 36" style={{ ...inputStyle }} onKeyDown={e => e.key==="Enter" && startTest()} />
+        </div>
+        <div style={{ background:"rgba(245,158,11,0.08)", border:"1px solid rgba(245,158,11,0.2)", borderRadius:10, padding:"12px 16px", marginBottom:20, fontSize:12.5, color:"#fcd34d", lineHeight:1.75 }}>
+          ⚠️ <strong>Instructions:</strong><br/>
+          • 20 MCQ questions from Units 1, 2 & 3 (7+7+6)<br/>
+          • Time limit: <strong>20 minutes</strong> — cannot be paused<br/>
+          • Do NOT switch tabs or minimize the window<br/>
+          • 3 tab violations = auto-submit<br/>
+          • Score is saved automatically on submission
+        </div>
+        <div style={{ display:"flex", gap:12 }}>
+          <button onClick={startTest} style={{ ...btnStyle("#f59e0b","#b45309"), padding:"12px 28px", fontSize:14 }}>🚀 Begin Test</button>
+          <button onClick={() => { setMode("home"); setStudentUrn(""); setStudentRoll(""); }} style={{ ...btnStyle("#475569","#334155"), padding:"12px 20px", fontSize:14 }}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ── TEST ──
+  if (mode === "test") {
+    const q = questions[currentQ];
+    const answered = Object.keys(answers).length;
+    return (
+      <div style={{ maxWidth:780, margin:"0 auto" }}>
+        {warningMsg && (
+          <div style={{ position:"fixed", top:76, left:"50%", transform:"translateX(-50%)", background:"#7f1d1d", color:"#fca5a5", padding:"11px 26px", borderRadius:12, zIndex:9999, fontSize:14, fontWeight:700, boxShadow:"0 4px 24px rgba(0,0,0,0.6)", whiteSpace:"nowrap" }}>{warningMsg}</div>
+        )}
+        {/* Status bar */}
+        <div style={{ background:"rgba(15,23,42,0.95)", borderRadius:14, padding:"13px 20px", marginBottom:14, display:"flex", justifyContent:"space-between", alignItems:"center", border:"1px solid rgba(255,255,255,0.1)" }}>
+          <div>
+            <div style={{ fontSize:13, fontWeight:600, color:"#f8fafc" }}>👤 {currentStudent?.name}</div>
+            <div style={{ fontSize:12, color:"#64748b", marginTop:2 }}>Roll: {currentStudent?.rollNo} &nbsp;·&nbsp; {answered}/20 answered &nbsp;·&nbsp; Violations: {tabViolations}/3</div>
+          </div>
+          <div style={{ textAlign:"right" }}>
+            <div style={{ fontSize:26, fontWeight:700, fontVariantNumeric:"tabular-nums", color: timeLeft<120?"#ef4444":timeLeft<300?"#f59e0b":"#22c55e" }}>{fmtTime(timeLeft)}</div>
+            <div style={{ fontSize:11, color:"#64748b" }}>remaining</div>
+          </div>
+        </div>
+        {/* Timer bar */}
+        <div style={{ height:5, background:"rgba(255,255,255,0.08)", borderRadius:4, marginBottom:16, overflow:"hidden" }}>
+          <div style={{ height:"100%", width:`${timePct}%`, background:timePct>50?"#22c55e":timePct>20?"#f59e0b":"#ef4444", transition:"width 1s linear" }} />
+        </div>
+        {/* Question */}
+        <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:16, padding:"22px 24px", marginBottom:16, border:"1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:10 }}>
+            <span style={{ background:"rgba(245,158,11,0.18)", color:"#f59e0b", borderRadius:6, padding:"3px 12px", fontSize:12, fontWeight:700 }}>Unit {q.unit}</span>
+            <span style={{ fontSize:12, color:"#64748b" }}>Q {currentQ+1} / {questions.length}</span>
+          </div>
+          <div style={{ fontSize:15.5, fontWeight:600, lineHeight:1.65, marginBottom:20, color:"#f8fafc" }}>{q.q}</div>
+          <div style={{ display:"flex", flexDirection:"column", gap:9 }}>
+            {q.shuffledOpts.map((opt,i) => {
+              const sel = answers[currentQ]===i;
+              return (
+                <div key={i} onClick={() => setAnswers(a => ({...a,[currentQ]:i}))}
+                  style={{ display:"flex", alignItems:"center", gap:14, padding:"12px 16px", borderRadius:10, cursor:"pointer", border:`2px solid ${sel?"#f59e0b":"rgba(255,255,255,0.09)"}`, background:sel?"rgba(245,158,11,0.1)":"rgba(255,255,255,0.03)", color:sel?"#fcd34d":"#cbd5e1", fontSize:14, transition:"all 0.15s" }}>
+                  <span style={{ width:26,height:26,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:12,fontWeight:700,background:sel?"#f59e0b":"rgba(255,255,255,0.1)",color:sel?"#000":"#94a3b8" }}>{String.fromCharCode(65+i)}</span>
+                  {opt.text}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        {/* Navigation */}
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+          <button onClick={() => setCurrentQ(q => Math.max(0,q-1))} disabled={currentQ===0} style={{ ...btnStyle("#475569","#334155"), padding:"9px 20px", opacity:currentQ===0?0.4:1 }}>◀ Prev</button>
+          <div style={{ display:"flex", gap:5, flexWrap:"wrap", justifyContent:"center", maxWidth:360 }}>
+            {questions.map((_,i) => (
+              <div key={i} onClick={() => setCurrentQ(i)} style={{ width:28,height:28,borderRadius:6,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,background:i===currentQ?"#f59e0b":answers[i]!==undefined?"#22c55e":"rgba(255,255,255,0.1)",color:(i===currentQ||answers[i]!==undefined)?"#000":"#64748b" }}>{i+1}</div>
+            ))}
+          </div>
+          {currentQ<questions.length-1
+            ? <button onClick={() => setCurrentQ(q => q+1)} style={{ ...btnStyle("#3b82f6","#1d4ed8"), padding:"9px 20px" }}>Next ▶</button>
+            : <button onClick={doSubmit} style={{ ...btnStyle("#22c55e","#15803d"), padding:"9px 20px" }}>✅ Submit</button>
+          }
+        </div>
+        <div style={{ textAlign:"center" }}>
+          <button onClick={doSubmit} style={{ ...btnStyle("#ef4444","#b91c1c"), padding:"8px 20px", fontSize:13 }}>🚩 Submit Early</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── RESULT (student view — thank you only) ──
+  if (mode === "result") {
+    return (
+      <div style={{ maxWidth:480, margin:"0 auto", textAlign:"center" }}>
+        <div style={{ background:"rgba(255,255,255,0.05)", borderRadius:18, padding:"48px 32px", border:"1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ fontSize:64 }}>🎓</div>
+          <h2 style={{ margin:"18px 0 10px", color:"#f8fafc", fontSize:22 }}>Test Submitted Successfully!</h2>
+          <p style={{ color:"#94a3b8", margin:"0 0 8px", fontSize:14 }}>Thank you, <strong style={{ color:"#f59e0b" }}>{currentStudent?.name}</strong>!</p>
+          <p style={{ color:"#64748b", margin:"0 0 28px", fontSize:13 }}>Roll No: {currentStudent?.rollNo} &nbsp;·&nbsp; {subj?.name}</p>
+          <div style={{ background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.2)", borderRadius:12, padding:"14px 20px", fontSize:13.5, color:"#86efac", marginBottom:28, lineHeight:1.7 }}>
+            ✅ Your responses have been recorded.<br/>
+            Results will be announced by the faculty.
+          </div>
+          {tabViolations>0 && (
+            <div style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:10, padding:"10px 16px", marginBottom:20, fontSize:12, color:"#fca5a5" }}>
+              ⚠️ {tabViolations} tab violation(s) were recorded during your test.
+            </div>
+          )}
+          <button onClick={() => { setMode("home"); setCurrentStudent(null); setStudentUrn(""); setStudentRoll(""); }} style={{ ...btnStyle("#f59e0b","#b45309"), padding:"12px 32px", fontSize:15 }}>🏠 Done</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── RESULTS TABLE ──
+  if (mode === "results-table") {
+    return (
+      <div>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6, flexWrap:"wrap", gap:10 }}>
+          <div>
+            <h2 style={{ margin:"0 0 4px", color:"#f59e0b" }}>📊 ISE I Result Analysis – {subj?.name}</h2>
+            <p style={{ margin:0, color:"#94a3b8", fontSize:12 }}>Enter Presentation marks manually. Total = MCQ /5 + Presentation /15</p>
+          </div>
+          <div style={{ display:"flex", gap:10 }}>
+            <button onClick={downloadCSV} style={{ ...btnStyle("#22c55e","#15803d"), padding:"9px 18px", fontSize:13 }}>⬇ Download CSV</button>
+            <button onClick={printResults} style={{ ...btnStyle("#a78bfa","#7c3aed"), padding:"9px 18px", fontSize:13 }}>🖨 Print / PDF</button>
+            <button onClick={() => setMode("home")} style={{ ...btnStyle("#475569","#334155"), padding:"9px 16px", fontSize:13 }}>← Back</button>
+          </div>
+        </div>
+
+        {/* Summary cards */}
+        <div style={{ display:"flex", gap:12, marginBottom:18, flexWrap:"wrap" }}>
+          {(() => {
+            const appeared = allStudents.filter(s => testResults[s.rollNo]?.mcq20 !== undefined || marks[activeSubject]?.[s.rollNo]?.ISE1_MCQ20 !== undefined).length;
+            const completed = allStudents.filter(s => {
+              const r = testResults[s.rollNo] || {};
+              const m = marks[activeSubject]?.[s.rollNo] || {};
+              return (r.mcq5 ?? m.ISE1_MCQ5) !== undefined && (r.presentation15 ?? m.Presentation) !== undefined;
+            }).length;
+            return [
+              ["Total Students", allStudents.length, "#3b82f6"],
+              ["MCQ Taken", appeared, "#f59e0b"],
+              ["Fully Complete", completed, "#22c55e"],
+              ["Pending Marks", allStudents.length - completed, "#ef4444"],
+            ].map(([l,v,c]) => (
+              <div key={l} style={{ flex:"1 1 130px", background:"rgba(255,255,255,0.04)", borderRadius:12, padding:"14px 16px", border:`1px solid ${c}30`, textAlign:"center" }}>
+                <div style={{ fontSize:26, fontWeight:700, color:c }}>{v}</div>
+                <div style={{ fontSize:11, color:"#64748b", marginTop:3 }}>{l}</div>
+              </div>
+            ));
+          })()}
+        </div>
+
+        <div style={{ background:"rgba(255,255,255,0.04)", borderRadius:14, overflow:"auto", border:"1px solid rgba(255,255,255,0.08)" }}>
+          <table style={{ width:"100%", borderCollapse:"collapse", minWidth:780 }}>
+            <thead>
+              <tr style={{ background:"rgba(255,255,255,0.07)" }}>
+                {["#","Roll","URN","Name","Dept","MCQ /20","MCQ /5","Presentation /15","Total ISE I /20"].map(h => (
+                  <th key={h} style={{ padding:"11px 12px", textAlign:"left", fontSize:12, color:"#94a3b8", whiteSpace:"nowrap" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {allStudents.map((s, i) => {
+                const r = testResults[s.rollNo] || {};
+                const m = marks[activeSubject]?.[s.rollNo] || {};
+                const mcq20 = r.mcq20 ?? m.ISE1_MCQ20 ?? "–";
+                const mcq5  = r.mcq5  ?? m.ISE1_MCQ5  ?? "–";
+                const pres  = r.presentation15 ?? m.Presentation ?? "";
+                const total = (mcq5 !== "–" && pres !== "") ? parseFloat((parseFloat(mcq5) + parseFloat(pres)).toFixed(2)) : "–";
+                return (
+                  <tr key={s.rollNo} style={{ borderTop:"1px solid rgba(255,255,255,0.05)" }}>
+                    <td style={{ padding:"9px 12px", color:"#64748b", fontSize:12 }}>{i+1}</td>
+                    <td style={{ padding:"9px 12px", color:"#f59e0b", fontWeight:700, fontSize:13 }}>{s.rollNo}</td>
+                    <td style={{ padding:"9px 12px", color:"#22d3ee", fontSize:12 }}>{s.urn||"–"}</td>
+                    <td style={{ padding:"9px 12px", fontSize:13 }}>{s.name}</td>
+                    <td style={{ padding:"9px 12px", fontSize:12, color:"#94a3b8" }}>{s.department||"–"}</td>
+                    <td style={{ padding:"9px 12px", fontSize:14, fontWeight:600, color: mcq20!=="–"?"#f59e0b":"#475569" }}>{mcq20}</td>
+                    <td style={{ padding:"9px 12px", fontSize:14, fontWeight:600, color: mcq5!=="–"?"#22d3ee":"#475569" }}>{mcq5}</td>
+                    <td style={{ padding:"9px 12px" }}>
+                      <input
+                        type="number" min="0" max="15" step="0.5"
+                        value={pres}
+                        onChange={e => updatePresentation(s.rollNo, e.target.value)}
+                        placeholder="0–15"
+                        style={{ ...inputStyle, width:80, padding:"6px 10px", fontSize:13, textAlign:"center" }}
+                      />
+                    </td>
+                    <td style={{ padding:"9px 12px", fontSize:15, fontWeight:700, color: total!=="–"?(total>=10?"#22c55e":"#ef4444"):"#475569" }}>{total}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p style={{ fontSize:12, color:"#475569", marginTop:10 }}>💡 Tip: Enter Presentation marks (out of 15) directly in the table. Total ISE I = MCQ /5 + Presentation /15 (max 20).</p>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+// ─── ISE II QUESTION BANK (45 per subject: 15 per unit × Units 4,5,6) ─────────
+
+const QUESTION_BANK2 = {
+  "2MEIE201": [
+    // ── Unit 4: Work Measurement (15 Qs) ──
+    { id:401, unit:4, q:"The primary objective of Work Measurement is to:", opts:["Design better products","Establish the time a qualified worker takes to carry out a task at a defined rate","Record worker attendance","Calculate machine efficiency only"], ans:1 },
+    { id:402, unit:4, q:"Standard time is defined as:", opts:["The actual time taken by the fastest worker","The normal time plus allowances for rest and other delays","The minimum time required for a task","The average time of all workers"], ans:1 },
+    { id:403, unit:4, q:"Performance Rating in work measurement is used to:", opts:["Rate the quality of products","Convert observed time to normal time by comparing worker pace to standard pace","Measure machine output","Evaluate supervisor performance"], ans:1 },
+    { id:404, unit:4, q:"Which of the following is a method of Work Measurement?", opts:["String diagram","Time Study","Flow Process Chart","MEMO motion study"], ans:1 },
+    { id:405, unit:4, q:"Work Sampling is a technique that:", opts:["Measures exact time for each element","Observes worker or machine activity at random intervals to estimate time proportions","Records every motion of a worker","Calculates standard time using predetermined data"], ans:1 },
+    { id:406, unit:4, q:"PMTS stands for:", opts:["Process Measurement and Time Study","Predetermined Motion Time System","Production Management Timing Standard","Process and Motion Time Sequence"], ans:1 },
+    { id:407, unit:4, q:"Workplace Ergonomics in Work Measurement focuses on:", opts:["Maximising worker speed at any cost","Designing the work environment to fit the worker to reduce fatigue and improve efficiency","Measuring only machine performance","Recording daily output only"], ans:1 },
+    { id:408, unit:4, q:"Normal time is calculated as:", opts:["Observed time × Performance rating","Standard time − Allowances","Observed time + Allowances","Standard time × Performance rating"], ans:0 },
+    { id:409, unit:4, q:"Allowances in Work Measurement account for:", opts:["Machine breakdown only","Personal needs, fatigue, and unavoidable delays","Overtime pay","Product defects"], ans:1 },
+    { id:410, unit:4, q:"Which rating method compares worker pace to a 'standard' pace of 100?", opts:["Westinghouse System","British Standard Rating","Synthetic Rating","Objective Rating"], ans:1 },
+    { id:411, unit:4, q:"MTM stands for:", opts:["Motion-Time Measurement","Methods-Time Measurement","Machine-Tool Monitoring","Manual-Task Mapping"], ans:1 },
+    { id:412, unit:4, q:"The Westinghouse System of Performance Rating considers:", opts:["Only speed of worker","Skill, Effort, Conditions, and Consistency","Only output quantity","Wage rate and experience"], ans:1 },
+    { id:413, unit:4, q:"Standard time = Normal time +:", opts:["Idle time","Allowances","Waiting time","Setup time only"], ans:1 },
+    { id:414, unit:4, q:"Work Sampling is most useful when:", opts:["Tasks are short and repetitive","Activities are irregular or non-repetitive and continuous time study is impractical","Only one worker is being observed","Exact elemental times are needed"], ans:1 },
+    { id:415, unit:4, q:"Ergonomics is defined as the study of:", opts:["Work measurement techniques","The relationship between workers and their work environment to optimise well-being and performance","Production scheduling methods","Quality control standards"], ans:1 },
+
+    // ── Unit 5: Capacity, Aggregate Planning & Scheduling (15 Qs) ──
+    { id:501, unit:5, q:"Capacity of a system is defined as:", opts:["The number of workers available","The maximum rate of output or the ability to produce within normal operating conditions","The total floor area of a factory","The number of machines installed"], ans:1 },
+    { id:502, unit:5, q:"Aggregate Planning is concerned with:", opts:["Planning individual machine schedules","Matching production capacity to demand over a medium-term horizon (3–18 months)","Long-term facility location decisions","Day-to-day worker assignments"], ans:1 },
+    { id:503, unit:5, q:"Which aggregate planning strategy uses workforce adjustments like hiring and layoffs?", opts:["Chase strategy","Level strategy","Mixed strategy","Capacity cushion strategy"], ans:0 },
+    { id:504, unit:5, q:"In the Level strategy of aggregate planning:", opts:["Production rate changes with demand every month","A constant production rate is maintained regardless of demand fluctuations","Only demand is leveled, not production","Inventory is never used as a buffer"], ans:1 },
+    { id:505, unit:5, q:"Johnson's algorithm is used to solve:", opts:["Inventory control problems","Sequencing of n jobs on 2 machines to minimise total elapsed time","Capacity planning problems","Transportation problems"], ans:1 },
+    { id:506, unit:5, q:"For sequencing n jobs on 3 machines, the problem is reduced to:", opts:["A 2-machine problem using dominance condition","An inventory model","A transportation model","A network diagram"], ans:0 },
+    { id:507, unit:5, q:"Overcapacity means:", opts:["Demand exceeds available capacity","Available capacity exceeds demand, leading to idle resources","Capacity exactly matches demand","Machine utilisation is 100%"], ans:1 },
+    { id:508, unit:5, q:"Under capacity in production means:", opts:["Too many machines are idle","Available capacity is less than the required demand","Workers are underutilised","Production exceeds demand"], ans:1 },
+    { id:509, unit:5, q:"Aggregate planning strategies include all EXCEPT:", opts:["Varying workforce size","Using overtime or undertime","Changing price or promotions to influence demand","Redesigning the product"], ans:3 },
+    { id:510, unit:5, q:"In sequencing, the objective of minimising 'makespan' means:", opts:["Minimising the number of jobs","Minimising the total time to complete all jobs","Minimising idle time of workers only","Minimising material cost"], ans:1 },
+    { id:511, unit:5, q:"SPT rule in scheduling stands for:", opts:["Standard Processing Time","Shortest Processing Time — schedule shortest jobs first","Sequential Priority Technique","Standard Priority Test"], ans:1 },
+    { id:512, unit:5, q:"Capacity Cushion refers to:", opts:["Extra inventory kept as safety stock","A planned amount of capacity kept in reserve above expected demand","The difference between rated and effective capacity","Machine maintenance downtime"], ans:1 },
+    { id:513, unit:5, q:"Which measure of capacity represents the maximum theoretical output?", opts:["Effective capacity","Design capacity","Actual output","System capacity"], ans:1 },
+    { id:514, unit:5, q:"In sequencing n jobs on 1 machine, to minimise average flow time, the best rule is:", opts:["FCFS (First Come First Served)","SPT (Shortest Processing Time)","LPT (Longest Processing Time)","Random sequencing"], ans:1 },
+    { id:515, unit:5, q:"Aggregate planning is typically done for a time horizon of:", opts:["1–7 days","3–18 months","5–10 years","10–15 years"], ans:1 },
+
+    // ── Unit 6: Inventory Control & Network Techniques (15 Qs) ──
+    { id:601, unit:6, q:"LIFO stands for:", opts:["Last In First Out","Least Inventory First Out","Latest Investment For Operations","Last Input First Output"], ans:0 },
+    { id:602, unit:6, q:"FIFO inventory valuation method assumes:", opts:["Last items purchased are sold first","First items purchased are sold first","Items are sold in random order","Items are valued at average cost"], ans:1 },
+    { id:603, unit:6, q:"ABC analysis in inventory control classifies items based on:", opts:["Alphabetical order","Annual consumption value","Physical size of items","Storage location"], ans:1 },
+    { id:604, unit:6, q:"CPM stands for:", opts:["Critical Path Method","Cost Performance Measure","Continuous Production Management","Capacity Planning Model"], ans:0 },
+    { id:605, unit:6, q:"In a network diagram, the Critical Path is the path that:", opts:["Has the most activities","Has the maximum duration and determines the minimum project completion time","Has the minimum cost","Has the most resources"], ans:1 },
+    { id:606, unit:6, q:"Float (or Slack) in network techniques refers to:", opts:["Extra materials in inventory","The amount of time an activity can be delayed without delaying the project completion","The cost overrun in a project","The number of extra workers available"], ans:1 },
+    { id:607, unit:6, q:"Forward scheduling in production means:", opts:["Scheduling from due date backward","Scheduling from the start date forward to find the earliest completion date","Scheduling based on machine availability only","Using past data for future scheduling"], ans:1 },
+    { id:608, unit:6, q:"Backward scheduling means:", opts:["Scheduling from the start date forward","Scheduling from the due date backward to determine the latest start date","Scheduling the lowest priority jobs first","Using historical average times"], ans:1 },
+    { id:609, unit:6, q:"PERT stands for:", opts:["Project Evaluation and Review Technique","Production Efficiency and Resource Tracking","Process Evaluation and Risk Technique","Project Estimation and Reporting Tool"], ans:0 },
+    { id:610, unit:6, q:"The main difference between CPM and PERT is:", opts:["CPM uses probabilistic time estimates; PERT uses deterministic","PERT uses probabilistic time estimates (optimistic, most likely, pessimistic); CPM uses deterministic","Both are identical techniques","CPM is used only for inventory; PERT for projects"], ans:1 },
+    { id:611, unit:6, q:"In PERT, the expected time (te) for an activity is calculated as:", opts:["(a + m + b) / 3","(a + 4m + b) / 6","(a + b) / 2","(optimistic + pessimistic) / 2"], ans:1 },
+    { id:612, unit:6, q:"Under LIFO during inflation, the cost of goods sold will be:", opts:["Lower than FIFO","Higher than FIFO because newer higher-cost items are sold first","Same as FIFO","Cannot be determined"], ans:1 },
+    { id:613, unit:6, q:"'A' class items in ABC analysis typically represent:", opts:["About 70–80% of total inventory value but only 10–20% of items","All items equally","Low-value high-volume items","Items with highest physical count"], ans:0 },
+    { id:614, unit:6, q:"Total float of a critical activity is:", opts:["Greater than zero","Equal to zero","Less than zero","Equal to project duration"], ans:1 },
+    { id:615, unit:6, q:"A dummy activity in a network diagram:", opts:["Consumes resources and time","Has zero duration and zero resource, used only to show logical dependency","Represents a milestone only","Replaces real activities in CPM"], ans:1 },
+  ],
+
+  "2MEIE302": [
+    // ── Unit 4: Logistics Management & Outsourcing (15 Qs) ──
+    { id:401, unit:4, q:"The primary objective of Logistics Management is:", opts:["Only warehousing goods","Planning and implementing the efficient flow and storage of goods and services from origin to consumption","Managing only transportation","Financial cost reduction only"], ans:1 },
+    { id:402, unit:4, q:"Cross-docking in logistics means:", opts:["Storing goods for long periods","Transferring goods directly from inbound to outbound transport with minimal storage","Loading goods onto ships","Handling goods at border customs"], ans:1 },
+    { id:403, unit:4, q:"Third Party Logistics (3PL) refers to:", opts:["A company owning its own logistics fleet","Outsourcing logistics functions to a specialised external provider","Using three transport modes simultaneously","A government logistics agency"], ans:1 },
+    { id:404, unit:4, q:"Fourth Party Logistics (4PL) is:", opts:["A logistics provider managing multiple 3PLs and entire supply chain","A company with four warehouses","Using four transport modes","Government-regulated logistics"], ans:0 },
+    { id:405, unit:4, q:"Reverse Logistics refers to:", opts:["Moving goods backward in the production process","Managing the return, recycling, or disposal of products from customer back to the manufacturer","Shipping goods internationally","Last-mile delivery only"], ans:1 },
+    { id:406, unit:4, q:"Containerization in logistics refers to:", opts:["Storing goods in glass containers","Packing goods in standardised intermodal containers for efficient transport","Using containers only for sea freight","Refrigerating perishable goods"], ans:1 },
+    { id:407, unit:4, q:"Transportation mode selection in logistics depends on:", opts:["Only cost","Cost, speed, reliability, cargo type, and distance","Only delivery speed","Only government regulations"], ans:1 },
+    { id:408, unit:4, q:"Gaining competitive advantage through logistics means:", opts:["Reducing product quality to cut costs","Providing better service, faster delivery, and lower logistics costs than competitors","Outsourcing all operations","Increasing product prices"], ans:1 },
+    { id:409, unit:4, q:"Outsourcing in SCM refers to:", opts:["Hiring more permanent employees","Contracting external organisations to perform functions previously done in-house","Buying more machines","Expanding the factory"], ans:1 },
+    { id:410, unit:4, q:"Warehousing in logistics serves the purpose of:", opts:["Only storing goods permanently","Providing storage, sorting, consolidation, and value-added services in the supply chain","Only packaging goods","Managing customer returns only"], ans:1 },
+    { id:411, unit:4, q:"Which of the following is NOT a function of logistics management?", opts:["Transportation management","Inventory management","Product design and development","Warehousing and distribution"], ans:2 },
+    { id:412, unit:4, q:"The strategic decision to outsource is driven by:", opts:["Only cost reduction","Cost savings, focus on core competencies, access to expertise, and flexibility","Reducing product quality","Increasing workforce permanently"], ans:1 },
+    { id:413, unit:4, q:"Distribution challenges in logistics include:", opts:["Only road congestion","Last-mile delivery complexity, cost management, and service level requirements","Only weather conditions","Only customs regulations"], ans:1 },
+    { id:414, unit:4, q:"Multimodal transportation refers to:", opts:["Using only road transport","Using more than one mode of transport for a single shipment under one contract","Air freight only","Sea and river transport only"], ans:1 },
+    { id:415, unit:4, q:"A key benefit of effective Logistics Management is:", opts:["Increased product defects","Reduced lead times, lower costs, and improved customer satisfaction","Higher inventory levels","More warehouse space needed"], ans:1 },
+
+    // ── Unit 5: Digitization in SCM & Sustainability (15 Qs) ──
+    { id:501, unit:5, q:"The role of IT in Supply Chain is to:", opts:["Replace all human workers","Enable information sharing, improve visibility, and support decision-making across the supply chain","Only generate financial reports","Manage HR functions only"], ans:1 },
+    { id:502, unit:5, q:"TMS stands for:", opts:["Total Management System","Transport Management System","Technology Management Software","Trade and Marketing System"], ans:1 },
+    { id:503, unit:5, q:"WMS stands for:", opts:["Workforce Management System","Warehouse Management System","Work Measurement Software","Wholesale Market System"], ans:1 },
+    { id:504, unit:5, q:"RFID in supply chain is used for:", opts:["Radio frequency broadcasting","Automatic identification and tracking of goods using radio frequency tags","Financial data transfer","Customer relationship management"], ans:1 },
+    { id:505, unit:5, q:"Green Supply Chain Management focuses on:", opts:["Only reducing transportation costs","Integrating environmental considerations into supply chain decisions to reduce ecological impact","Using only green-coloured packaging","Planting trees near factories"], ans:1 },
+    { id:506, unit:5, q:"Bar coding in supply chain is used for:", opts:["Decorating products","Unique product identification and tracking throughout the supply chain","Financial billing only","Quality testing"], ans:1 },
+    { id:507, unit:5, q:"SAP in supply chain refers to:", opts:["Standard Accounting Procedure","Systems, Applications, and Products — an ERP software used for integrated supply chain management","Supply and Procurement","Statistical Analysis Programme"], ans:1 },
+    { id:508, unit:5, q:"CSR in supply chain stands for:", opts:["Customer Service Report","Corporate Social Responsibility — integrating social and ethical concerns into business operations","Cost and Supply Ratio","Consumer Sales Report"], ans:1 },
+    { id:509, unit:5, q:"E-commerce methods in supply chain include:", opts:["Only physical retail stores","Online ordering, digital marketplaces, and electronic data interchange (EDI)","Only telephone ordering","Only B2B transactions"], ans:1 },
+    { id:510, unit:5, q:"The Supply Chain IT framework helps in:", opts:["Designing physical products","Integrating information flow across suppliers, manufacturers, distributors, and customers","Financial auditing only","Only transportation route planning"], ans:1 },
+    { id:511, unit:5, q:"Sustainability in SCM refers to:", opts:["Producing as much as possible","Meeting present needs without compromising the ability of future generations, balancing economic, social, and environmental goals","Only recycling packaging","Reducing workforce permanently"], ans:1 },
+    { id:512, unit:5, q:"What is the significance of RFID over Bar codes?", opts:["RFID is cheaper","RFID can store more data, be read without line-of-sight, and track items in real time","Bar codes are less accurate","They are identical in function"], ans:1 },
+    { id:513, unit:5, q:"Sales Force automation tools in supply chain help with:", opts:["Machine maintenance","Managing sales processes, customer interactions, and demand data automatically","Warehouse packing only","Financial reporting only"], ans:1 },
+    { id:514, unit:5, q:"Environmental aspects of supply chain management include:", opts:["Only employee welfare","Carbon footprint reduction, waste management, resource efficiency, and pollution control","Only financial sustainability","Only customer satisfaction"], ans:1 },
+    { id:515, unit:5, q:"Resource utilization in sustainable SCM means:", opts:["Using maximum resources regardless of waste","Using resources efficiently to minimise waste and environmental impact","Only recycling metals","Reducing production output"], ans:1 },
+
+    // ── Unit 6: Supply Chain Network Design (15 Qs) ──
+    { id:601, unit:6, q:"Value Stream Mapping (VSM) is a tool used to:", opts:["Map financial cash flows","Visualise the flow of materials and information in a supply chain to identify waste and improvement opportunities","Map employee career paths","Design product aesthetics"], ans:1 },
+    { id:602, unit:6, q:"Lead Time in supply chain refers to:", opts:["The time to recruit a new employee","The total time from placing an order to receiving the goods","Time taken for production only","Machine setup time"], ans:1 },
+    { id:603, unit:6, q:"Takt Time is defined as:", opts:["The time a worker takes to complete a task","The available production time divided by customer demand rate — sets the required production pace","Machine cycle time","Standard time for one unit"], ans:1 },
+    { id:604, unit:6, q:"MOQ stands for:", opts:["Maximum Order Quantity","Minimum Order Quantity — the smallest quantity a supplier will accept in an order","Most Optimal Quantity","Minimum Output Quality"], ans:1 },
+    { id:605, unit:6, q:"Supply Chain Resilience refers to:", opts:["The ability to produce at maximum speed","The ability of a supply chain to anticipate, adapt to, and recover from disruptions","The strength of the supply chain contract","The number of suppliers in the chain"], ans:1 },
+    { id:606, unit:6, q:"Distribution network design decisions include:", opts:["Only product colour selection","Number and location of facilities, transportation modes, and inventory allocation","Only packaging decisions","Only pricing decisions"], ans:1 },
+    { id:607, unit:6, q:"The Transportation Problem in SCM is a type of:", opts:["Quality control problem","Linear programming problem used to minimise transportation cost from multiple sources to destinations","Inventory model","Network scheduling problem"], ans:1 },
+    { id:608, unit:6, q:"Order Fulfillment Process Flow includes:", opts:["Only placing the order","Order receipt, processing, picking, packing, shipping, and delivery confirmation","Only shipping the product","Only billing the customer"], ans:1 },
+    { id:609, unit:6, q:"Mathematical modelling in SCM is used for:", opts:["Designing product graphics","Optimising decisions such as facility location, inventory levels, and transportation routes","Employee training plans","Marketing campaigns"], ans:1 },
+    { id:610, unit:6, q:"Factors influencing distribution network design include:", opts:["Only product weight","Customer service requirements, costs, infrastructure, and demand patterns","Only warehouse size","Only number of employees"], ans:1 },
+    { id:611, unit:6, q:"A Direct Shipment distribution network means:", opts:["Products pass through multiple warehouses","Products are shipped directly from manufacturer to customer without intermediate storage","Products are always shipped by air","Only large orders are shipped directly"], ans:1 },
+    { id:612, unit:6, q:"Supply Chain Network Design considers all EXCEPT:", opts:["Number of warehouses and their locations","Transportation costs and modes","Employee personal preferences for work location","Customer demand patterns and locations"], ans:2 },
+    { id:613, unit:6, q:"VSM helps identify which type of waste?", opts:["Only financial waste","All forms of waste including overproduction, waiting, transportation, inventory, motion, over-processing, and defects","Only material waste","Only time waste"], ans:1 },
+    { id:614, unit:6, q:"Considerations in modelling SCM systems include:", opts:["Only cost minimisation","Demand uncertainty, lead times, capacity constraints, service levels, and cost trade-offs","Only speed maximisation","Only supplier count"], ans:1 },
+    { id:615, unit:6, q:"Reducing Lead Time in supply chain results in:", opts:["Higher inventory costs only","Lower inventory requirements, faster response to customers, and improved competitiveness","Increased transportation costs only","Reduced product quality"], ans:1 },
+  ],
+};
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
+
+function StudentView({ student, attendance, marks, setMarks, students, ise2Active, onLogout }) {
+  const [activeISE, setActiveISE] = useState("attendance");
+  const [testMode, setTestMode] = useState("home"); // home | test | done
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState({});
+  const [currentQ, setCurrentQ] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(20 * 60);
+  const [tabViolations, setTabViolations] = useState(0);
+  const [warningMsg, setWarningMsg] = useState("");
+  const timerRef = useRef(null);
+
   const subj = SUBJECTS.find(s => s.code === student.subjectCode);
   const subjAtt = attendance[student.subjectCode] || {};
   const allDates = Object.keys(subjAtt).sort();
@@ -572,63 +1255,562 @@ function StudentView({ student, attendance, marks, ise2Active, onLogout }) {
   const total = present + absent;
   const pct = total ? Math.round((present / total) * 100) : 0;
   const subjMarks = marks[student.subjectCode]?.[student.rollNo] || {};
+  const alreadyTaken = subjMarks.ISE1_MCQ20 !== undefined;
+
+  // Tab switch detection during test
+  useEffect(() => {
+    if (testMode !== "test") return;
+    const onVis = () => {
+      if (!document.hidden) return;
+      setTabViolations(v => {
+        const nv = v + 1;
+        if (nv >= 3) { setWarningMsg("❌ 3 violations — auto-submitting!"); setTimeout(() => submitTest(), 800); }
+        else { setWarningMsg(`⚠️ Tab switch! Violation ${nv}/3`); setTimeout(() => setWarningMsg(""), 3000); }
+        return nv;
+      });
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [testMode]);
+
+  // Timer
+  useEffect(() => {
+    if (testMode !== "test") return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => { if (t <= 1) { clearInterval(timerRef.current); submitTest(); return 0; } return t - 1; });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [testMode]);
+
+  const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+
+  const startTest = () => {
+    const bank = QUESTION_BANK[student.subjectCode] || [];
+    const u1 = shuffle(bank.filter(q => q.unit === 1)).slice(0, 7);
+    const u2 = shuffle(bank.filter(q => q.unit === 2)).slice(0, 7);
+    const u3 = shuffle(bank.filter(q => q.unit === 3)).slice(0, 6);
+    const final = shuffle([...u1, ...u2, ...u3]).map(q => ({
+      ...q, shuffledOpts: shuffle(q.opts.map((o, i) => ({ text: o, origIdx: i }))),
+    }));
+    setQuestions(final);
+    setAnswers({});
+    setCurrentQ(0);
+    setTimeLeft(20 * 60);
+    setTabViolations(0);
+    setWarningMsg("");
+    setTestMode("test");
+  };
+
+  const submitTest = () => {
+    clearInterval(timerRef.current);
+    setAnswers(latestAns => {
+      setQuestions(latestQs => {
+        let correct = 0;
+        latestQs.forEach((q, i) => {
+          const chosen = latestAns[i];
+          if (chosen !== undefined && q.shuffledOpts[chosen].origIdx === q.ans) correct++;
+        });
+        const mcq5 = parseFloat((correct * 5 / 20).toFixed(2));
+        setMarks(prev => ({
+          ...prev,
+          [student.subjectCode]: {
+            ...(prev[student.subjectCode] || {}),
+            [student.rollNo]: {
+              ...(prev[student.subjectCode]?.[student.rollNo] || {}),
+              ISE1_MCQ20: correct,
+              ISE1_MCQ5: mcq5,
+            }
+          }
+        }));
+        setTestMode("done");
+        return latestQs;
+      });
+      return latestAns;
+    });
+  };
+
+  const fmtTime = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const timePct = (timeLeft / (20 * 60)) * 100;
+
+  // ── ATTENDANCE TAB ──
+  const renderAttendance = () => {
+    const months = {};
+    allDates.forEach(d => {
+      const m = d.slice(0, 7); // "YYYY-MM"
+      if (!months[m]) months[m] = [];
+      months[m].push(d);
+    });
+    const monthNames = { "01":"January","02":"February","03":"March","04":"April","05":"May","06":"June","07":"July","08":"August","09":"September","10":"October","11":"November","12":"December" };
+
+    return (
+      <div>
+        {/* Summary Cards */}
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 24 }}>
+          {[
+            ["Total Classes", total, "#f59e0b"],
+            ["Present", present, "#22c55e"],
+            ["Absent", absent, "#ef4444"],
+            ["Percentage", pct + "%", pct >= 75 ? "#22c55e" : "#ef4444"],
+          ].map(([l, v, c]) => (
+            <div key={l} style={{ flex: 1, minWidth: 100, background: "rgba(255,255,255,0.05)", borderRadius: 14, padding: "18px 14px", textAlign: "center", border: `1px solid ${c}30` }}>
+              <div style={{ fontSize: 26, fontWeight: 700, color: c, fontFamily: "'Orbitron', monospace", letterSpacing: 1 }}>{v}</div>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 5 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Warning if below 75% */}
+        {pct < 75 && total > 0 && (
+          <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 12, padding: "12px 18px", marginBottom: 20, fontSize: 13, color: "#fca5a5" }}>
+            ⚠️ Your attendance is below 75%. You need <strong style={{ color: "#f87171" }}>{Math.ceil((0.75 * total - present) / 0.25)} more classes</strong> to reach 75%.
+          </div>
+        )}
+
+        {/* Month-wise breakdown */}
+        {Object.keys(months).sort().map(monthKey => {
+          const [yr, mo] = monthKey.split("-");
+          const mSessions = months[monthKey];
+          const mPresent = mSessions.filter(d => subjAtt[d]?.[student.rollNo] === "P").length;
+          const mTotal = mSessions.length;
+          const mPct = mTotal ? Math.round((mPresent / mTotal) * 100) : 0;
+
+          return (
+            <div key={monthKey} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", marginBottom: 18, overflow: "hidden" }}>
+              {/* Month header */}
+              <div style={{ background: "rgba(255,255,255,0.07)", padding: "12px 18px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontWeight: 700, fontSize: 15, color: "#f8fafc" }}>📅 {monthNames[mo]} {yr}</div>
+                <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                  <span style={{ fontSize: 13, color: "#22c55e" }}>✅ {mPresent} Present</span>
+                  <span style={{ fontSize: 13, color: "#ef4444" }}>❌ {mTotal - mPresent} Absent</span>
+                  <span style={{ background: mPct >= 75 ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)", color: mPct >= 75 ? "#22c55e" : "#ef4444", borderRadius: 20, padding: "3px 12px", fontSize: 13, fontWeight: 700, fontFamily: "'Orbitron', monospace" }}>{mPct}%</span>
+                </div>
+              </div>
+
+              {/* Day-wise grid */}
+              <div style={{ padding: "16px 18px", display: "flex", flexWrap: "wrap", gap: 10 }}>
+                {mSessions.map(d => {
+                  const status = subjAtt[d]?.[student.rollNo];
+                  const isP = status === "P";
+                  const dateOnly = d.slice(0, 10);
+                  const sessionType = d.match(/\((.+)\)/)?.[1] || "";
+                  const dayName = new Date(dateOnly).toLocaleDateString("en-IN", { weekday: "short" });
+                  const dayNum = new Date(dateOnly).getDate();
+                  const monShort = new Date(dateOnly).toLocaleDateString("en-IN", { month: "short" });
+
+                  return (
+                    <div key={d} style={{
+                      background: isP ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)",
+                      border: `1.5px solid ${isP ? "rgba(34,197,94,0.4)" : "rgba(239,68,68,0.4)"}`,
+                      borderRadius: 12, padding: "10px 14px", minWidth: 90, textAlign: "center",
+                    }}>
+                      <div style={{ fontSize: 11, color: "#64748b", marginBottom: 2 }}>{dayName}</div>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: isP ? "#22c55e" : "#ef4444", fontFamily: "'Orbitron', monospace", lineHeight: 1 }}>{String(dayNum).padStart(2,"0")}</div>
+                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 1 }}>{monShort}</div>
+                      <div style={{ marginTop: 6 }}>
+                        <span style={{ background: isP ? "#14532d" : "#7f1d1d", color: isP ? "#86efac" : "#fca5a5", borderRadius: 20, padding: "2px 10px", fontSize: 12, fontWeight: 700 }}>{isP ? "P" : "A"}</span>
+                      </div>
+                      <div style={{ fontSize: 10, color: "#475569", marginTop: 4 }}>{sessionType}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        {allDates.length === 0 && (
+          <div style={{ textAlign: "center", padding: "48px 20px", color: "#64748b" }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>📭</div>
+            <p>No attendance records found yet.</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ── ISE I content ──
+  const renderISE1 = () => {
+    // Already taken — show status
+    if (alreadyTaken && testMode !== "test") {
+      const mcq20 = subjMarks.ISE1_MCQ20;
+      const mcq5  = subjMarks.ISE1_MCQ5;
+      const pres  = subjMarks.Presentation;
+      const tot   = (mcq5 !== undefined && pres !== undefined) ? parseFloat((mcq5 + pres).toFixed(2)) : undefined;
+      return (
+        <div style={{ maxWidth: 500, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 16, padding: "32px 28px", marginBottom: 20 }}>
+            <div style={{ fontSize: 48 }}>✅</div>
+            <h3 style={{ margin: "14px 0 6px", color: "#22c55e" }}>MCQ Test Completed</h3>
+            <p style={{ color: "#64748b", fontSize: 13, margin: "0 0 24px" }}>You have already submitted the ISE I MCQ test.</p>
+            <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
+              {[["MCQ Score", `${mcq20}/20`, "#f59e0b"], ["Converted", `${mcq5}/5`, "#22d3ee"], ["Presentation", pres !== undefined ? `${pres}/15` : "Pending", "#a78bfa"], ["Total ISE I", tot !== undefined ? `${tot}/20` : "Pending", "#22c55e"]].map(([l, v, c]) => (
+                <div key={l} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 20px", border: `1px solid ${c}30`, minWidth: 110 }}>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: c }}>{v}</div>
+                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Thank you after submitting
+    if (testMode === "done") return (
+      <div style={{ maxWidth: 460, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 18, padding: "44px 30px", border: "1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ fontSize: 60 }}>🎓</div>
+          <h2 style={{ margin: "16px 0 8px", color: "#f8fafc" }}>Test Submitted!</h2>
+          <p style={{ color: "#94a3b8", margin: "0 0 6px", fontSize: 14 }}>Thank you, <strong style={{ color: "#f59e0b" }}>{student.name}</strong>!</p>
+          <p style={{ color: "#64748b", margin: "0 0 26px", fontSize: 13 }}>Your responses have been recorded.<br />Results will be announced by your faculty.</p>
+          {tabViolations > 0 && <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 10, padding: "9px 16px", marginBottom: 16, fontSize: 12, color: "#fca5a5" }}>⚠️ {tabViolations} tab violation(s) recorded.</div>}
+          <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 10, padding: "11px 18px", fontSize: 13, color: "#86efac" }}>✅ Score saved successfully</div>
+        </div>
+      </div>
+    );
+
+    // Active test
+    if (testMode === "test") {
+      const q = questions[currentQ];
+      const answered = Object.keys(answers).length;
+      return (
+        <div style={{ maxWidth: 740, margin: "0 auto" }}>
+          {warningMsg && (
+            <div style={{ position: "fixed", top: 76, left: "50%", transform: "translateX(-50%)", background: "#7f1d1d", color: "#fca5a5", padding: "10px 24px", borderRadius: 12, zIndex: 9999, fontSize: 14, fontWeight: 700, boxShadow: "0 4px 24px rgba(0,0,0,0.6)", whiteSpace: "nowrap" }}>{warningMsg}</div>
+          )}
+          {/* Status bar */}
+          <div style={{ background: "rgba(15,23,42,0.95)", borderRadius: 14, padding: "12px 18px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>👤 {student.name} &nbsp;<span style={{ color: "#64748b", fontWeight: 400 }}>Roll: {student.rollNo}</span></div>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{answered}/20 answered &nbsp;·&nbsp; Violations: {tabViolations}/3</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 26, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: timeLeft < 120 ? "#ef4444" : timeLeft < 300 ? "#f59e0b" : "#22c55e" }}>{fmtTime(timeLeft)}</div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>remaining</div>
+            </div>
+          </div>
+          {/* Timer bar */}
+          <div style={{ height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 14, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${timePct}%`, background: timePct > 50 ? "#22c55e" : timePct > 20 ? "#f59e0b" : "#ef4444", transition: "width 1s linear" }} />
+          </div>
+          {/* Question */}
+          <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "20px 22px", marginBottom: 14, border: "1px solid rgba(255,255,255,0.1)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+              <span style={{ background: "rgba(245,158,11,0.18)", color: "#f59e0b", borderRadius: 6, padding: "3px 12px", fontSize: 12, fontWeight: 700 }}>Unit {q.unit}</span>
+              <span style={{ fontSize: 12, color: "#64748b" }}>Q {currentQ + 1} / {questions.length}</span>
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.65, marginBottom: 18, color: "#f8fafc" }}>{q.q}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+              {q.shuffledOpts.map((opt, i) => {
+                const sel = answers[currentQ] === i;
+                return (
+                  <div key={i} onClick={() => setAnswers(a => ({ ...a, [currentQ]: i }))}
+                    style={{ display: "flex", alignItems: "center", gap: 13, padding: "11px 15px", borderRadius: 10, cursor: "pointer", border: `2px solid ${sel ? "#f59e0b" : "rgba(255,255,255,0.09)"}`, background: sel ? "rgba(245,158,11,0.1)" : "rgba(255,255,255,0.03)", color: sel ? "#fcd34d" : "#cbd5e1", fontSize: 14, transition: "all 0.15s" }}>
+                    <span style={{ width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 12, fontWeight: 700, background: sel ? "#f59e0b" : "rgba(255,255,255,0.1)", color: sel ? "#000" : "#94a3b8" }}>{String.fromCharCode(65 + i)}</span>
+                    {opt.text}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          {/* Navigation */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <button onClick={() => setCurrentQ(q => Math.max(0, q - 1))} disabled={currentQ === 0} style={{ ...btnStyle("#475569", "#334155"), padding: "8px 18px", opacity: currentQ === 0 ? 0.4 : 1 }}>◀ Prev</button>
+            <div style={{ display: "flex", gap: 5, flexWrap: "wrap", justifyContent: "center", maxWidth: 340 }}>
+              {questions.map((_, i) => (
+                <div key={i} onClick={() => setCurrentQ(i)} style={{ width: 27, height: 27, borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: i === currentQ ? "#f59e0b" : answers[i] !== undefined ? "#22c55e" : "rgba(255,255,255,0.1)", color: (i === currentQ || answers[i] !== undefined) ? "#000" : "#64748b" }}>{i + 1}</div>
+              ))}
+            </div>
+            {currentQ < questions.length - 1
+              ? <button onClick={() => setCurrentQ(q => q + 1)} style={{ ...btnStyle("#3b82f6", "#1d4ed8"), padding: "8px 18px" }}>Next ▶</button>
+              : <button onClick={submitTest} style={{ ...btnStyle("#22c55e", "#15803d"), padding: "8px 18px" }}>✅ Submit</button>
+            }
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <button onClick={submitTest} style={{ ...btnStyle("#ef4444", "#b91c1c"), padding: "7px 18px", fontSize: 13 }}>🚩 Submit Early</button>
+          </div>
+        </div>
+      );
+    }
+
+    // Home — start test
+    return (
+      <div style={{ maxWidth: 520, margin: "0 auto" }}>
+        <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 18, padding: "32px 28px", border: "1px solid rgba(255,255,255,0.1)", textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🎯</div>
+          <h3 style={{ margin: "0 0 8px", fontSize: 20, color: "#f8fafc" }}>ISE I – MCQ Test</h3>
+          <p style={{ color: "#94a3b8", fontSize: 13, margin: "0 0 24px" }}>{subj?.fullName} &nbsp;·&nbsp; 20 Questions &nbsp;·&nbsp; 20 Minutes</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24, textAlign: "left" }}>
+            {[["📋 Questions", "20 MCQs from Units 1, 2 & 3 (7+7+6)"], ["⏱️ Duration", "20 minutes — cannot be paused"], ["🔒 Proctored", "Tab switching detected (max 3 allowed)"], ["📊 Marks", "Converted to /5 + Presentation /15 = /20"]].map(([l, v]) => (
+              <div key={l} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "12px 14px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#f59e0b", marginBottom: 4 }}>{l}</div>
+                <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>{v}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 10, padding: "12px 16px", marginBottom: 24, fontSize: 12.5, color: "#fcd34d", textAlign: "left", lineHeight: 1.8 }}>
+            ⚠️ <strong>Before you start:</strong> Do not switch tabs or minimize the window. Ensure you have a stable internet connection. Once started, the timer cannot be paused.
+          </div>
+          <button onClick={startTest} style={{ ...btnStyle("#f59e0b", "#b45309"), padding: "13px 40px", fontSize: 16 }}>🚀 Start ISE I Test</button>
+        </div>
+      </div>
+    );
+  };
+
+  // ── ISE II state ──
+  const [testMode2, setTestMode2] = useState("home");
+  const [questions2, setQuestions2] = useState([]);
+  const [answers2, setAnswers2] = useState({});
+  const [currentQ2, setCurrentQ2] = useState(0);
+  const [timeLeft2, setTimeLeft2] = useState(20 * 60);
+  const [tabViol2, setTabViol2] = useState(0);
+  const [warnMsg2, setWarnMsg2] = useState("");
+  const timerRef2 = useRef(null);
+  const alreadyTaken2 = subjMarks.ISE2_MCQ20 !== undefined;
+  const isIse2On = ise2Active?.[student.subjectCode] === true;
+
+  useEffect(() => {
+    if (testMode2 !== "test") return;
+    const onVis = () => {
+      if (!document.hidden) return;
+      setTabViol2(v => {
+        const nv = v + 1;
+        if (nv >= 3) { setWarnMsg2("❌ 3 violations — auto-submitting!"); setTimeout(() => submitTest2(), 800); }
+        else { setWarnMsg2(`⚠️ Tab switch! Violation ${nv}/3`); setTimeout(() => setWarnMsg2(""), 3000); }
+        return nv;
+      });
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [testMode2]);
+
+  useEffect(() => {
+    if (testMode2 !== "test") return;
+    timerRef2.current = setInterval(() => {
+      setTimeLeft2(t => { if (t <= 1) { clearInterval(timerRef2.current); submitTest2(); return 0; } return t - 1; });
+    }, 1000);
+    return () => clearInterval(timerRef2.current);
+  }, [testMode2]);
+
+  const startTest2 = () => {
+    const bank = QUESTION_BANK2[student.subjectCode] || [];
+    const u4 = shuffle(bank.filter(q => q.unit === 4)).slice(0, 7);
+    const u5 = shuffle(bank.filter(q => q.unit === 5)).slice(0, 7);
+    const u6 = shuffle(bank.filter(q => q.unit === 6)).slice(0, 6);
+    const final = shuffle([...u4, ...u5, ...u6]).map(q => ({
+      ...q, shuffledOpts: shuffle(q.opts.map((o, i) => ({ text: o, origIdx: i }))),
+    }));
+    setQuestions2(final); setAnswers2({}); setCurrentQ2(0);
+    setTimeLeft2(20 * 60); setTabViol2(0); setWarnMsg2("");
+    setTestMode2("test");
+  };
+
+  const submitTest2 = () => {
+    clearInterval(timerRef2.current);
+    setAnswers2(latestAns => {
+      setQuestions2(latestQs => {
+        let correct = 0;
+        latestQs.forEach((q, i) => {
+          const chosen = latestAns[i];
+          if (chosen !== undefined && q.shuffledOpts[chosen].origIdx === q.ans) correct++;
+        });
+        const mcq5 = parseFloat((correct * 5 / 20).toFixed(2));
+        setMarks(prev => ({
+          ...prev,
+          [student.subjectCode]: {
+            ...(prev[student.subjectCode] || {}),
+            [student.rollNo]: {
+              ...(prev[student.subjectCode]?.[student.rollNo] || {}),
+              ISE2_MCQ20: correct, ISE2_MCQ5: mcq5,
+            }
+          }
+        }));
+        setTestMode2("done");
+        return latestQs;
+      });
+      return latestAns;
+    });
+  };
+
+  const fmtTime2 = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const timePct2 = (timeLeft2 / (20 * 60)) * 100;
+
+  // ── ISE II content ──
+  const renderISE2 = () => {
+    if (!isIse2On && !alreadyTaken2 && testMode2 !== "done") return (
+      <div style={{ maxWidth: 480, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 18, padding: "44px 28px", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: 52, marginBottom: 16 }}>🔒</div>
+          <h3 style={{ margin: "0 0 10px", color: "#94a3b8", fontSize: 18 }}>ISE II – Not Yet Active</h3>
+          <p style={{ color: "#64748b", fontSize: 13, lineHeight: 1.7, margin: 0 }}>
+            The ISE II MCQ test has not been activated yet by your faculty.<br />Please check back later.
+          </p>
+        </div>
+      </div>
+    );
+
+    if (alreadyTaken2 && testMode2 !== "test") {
+      const mcq20 = subjMarks.ISE2_MCQ20;
+      const mcq5  = subjMarks.ISE2_MCQ5;
+      const pres  = subjMarks.Presentation2;
+      const tot   = (mcq5 !== undefined && pres !== undefined) ? parseFloat((mcq5 + pres).toFixed(2)) : undefined;
+      return (
+        <div style={{ maxWidth: 500, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 16, padding: "32px 28px" }}>
+            <div style={{ fontSize: 48 }}>✅</div>
+            <h3 style={{ margin: "14px 0 6px", color: "#22c55e" }}>ISE II MCQ Test Completed</h3>
+            <p style={{ color: "#64748b", fontSize: 13, margin: "0 0 24px" }}>You have already submitted the ISE II MCQ test.</p>
+            <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
+              {[["MCQ Score", `${mcq20}/20`, "#f59e0b"], ["Converted", `${mcq5}/5`, "#22d3ee"], ["Presentation", pres !== undefined ? `${pres}/15` : "Pending", "#a78bfa"], ["Total ISE II", tot !== undefined ? `${tot}/20` : "Pending", "#22c55e"]].map(([l, v, c]) => (
+                <div key={l} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 20px", border: `1px solid ${c}30`, minWidth: 110 }}>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: c }}>{v}</div>
+                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (testMode2 === "done") return (
+      <div style={{ maxWidth: 460, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 18, padding: "44px 30px", border: "1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ fontSize: 60 }}>🎓</div>
+          <h2 style={{ margin: "16px 0 8px", color: "#f8fafc" }}>ISE II Test Submitted!</h2>
+          <p style={{ color: "#94a3b8", margin: "0 0 6px", fontSize: 14 }}>Thank you, <strong style={{ color: "#f59e0b" }}>{student.name}</strong>!</p>
+          <p style={{ color: "#64748b", margin: "0 0 26px", fontSize: 13 }}>Your responses have been recorded.<br />Results will be announced by your faculty.</p>
+          {tabViol2 > 0 && <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 10, padding: "9px 16px", marginBottom: 16, fontSize: 12, color: "#fca5a5" }}>⚠️ {tabViol2} tab violation(s) recorded.</div>}
+          <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 10, padding: "11px 18px", fontSize: 13, color: "#86efac" }}>✅ Score saved successfully</div>
+        </div>
+      </div>
+    );
+
+    if (testMode2 === "test") {
+      const q = questions2[currentQ2];
+      const answered = Object.keys(answers2).length;
+      return (
+        <div style={{ maxWidth: 740, margin: "0 auto" }}>
+          {warnMsg2 && <div style={{ position: "fixed", top: 76, left: "50%", transform: "translateX(-50%)", background: "#7f1d1d", color: "#fca5a5", padding: "10px 24px", borderRadius: 12, zIndex: 9999, fontSize: 14, fontWeight: 700, boxShadow: "0 4px 24px rgba(0,0,0,0.6)", whiteSpace: "nowrap" }}>{warnMsg2}</div>}
+          <div style={{ background: "rgba(15,23,42,0.95)", borderRadius: 14, padding: "12px 18px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>👤 {student.name} <span style={{ color: "#64748b", fontWeight: 400 }}>Roll: {student.rollNo}</span></div>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{answered}/20 answered · Violations: {tabViol2}/3</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 26, fontWeight: 700, fontVariantNumeric: "tabular-nums", color: timeLeft2 < 120 ? "#ef4444" : timeLeft2 < 300 ? "#f59e0b" : "#22c55e" }}>{fmtTime2(timeLeft2)}</div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>remaining</div>
+            </div>
+          </div>
+          <div style={{ height: 5, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 14, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${timePct2}%`, background: timePct2 > 50 ? "#22c55e" : timePct2 > 20 ? "#f59e0b" : "#ef4444", transition: "width 1s linear" }} />
+          </div>
+          <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "20px 22px", marginBottom: 14, border: "1px solid rgba(255,255,255,0.1)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+              <span style={{ background: "rgba(167,139,250,0.18)", color: "#a78bfa", borderRadius: 6, padding: "3px 12px", fontSize: 12, fontWeight: 700 }}>Unit {q.unit}</span>
+              <span style={{ fontSize: 12, color: "#64748b" }}>Q {currentQ2 + 1} / {questions2.length}</span>
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.65, marginBottom: 18, color: "#f8fafc" }}>{q.q}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+              {q.shuffledOpts.map((opt, i) => {
+                const sel = answers2[currentQ2] === i;
+                return (
+                  <div key={i} onClick={() => setAnswers2(a => ({ ...a, [currentQ2]: i }))}
+                    style={{ display: "flex", alignItems: "center", gap: 13, padding: "11px 15px", borderRadius: 10, cursor: "pointer", border: `2px solid ${sel ? "#a78bfa" : "rgba(255,255,255,0.09)"}`, background: sel ? "rgba(167,139,250,0.1)" : "rgba(255,255,255,0.03)", color: sel ? "#c4b5fd" : "#cbd5e1", fontSize: 14, transition: "all 0.15s" }}>
+                    <span style={{ width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 12, fontWeight: 700, background: sel ? "#a78bfa" : "rgba(255,255,255,0.1)", color: sel ? "#000" : "#94a3b8" }}>{String.fromCharCode(65 + i)}</span>
+                    {opt.text}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <button onClick={() => setCurrentQ2(q => Math.max(0, q - 1))} disabled={currentQ2 === 0} style={{ ...btnStyle("#475569", "#334155"), padding: "8px 18px", opacity: currentQ2 === 0 ? 0.4 : 1 }}>◀ Prev</button>
+            <div style={{ display: "flex", gap: 5, flexWrap: "wrap", justifyContent: "center", maxWidth: 340 }}>
+              {questions2.map((_, i) => (
+                <div key={i} onClick={() => setCurrentQ2(i)} style={{ width: 27, height: 27, borderRadius: 6, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: i === currentQ2 ? "#a78bfa" : answers2[i] !== undefined ? "#22c55e" : "rgba(255,255,255,0.1)", color: (i === currentQ2 || answers2[i] !== undefined) ? "#000" : "#64748b" }}>{i + 1}</div>
+              ))}
+            </div>
+            {currentQ2 < questions2.length - 1
+              ? <button onClick={() => setCurrentQ2(q => q + 1)} style={{ ...btnStyle("#3b82f6", "#1d4ed8"), padding: "8px 18px" }}>Next ▶</button>
+              : <button onClick={submitTest2} style={{ ...btnStyle("#22c55e", "#15803d"), padding: "8px 18px" }}>✅ Submit</button>
+            }
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <button onClick={submitTest2} style={{ ...btnStyle("#ef4444", "#b91c1c"), padding: "7px 18px", fontSize: 13 }}>🚩 Submit Early</button>
+          </div>
+        </div>
+      );
+    }
+
+    // ISE II home — start screen
+    return (
+      <div style={{ maxWidth: 520, margin: "0 auto" }}>
+        <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 18, padding: "32px 28px", border: "1px solid rgba(167,139,250,0.2)", textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>📝</div>
+          <h3 style={{ margin: "0 0 8px", fontSize: 20, color: "#f8fafc" }}>ISE II – MCQ Test</h3>
+          <p style={{ color: "#94a3b8", fontSize: 13, margin: "0 0 24px" }}>{subj?.fullName} · 20 Questions · 20 Minutes</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24, textAlign: "left" }}>
+            {[["📋 Questions", "20 MCQs from Units 4, 5 & 6 (7+7+6)"], ["⏱️ Duration", "20 minutes — cannot be paused"], ["🔒 Proctored", "Tab switching detected (max 3 allowed)"], ["📊 Marks", "Converted to /5 + Presentation /15 = /20"]].map(([l, v]) => (
+              <div key={l} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "12px 14px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#a78bfa", marginBottom: 4 }}>{l}</div>
+                <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>{v}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: "rgba(167,139,250,0.08)", border: "1px solid rgba(167,139,250,0.2)", borderRadius: 10, padding: "12px 16px", marginBottom: 24, fontSize: 12.5, color: "#c4b5fd", textAlign: "left", lineHeight: 1.8 }}>
+            ⚠️ <strong>Before you start:</strong> Do not switch tabs or minimize the window. Once started, the timer cannot be paused.
+          </div>
+          <button onClick={startTest2} style={{ ...btnStyle("#a78bfa", "#7c3aed"), padding: "13px 40px", fontSize: 16 }}>🚀 Start ISE II Test</button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div style={{ minHeight: "100vh", background: "#0f172a", fontFamily: "'Georgia', serif", color: "#f8fafc" }}>
       {/* Header */}
-      <div style={{ background: "linear-gradient(135deg, #1e3a5f, #0f172a)", padding: "20px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+      <div style={{ background: "linear-gradient(135deg, #1e3a5f, #0f172a)", padding: "18px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: 20 }}>👋 {student.name}</h2>
-          <p style={{ margin: 0, color: "#94a3b8", fontSize: 13 }}>Roll No: {student.rollNo} &nbsp;|&nbsp; URN: {student.urn || "–"} &nbsp;|&nbsp; {student.department || ""} · {subj?.name}</p>
+          <h2 style={{ margin: 0, fontSize: 19 }}>👋 {student.name}</h2>
+          <p style={{ margin: 0, color: "#94a3b8", fontSize: 12 }}>Roll: {student.rollNo} &nbsp;|&nbsp; URN: {student.urn || "–"} &nbsp;|&nbsp; {student.department || ""} &nbsp;·&nbsp; {subj?.name}</p>
         </div>
-        <button onClick={onLogout} style={{ background: "#ef4444", border: "none", borderRadius: 8, padding: "8px 16px", color: "#fff", cursor: "pointer", fontFamily: "inherit" }}>Logout</button>
+        <button onClick={onLogout} style={{ background: "#ef4444", border: "none", borderRadius: 8, padding: "8px 16px", color: "#fff", cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>Logout</button>
       </div>
-      <div style={{ padding: 24, maxWidth: 700, margin: "0 auto" }}>
-        {/* Attendance Card */}
-        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, marginBottom: 20, border: "1px solid rgba(255,255,255,0.1)" }}>
-          <h3 style={{ margin: "0 0 20px", color: "#f59e0b" }}>📊 Attendance – {subj?.fullName}</h3>
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 20 }}>
-            {[["Total Classes", total, "#64748b"], ["Present", present, "#22c55e"], ["Absent", absent, "#ef4444"], ["Percentage", pct + "%", pct >= 75 ? "#22c55e" : "#ef4444"]].map(([l, v, c]) => (
-              <div key={l} style={{ flex: 1, minWidth: 100, background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px 12px", textAlign: "center", border: `1px solid ${c}40` }}>
-                <div style={{ fontSize: 24, fontWeight: 700, color: c }}>{v}</div>
-                <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{l}</div>
-              </div>
-            ))}
-          </div>
-          {pct < 75 && total > 0 && <div style={{ background: "#7f1d1d", borderRadius: 10, padding: "10px 16px", fontSize: 13, color: "#fca5a5" }}>⚠️ Attendance below 75%. {Math.ceil((0.75 * total - present) / 0.25)} more classes needed to reach 75%.</div>}
-          {/* Date-wise */}
-          {allDates.length > 0 && (
-            <div style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 10 }}>Date-wise Record</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {allDates.map(d => {
-                  const s = subjAtt[d]?.[student.rollNo];
-                  return <div key={d} style={{ background: s === "P" ? "#14532d" : "#7f1d1d", borderRadius: 6, padding: "4px 10px", fontSize: 12, color: s === "P" ? "#86efac" : "#fca5a5" }}>{d}<br />{s || "–"}</div>;
-                })}
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* Marks Card */}
-        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 16, padding: 24, border: "1px solid rgba(255,255,255,0.1)" }}>
-          <h3 style={{ margin: "0 0 20px", color: "#a78bfa" }}>📝 ISE Marks – {subj?.fullName}</h3>
-          <div style={{ display: "flex", gap: 16 }}>
-            {["ISE1", "ISE2"].map(ise => {
-              const m = subjMarks[ise];
-              return (
-                <div key={ise} style={{ flex: 1, background: "rgba(167,139,250,0.1)", borderRadius: 12, padding: 20, textAlign: "center", border: "1px solid rgba(167,139,250,0.3)" }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: "#a78bfa" }}>{m !== undefined ? m : "–"}</div>
-                  <div style={{ color: "#94a3b8", fontSize: 13, marginTop: 4 }}>{ise} / 20</div>
-                </div>
-              );
-            })}
+      {/* Attendance strip */}
+      <div style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "12px 24px", display: "flex", gap: 24, flexWrap: "wrap", alignItems: "center" }}>
+        <span style={{ fontSize: 12, color: "#64748b" }}>📊 Attendance:</span>
+        {[["Present", present, "#22c55e"], ["Absent", absent, "#ef4444"], [pct + "%", "", pct >= 75 ? "#22c55e" : "#ef4444"]].map(([l, v, c]) => (
+          <span key={l} style={{ fontSize: 13, color: c, fontWeight: 600 }}>{v !== "" ? `${l}: ${v}` : l}</span>
+        ))}
+        {pct < 75 && total > 0 && <span style={{ fontSize: 12, color: "#fca5a5", background: "rgba(239,68,68,0.1)", borderRadius: 6, padding: "2px 10px" }}>⚠️ Below 75%</span>}
+      </div>
+
+      {/* ISE Tabs */}
+      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "0 24px", display: "flex", gap: 0 }}>
+        {[["attendance", "📅 Attendance", "Day-wise Record"], ["ise1", "🎯 ISE I", "MCQ Test + Marks"], ["ise2", "📝 ISE II", isIse2On ? "Active ✅" : "Not Active 🔒"]].map(([id, label, sub]) => (
+          <div key={id} onClick={() => setActiveISE(id)} style={{ padding: "14px 24px", cursor: "pointer", borderBottom: activeISE === id ? "3px solid #f59e0b" : "3px solid transparent", color: activeISE === id ? "#f59e0b" : "#64748b", transition: "all 0.15s" }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>{label}</div>
+            <div style={{ fontSize: 11, marginTop: 2 }}>{sub}</div>
           </div>
-        </div>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <div style={{ padding: "28px 24px", maxWidth: 860, margin: "0 auto" }}>
+        {activeISE === "attendance" ? renderAttendance() : activeISE === "ise1" ? renderISE1() : renderISE2()}
       </div>
     </div>
   );
 }
+
+// ─── FACULTY DASHBOARD ────────────────────────────────────────────────────────
+function FacultyDashboard({ students, setStudents, attendance, setAttendance, marks, setMarks, customTabs, setCustomTabs, activeTab, setActiveTab, activeSubject, setActiveSubject, ise2Active, setIse2Active, showNotif, onLogout, notification }) {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const resetAllData = () => {
+    if (!window.confirm("⚠️ This will clear ALL saved data (attendance, marks, students, test results) and reload. Are you sure?")) return;
 
 // ─── FACULTY DASHBOARD ────────────────────────────────────────────────────────
 function FacultyDashboard({ students, setStudents, attendance, setAttendance, marks, setMarks, customTabs, setCustomTabs, ise2Active, setIse2Active, activeTab, setActiveTab, activeSubject, setActiveSubject, showNotif, onLogout, notification, dbStatus }) {
